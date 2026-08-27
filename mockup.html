@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>RER C - Mock-up plan vertical (style RATP/SNCF)</title>
+<style>
+  :root {
+    --c-line: #FFCE00;
+    --c-bg: #0d0e11;
+    --c-panel: #17181d;
+    --c-text: #f2f2f2;
+    --c-dim: #9a9a9a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--c-bg);
+    margin: 0;
+    font-family: "Arial Narrow", Arial, "Helvetica Neue", sans-serif;
+    color: var(--c-text);
+  }
+
+  header {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--c-panel);
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 18px;
+    border-bottom: 3px solid var(--c-line);
+  }
+  .logo-c {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--c-line); color: #17181d;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 22px; flex-shrink: 0;
+  }
+  header h1 { font-size: 15px; margin: 0; font-weight: 700; letter-spacing: 0.5px; }
+  header p { margin: 0; font-size: 11px; color: var(--c-dim); }
+
+  .board {
+    max-width: 720px; margin: 0 auto; padding: 40px 24px 120px;
+    position: relative;
+  }
+
+  .trunk { position: relative; padding-left: 46px; }
+  .trunk::before {
+    content: ""; position: absolute; left: 20px; top: 0; bottom: 0;
+    width: 6px; background: var(--c-line); border-radius: 3px;
+  }
+
+  .stop {
+    position: relative; min-height: 46px; display: flex; align-items: center;
+    margin-bottom: 2px;
+  }
+  .dot {
+    position: absolute; left: -46px + 20px; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--c-bg); border: 3px solid var(--c-line); z-index: 3;
+  }
+  .stop.hub .dot {
+    width: 22px; height: 22px; left: 11px; border: 4px solid #fff;
+    background: var(--c-bg);
+    box-shadow: 0 0 0 2px var(--c-line);
+  }
+  .stop .name { font-size: 13px; font-weight: 500; }
+  .stop.hub .name { font-weight: 800; font-size: 14.5px; }
+  .stop .tag {
+    margin-left: 8px; font-size: 9.5px; color: var(--c-bg); background: var(--c-line);
+    padding: 1px 6px; border-radius: 8px; font-weight: 700; letter-spacing: 0.3px;
+  }
+
+  .terminus .dot {
+    background: var(--c-line);
+  }
+  .terminus .name { font-weight: 900; font-size: 15px; }
+
+  /* Branche secondaire (spur) affichée en aparté, style panneau "vers ..." */
+  .spur {
+    margin: 6px 0 14px 46px;
+    border-left: 4px dashed #555;
+    padding-left: 14px;
+    font-size: 11.5px;
+    color: var(--c-dim);
+  }
+  .spur strong { color: var(--c-text); }
+
+  /* Zone de fourche : 3 voies parallèles */
+  .fork {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+    margin-top: 10px; margin-left: 0;
+  }
+  .lane { position: relative; padding-left: 30px; }
+  .lane::before {
+    content: ""; position: absolute; left: 10px; top: 0; bottom: 0;
+    width: 5px; background: var(--c-line); border-radius: 3px; opacity: 0.9;
+  }
+  .lane .stop { min-height: 40px; }
+  .lane .dot { left: 3px; width: 13px; height: 13px; }
+  .lane-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--c-dim); margin-bottom: 6px; padding-left: 30px;
+  }
+
+  .fork-header {
+    text-align: center; font-size: 11px; color: var(--c-dim);
+    margin: 26px 0 4px; text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  /* Trains simulés qui glissent le long du tronc */
+  .train {
+    position: absolute; left: 6px; width: 20px; height: 20px;
+    border-radius: 6px; background: #1c1d22; border: 2.5px solid var(--c-line);
+    z-index: 4; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 900; color: var(--c-line);
+    box-shadow: 0 0 10px rgba(255,206,0,0.55);
+  }
+  @keyframes runDown {
+    0%   { top: 0%; opacity: 0; }
+    5%   { opacity: 1; }
+    95%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  .train.t1 { animation: runDown 22s linear infinite; }
+  .train.t2 { animation: runDown 22s linear infinite; animation-delay: -9s; }
+  .train.t3 { animation: runDown 26s linear infinite; animation-delay: -4s; }
+
+  footer {
+    text-align: center; font-size: 10.5px; color: var(--c-dim);
+    padding: 24px; border-top: 1px solid #2a2b30;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-c">C</div>
+  <div>
+    <h1>LIGNE C — Mock-up visuel (données simulées)</h1>
+    <p>Plan vertical style panneau RATP / SNCF Transilien — scrollez pour descendre vers le sud</p>
+  </div>
+</header>
+
+<div class="board">
+
+  <div class="trunk" id="trunk-top">
+    <div class="stop terminus"><div class="dot"></div><div class="name">Pontoise</div><span class="tag">TERMINUS</span></div>
+    <div class="stop"><div class="dot"></div><div class="name">Saint-Ouen l'Aumône</div></div>
+    <div class="stop"><div class="dot"></div><div class="name">Montigny-Beauchamp</div></div>
+    <div class="stop hub"><div class="dot"></div><div class="name">Ermont Eaubonne</div><span class="tag">Corresp. H</span></div>
+    <div class="stop"><div class="dot"></div><div class="name">Épinay-sur-Seine</div></div>
+    <div class="stop"><div class="dot"></div><div class="name">Gennevilliers</div></div>
+    <div class="stop hub"><div class="dot"></div><div class="name">Saint-Ouen</div><span class="tag">Corresp. 13</span></div>
+    <div class="stop"><div class="dot"></div><div class="name">Porte de Clichy</div></div>
+    <div class="stop"><div class="dot"></div><div class="name">Péreire Levallois</div></div>
+    <div class="stop hub"><div class="dot"></div><div class="name">Neuilly - Porte Maillot</div><span class="tag">Corresp. 1</span></div>
+    <div class="stop"><div class="dot"></div><div class="name">Avenue Foch</div></div>
+    <div class="stop"><div class="dot"></div><div class="name">Boulainvilliers</div></div>
+
+    <div class="stop hub"><div class="dot"></div><div class="name">Champ de Mars - Tour Eiffel</div><span class="tag">Correspondances</span></div>
+    <div class="spur">⤷ voie secondaire vers <strong>Versailles-Château RG</strong> et <strong>Saint-Quentin-en-Yvelines</strong> (via Javel / Viroflay)</div>
+
+    <div class="stop"><div class="dot"></div><div class="name">Pont de l'Alma</div></div>
+    <div class="stop hub"><div class="dot"></div><div class="name">Invalides</div><span class="tag">Corresp. 8/13</span></div>
+    <div class="stop"><div class="dot"></div><div class="name">Musée d'Orsay</div></div>
+    <div class="stop hub"><div class="dot"></div><div class="name">Saint-Michel Notre-Dame</div><span class="tag">Corresp. B/4/10</span></div>
+    <div class="stop hub"><div class="dot"></div><div class="name">Paris Austerlitz</div><span class="tag">Corresp. 5/10, TGV</span></div>
+    <div class="stop"><div class="dot"></div><div class="name">Bibliothèque F. Mitterrand</div></div>
+    <div class="stop"><div class="dot"></div><div class="name">Ivry-sur-Seine</div></div>
+    <div class="stop"><div class="dot"></div><div class="name">Vitry-sur-Seine</div></div>
+    <div class="stop"><div class="dot"></div><div class="name">Les Ardoines</div></div>
+    <div class="stop hub"><div class="dot"></div><div class="name">Choisy-le-Roi</div><span class="tag">Bifurcation</span></div>
+
+    <div class="train t1" style="top:2%">C</div>
+    <div class="train t2" style="top:2%">C</div>
+    <div class="train t3" style="top:2%">C</div>
+  </div>
+
+  <div class="fork-header">▽ la ligne se divise en 3 itinéraires vers le sud ▽</div>
+
+  <div class="fork">
+    <div>
+      <div class="lane-label">via Orly</div>
+      <div class="lane" id="lane1">
+        <div class="stop"><div class="dot"></div><div class="name">Les Saules</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Orly-Ville</div></div>
+        <div class="stop hub"><div class="dot"></div><div class="name">Pont de Rungis</div><span class="tag">Aéroport</span></div>
+        <div class="stop"><div class="dot"></div><div class="name">Rungis La Fraternelle</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Chemin d'Antony</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Massy Verrières</div></div>
+        <div class="stop hub terminus"><div class="dot"></div><div class="name">Massy-Palaiseau</div></div>
+        <div class="train t1" style="top:0%">C</div>
+      </div>
+    </div>
+    <div>
+      <div class="lane-label">via Juvisy → Massy</div>
+      <div class="lane" id="lane2">
+        <div class="stop"><div class="dot"></div><div class="name">Villeneuve-le-Roi</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Ablon</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Athis-Mons</div></div>
+        <div class="stop hub"><div class="dot"></div><div class="name">Juvisy</div><span class="tag">Corresp. D</span></div>
+        <div class="stop"><div class="dot"></div><div class="name">Savigny-sur-Orge</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Chilly-Mazarin</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Longjumeau</div></div>
+        <div class="stop hub terminus"><div class="dot"></div><div class="name">Massy-Palaiseau</div></div>
+        <div class="train t2" style="top:0%">C</div>
+      </div>
+    </div>
+    <div>
+      <div class="lane-label">via Juvisy → Brétigny</div>
+      <div class="lane" id="lane3">
+        <div class="stop"><div class="dot"></div><div class="name">Épinay-sur-Orge</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Ste-Geneviève-des-Bois</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Saint-Michel-sur-Orge</div></div>
+        <div class="stop hub"><div class="dot"></div><div class="name">Brétigny</div><span class="tag">Bifurcation</span></div>
+        <div class="stop"><div class="dot"></div><div class="name">Arpajon</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Breuillet</div></div>
+        <div class="stop"><div class="dot"></div><div class="name">Saint-Chéron</div></div>
+        <div class="stop hub terminus"><div class="dot"></div><div class="name">Dourdan-la-Forêt</div></div>
+        <div class="train t3" style="top:0%">C</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spur" style="margin-left:0; margin-top:16px;">
+    ⤷ à Brétigny, une seconde antenne dessert <strong>Bouray, Lardy, Étréchy, Étampes</strong> jusqu'au terminus <strong>Saint-Martin-d'Étampes</strong>
+  </div>
+
+</div>
+
+<footer>
+  Mock-up statique — trains animés en boucle pour illustrer le rendu final. Positions réelles fournies ensuite par l'API PRIM (IDFM).
+</footer>
+
+</body>
+</html>
