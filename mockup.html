@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>RER C - Structure et gares (mock-up)</title>
+<title>RER C - Structure et gares</title>
 <style>
   * { box-sizing: border-box; }
   body { background:#fff; margin:0; font-family:Arial, Helvetica, sans-serif; color:#1a1a1a; }
@@ -12,106 +12,144 @@
   }
   header h1 { font-size:14px; margin:0; font-weight:700; }
   header p { margin:2px 0 0; font-size:10.5px; color:#777; }
-  .wrap { display:flex; justify-content:center; padding:10px 6px 200px; overflow-x:auto; }
+  .wrap { padding:16px 10px 220px; overflow-x:auto; }
 
   .track { stroke:#F4C21A; stroke-width:8; fill:none; stroke-linecap:round; stroke-linejoin:round; }
-  .station-dot { fill:#fff; stroke:#2b2b2b; stroke-width:1.8; }
-  .terminus-dot { fill:#2b2b2b; stroke:#F4C21A; stroke-width:2.5; }
-  .junction-dot { fill:#fff; stroke:#2b2b2b; stroke-width:1.2; opacity:0.6; }
-  .station-text { font-size:11px; fill:#1a1a1a; }
+  .station-dot { fill:#fff; stroke:#2b2b2b; stroke-width:1.8; pointer-events:none; }
+  .terminus-dot { fill:#2b2b2b; stroke:#F4C21A; stroke-width:2.5; pointer-events:none; }
+  .station-text { font-size:11px; fill:#1a1a1a; pointer-events:none; }
+  .hit-area { fill:transparent; cursor:pointer; }
+  .station:hover .station-dot { stroke:#F4C21A; fill:#F4C21A; }
+  .station:hover .station-text { font-weight:700; }
+  .station.selected .station-dot { fill:#1a1a1a; stroke:#F4C21A; }
+  .train { fill:#e23; stroke:#fff; stroke-width:1.5; }
+
+  #info-panel {
+    position: fixed; bottom:0; left:0; right:0; background:#1a1a1a; color:#fff;
+    padding:10px 16px; font-size:12px; transform: translateY(100%);
+    transition: transform 0.2s ease; z-index: 20;
+  }
+  #info-panel.open { transform: translateY(0); }
 </style>
 </head>
 <body>
 <header>
   <h1>LIGNE C — Structure et gares</h1>
-  <p>Reproduction de la topologie officielle (convergences ouest, tronc parisien, fourche sud) — orientation verticale pour mobile</p>
+  <p>Convergences ouest (Pontoise / Versailles-Château / Saint-Quentin), tronc parisien, fourche sud — cliquez une gare</p>
 </header>
 <div class="wrap">
-<svg width="700" height="1740" viewBox="-140 0 700 1740">
-<path d="M 60,40 L 60,80 L 60,120 L 60,160 L 60,200 L 60,240 L 60,280 L 60,320 L 60,360 L 60,400 L 60,440 L 60,480 L 60,520 L 60,560 L 60,600 L 60,640 L 60,680 L 60,720 L 60,760" class="track"/>
-<line x1="60" y1="760" x2="220" y2="800" class="track"/>
-<path d="M 250,40 L 250,80 L 250,120" class="track"/>
-<line x1="250" y1="120" x2="315.0" y2="200" class="track"/>
-<path d="M 380,120 L 380,160" class="track"/>
-<line x1="380" y1="160" x2="315.0" y2="200" class="track"/>
-<path d="M 315.0,200 L 315.0,240 L 315.0,280 L 315.0,320 L 315.0,360 L 315.0,400 L 315.0,440 L 315.0,480" class="track"/>
-<line x1="315.0" y1="480" x2="220" y2="800" class="track"/>
-<path d="M 220,800 L 220,840 L 220,880 L 220,920 L 220,960 L 220,1000 L 220,1040 L 220,1080 L 220,1120 L 220,1160 L 220,1200 L 220,1240" class="track"/>
-<line x1="220" y1="1240" x2="120" y2="1300" class="track"/>
-<path d="M 120,1300 L 120,1340 L 120,1380 L 120,1420 L 120,1460 L 120,1500 L 120,1540" class="track"/>
-<line x1="220" y1="1240" x2="220" y2="1300" class="track"/>
-<path d="M 220,1300 L 220,1340 L 220,1380 L 220,1420 L 220,1460 L 220,1500 L 220,1540 L 220,1580" class="track"/>
-<line x1="220" y1="1240" x2="320" y2="1300" class="track"/>
-<path d="M 320,1300 L 320,1340 L 320,1380 L 320,1420 L 320,1460 L 320,1500 L 320,1540 L 320,1580" class="track"/>
-<circle cx="60" cy="40" r="7" class="terminus-dot"/><text x="66" y="34" class="station-text" transform="rotate(-55 66 34)">Pontoise</text>
-<circle cx="60" cy="80" r="4.5" class="station-dot"/><text x="66" y="74" class="station-text" transform="rotate(-55 66 74)">Saint-Ouen l'Aumône</text>
-<circle cx="60" cy="120" r="4.5" class="station-dot"/><text x="66" y="114" class="station-text" transform="rotate(-55 66 114)">Pierrelaye</text>
-<circle cx="60" cy="160" r="4.5" class="station-dot"/><text x="66" y="154" class="station-text" transform="rotate(-55 66 154)">Montigny Beauchamp</text>
-<circle cx="60" cy="200" r="4.5" class="station-dot"/><text x="66" y="194" class="station-text" transform="rotate(-55 66 194)">Franconville - Le Plessis-Bouchard</text>
-<circle cx="60" cy="240" r="4.5" class="station-dot"/><text x="66" y="234" class="station-text" transform="rotate(-55 66 234)">Cernay</text>
-<circle cx="60" cy="280" r="4.5" class="station-dot"/><text x="66" y="274" class="station-text" transform="rotate(-55 66 274)">Ermont Eaubonne</text>
-<circle cx="60" cy="320" r="4.5" class="station-dot"/><text x="66" y="314" class="station-text" transform="rotate(-55 66 314)">Saint-Gratien</text>
-<circle cx="60" cy="360" r="4.5" class="station-dot"/><text x="66" y="354" class="station-text" transform="rotate(-55 66 354)">Épinay-sur-Seine</text>
-<circle cx="60" cy="400" r="4.5" class="station-dot"/><text x="66" y="394" class="station-text" transform="rotate(-55 66 394)">Gennevilliers</text>
-<circle cx="60" cy="440" r="4.5" class="station-dot"/><text x="66" y="434" class="station-text" transform="rotate(-55 66 434)">Les Grésillons</text>
-<circle cx="60" cy="480" r="4.5" class="station-dot"/><text x="66" y="474" class="station-text" transform="rotate(-55 66 474)">Saint-Ouen</text>
-<circle cx="60" cy="520" r="4.5" class="station-dot"/><text x="66" y="514" class="station-text" transform="rotate(-55 66 514)">Porte de Clichy - Tribunal de Paris</text>
-<circle cx="60" cy="560" r="4.5" class="station-dot"/><text x="66" y="554" class="station-text" transform="rotate(-55 66 554)">Péreire - Levallois</text>
-<circle cx="60" cy="600" r="4.5" class="station-dot"/><text x="66" y="594" class="station-text" transform="rotate(-55 66 594)">Neuilly - Porte Maillot</text>
-<circle cx="60" cy="640" r="4.5" class="station-dot"/><text x="66" y="634" class="station-text" transform="rotate(-55 66 634)">Avenue Foch</text>
-<circle cx="60" cy="680" r="4.5" class="station-dot"/><text x="66" y="674" class="station-text" transform="rotate(-55 66 674)">Avenue Henri Martin</text>
-<circle cx="60" cy="720" r="4.5" class="station-dot"/><text x="66" y="714" class="station-text" transform="rotate(-55 66 714)">Boulainvilliers</text>
-<circle cx="60" cy="760" r="4.5" class="station-dot"/><text x="66" y="754" class="station-text" transform="rotate(-55 66 754)">Av. du Pdt Kennedy - Maison de la Radio</text>
-<circle cx="250" cy="40" r="7" class="terminus-dot"/><text x="256" y="34" class="station-text" transform="rotate(-55 256 34)">Saint-Quentin-en-Yvelines</text>
-<circle cx="250" cy="80" r="4.5" class="station-dot"/><text x="256" y="74" class="station-text" transform="rotate(-55 256 74)">Saint-Cyr</text>
-<circle cx="250" cy="120" r="4.5" class="station-dot"/><text x="256" y="114" class="station-text" transform="rotate(-55 256 114)">Versailles Chantiers</text>
-<circle cx="380" cy="120" r="7" class="terminus-dot"/><text x="386" y="114" class="station-text" transform="rotate(-55 386 114)">Versailles Château Rive Gauche</text>
-<circle cx="380" cy="160" r="4.5" class="station-dot"/><text x="386" y="154" class="station-text" transform="rotate(-55 386 154)">Porchefontaine</text>
-<circle cx="315.0" cy="200" r="4.5" class="station-dot"/><text x="321.0" y="194" class="station-text" transform="rotate(-55 321.0 194)">Viroflay Rive Gauche</text>
-<circle cx="315.0" cy="240" r="4.5" class="station-dot"/><text x="321.0" y="234" class="station-text" transform="rotate(-55 321.0 234)">Chaville - Vélizy</text>
-<circle cx="315.0" cy="280" r="4.5" class="station-dot"/><text x="321.0" y="274" class="station-text" transform="rotate(-55 321.0 274)">Meudon - Val Fleury</text>
-<circle cx="315.0" cy="320" r="4.5" class="station-dot"/><text x="321.0" y="314" class="station-text" transform="rotate(-55 321.0 314)">Issy</text>
-<circle cx="315.0" cy="360" r="4.5" class="station-dot"/><text x="321.0" y="354" class="station-text" transform="rotate(-55 321.0 354)">Issy Val de Seine</text>
-<circle cx="315.0" cy="400" r="4.5" class="station-dot"/><text x="321.0" y="394" class="station-text" transform="rotate(-55 321.0 394)">Pont du Garigliano</text>
-<circle cx="315.0" cy="440" r="4.5" class="station-dot"/><text x="321.0" y="434" class="station-text" transform="rotate(-55 321.0 434)">Javel</text>
-<circle cx="220" cy="800" r="4.5" class="station-dot"/><text x="226" y="794" class="station-text" transform="rotate(-55 226 794)">Champ de Mars - Tour Eiffel</text>
-<circle cx="220" cy="840" r="4.5" class="station-dot"/><text x="226" y="834" class="station-text" transform="rotate(-55 226 834)">Pont de l'Alma</text>
-<circle cx="220" cy="880" r="4.5" class="station-dot"/><text x="226" y="874" class="station-text" transform="rotate(-55 226 874)">Invalides</text>
-<circle cx="220" cy="920" r="4.5" class="station-dot"/><text x="226" y="914" class="station-text" transform="rotate(-55 226 914)">Musée d'Orsay</text>
-<circle cx="220" cy="960" r="4.5" class="station-dot"/><text x="226" y="954" class="station-text" transform="rotate(-55 226 954)">Saint-Michel Notre-Dame</text>
-<circle cx="220" cy="1000" r="4.5" class="station-dot"/><text x="226" y="994" class="station-text" transform="rotate(-55 226 994)">Paris Austerlitz</text>
-<circle cx="220" cy="1040" r="4.5" class="station-dot"/><text x="226" y="1034" class="station-text" transform="rotate(-55 226 1034)">Bibliothèque F. Mitterrand</text>
-<circle cx="220" cy="1080" r="4.5" class="station-dot"/><text x="226" y="1074" class="station-text" transform="rotate(-55 226 1074)">Ivry-sur-Seine</text>
-<circle cx="220" cy="1120" r="4.5" class="station-dot"/><text x="226" y="1114" class="station-text" transform="rotate(-55 226 1114)">Vitry-sur-Seine</text>
-<circle cx="220" cy="1160" r="4.5" class="station-dot"/><text x="226" y="1154" class="station-text" transform="rotate(-55 226 1154)">Les Ardoines</text>
-<circle cx="220" cy="1200" r="4.5" class="station-dot"/><text x="226" y="1194" class="station-text" transform="rotate(-55 226 1194)">Choisy-le-Roi</text>
-<circle cx="120" cy="1300" r="4.5" class="station-dot"/><text x="126" y="1294" class="station-text" transform="rotate(-55 126 1294)">Les Saules</text>
-<circle cx="120" cy="1340" r="4.5" class="station-dot"/><text x="126" y="1334" class="station-text" transform="rotate(-55 126 1334)">Orly-Ville</text>
-<circle cx="120" cy="1380" r="4.5" class="station-dot"/><text x="126" y="1374" class="station-text" transform="rotate(-55 126 1374)">Pont de Rungis</text>
-<circle cx="120" cy="1420" r="4.5" class="station-dot"/><text x="126" y="1414" class="station-text" transform="rotate(-55 126 1414)">Rungis La Fraternelle</text>
-<circle cx="120" cy="1460" r="4.5" class="station-dot"/><text x="126" y="1454" class="station-text" transform="rotate(-55 126 1454)">Chemin d'Antony</text>
-<circle cx="120" cy="1500" r="4.5" class="station-dot"/><text x="126" y="1494" class="station-text" transform="rotate(-55 126 1494)">Massy Verrières</text>
-<circle cx="120" cy="1540" r="7" class="terminus-dot"/><text x="126" y="1534" class="station-text" transform="rotate(-55 126 1534)">Massy-Palaiseau</text>
-<circle cx="220" cy="1300" r="4.5" class="station-dot"/><text x="226" y="1294" class="station-text" transform="rotate(-55 226 1294)">Villeneuve-le-Roi</text>
-<circle cx="220" cy="1340" r="4.5" class="station-dot"/><text x="226" y="1334" class="station-text" transform="rotate(-55 226 1334)">Ablon</text>
-<circle cx="220" cy="1380" r="4.5" class="station-dot"/><text x="226" y="1374" class="station-text" transform="rotate(-55 226 1374)">Athis-Mons</text>
-<circle cx="220" cy="1420" r="4.5" class="station-dot"/><text x="226" y="1414" class="station-text" transform="rotate(-55 226 1414)">Juvisy</text>
-<circle cx="220" cy="1460" r="4.5" class="station-dot"/><text x="226" y="1454" class="station-text" transform="rotate(-55 226 1454)">Savigny-sur-Orge</text>
-<circle cx="220" cy="1500" r="4.5" class="station-dot"/><text x="226" y="1494" class="station-text" transform="rotate(-55 226 1494)">Chilly-Mazarin</text>
-<circle cx="220" cy="1540" r="4.5" class="station-dot"/><text x="226" y="1534" class="station-text" transform="rotate(-55 226 1534)">Longjumeau</text>
-<circle cx="220" cy="1580" r="7" class="terminus-dot"/><text x="226" y="1574" class="station-text" transform="rotate(-55 226 1574)">Massy-Palaiseau</text>
-<circle cx="320" cy="1300" r="4.5" class="station-dot"/><text x="326" y="1294" class="station-text" transform="rotate(-55 326 1294)">Épinay-sur-Orge</text>
-<circle cx="320" cy="1340" r="4.5" class="station-dot"/><text x="326" y="1334" class="station-text" transform="rotate(-55 326 1334)">Sainte-Geneviève-des-Bois</text>
-<circle cx="320" cy="1380" r="4.5" class="station-dot"/><text x="326" y="1374" class="station-text" transform="rotate(-55 326 1374)">Saint-Michel-sur-Orge</text>
-<circle cx="320" cy="1420" r="4.5" class="station-dot"/><text x="326" y="1414" class="station-text" transform="rotate(-55 326 1414)">Brétigny</text>
-<circle cx="320" cy="1460" r="4.5" class="station-dot"/><text x="326" y="1454" class="station-text" transform="rotate(-55 326 1454)">Arpajon</text>
-<circle cx="320" cy="1500" r="4.5" class="station-dot"/><text x="326" y="1494" class="station-text" transform="rotate(-55 326 1494)">Breuillet</text>
-<circle cx="320" cy="1540" r="4.5" class="station-dot"/><text x="326" y="1534" class="station-text" transform="rotate(-55 326 1534)">Saint-Chéron</text>
-<circle cx="320" cy="1580" r="7" class="terminus-dot"/><text x="326" y="1574" class="station-text" transform="rotate(-55 326 1574)">Dourdan-la-Forêt</text>
-<circle cx="315.0" cy="200" r="3.5" class="junction-dot"/>
-<circle cx="220" cy="800" r="3.5" class="junction-dot"/>
-<circle cx="220" cy="1200" r="3.5" class="junction-dot"/>
+<svg width="880" height="1851" viewBox="-20 0 880 1851" id="map">
+<path d="M 50,40 L 50,84 L 50,128 L 50,172 L 50,216 L 50,260 L 50,304 L 50,348 L 50,392 L 50,436 L 50,480 L 50,524 L 50,568 L 50,612 L 50,656 L 50,700 L 50,744 L 50,788 L 50,832" class="track"/>
+<line x1="50" y1="832" x2="300" y2="876" class="track"/>
+<path d="M 380,40 L 380,84 L 380,128" class="track"/>
+<line x1="380" y1="128" x2="500.0" y2="172" class="track"/>
+<path d="M 620,128 L 620,172" class="track"/>
+<line x1="620" y1="172" x2="500.0" y2="172" class="track"/>
+<path d="M 500.0,172 L 500.0,216 L 500.0,260 L 500.0,304 L 500.0,348 L 500.0,392 L 500.0,436" class="track"/>
+<line x1="500.0" y1="436" x2="300" y2="876" class="track"/>
+<path d="M 300,876 L 300,920 L 300,964 L 300,1008 L 300,1052 L 300,1096 L 300,1140 L 300,1184 L 300,1228 L 300,1272 L 300,1316 L 300,1360" class="track"/>
+<line x1="300" y1="1360" x2="190" y2="1416" class="track"/>
+<path d="M 190,1416 L 190,1460 L 190,1504 L 190,1548 L 190,1592 L 190,1636 L 190,1680" class="track"/>
+<line x1="300" y1="1360" x2="300" y2="1416" class="track"/>
+<path d="M 300,1416 L 300,1460 L 300,1504 L 300,1548 L 300,1592 L 300,1636 L 300,1680 L 300,1724" class="track"/>
+<line x1="300" y1="1360" x2="410" y2="1416" class="track"/>
+<path d="M 410,1416 L 410,1460 L 410,1504 L 410,1548 L 410,1592 L 410,1636 L 410,1680 L 410,1724" class="track"/>
+<g class="station" data-id="pontoise" data-name="Pontoise" data-x="50" data-y="40"><circle cx="50" cy="40" r="16" class="hit-area"/><circle cx="50" cy="40" r="8" class="terminus-dot"/><text x="64" y="44" text-anchor="start" font-weight="700" class="station-text">Pontoise</text></g>
+<g class="station" data-id="saint-ouen-laumone" data-name="Saint-Ouen l'Aumône" data-x="50" data-y="84"><circle cx="50" cy="84" r="16" class="hit-area"/><circle cx="50" cy="84" r="5" class="station-dot"/><text x="64" y="88" text-anchor="start" font-weight="400" class="station-text">Saint-Ouen l'Aumône</text></g>
+<g class="station" data-id="pierrelaye" data-name="Pierrelaye" data-x="50" data-y="128"><circle cx="50" cy="128" r="16" class="hit-area"/><circle cx="50" cy="128" r="5" class="station-dot"/><text x="64" y="132" text-anchor="start" font-weight="400" class="station-text">Pierrelaye</text></g>
+<g class="station" data-id="montigny-beauchamp" data-name="Montigny Beauchamp" data-x="50" data-y="172"><circle cx="50" cy="172" r="16" class="hit-area"/><circle cx="50" cy="172" r="5" class="station-dot"/><text x="64" y="176" text-anchor="start" font-weight="400" class="station-text">Montigny Beauchamp</text></g>
+<g class="station" data-id="franconville-le-plessis-bouchard" data-name="Franconville - Le Plessis-Bouchard" data-x="50" data-y="216"><circle cx="50" cy="216" r="16" class="hit-area"/><circle cx="50" cy="216" r="5" class="station-dot"/><text x="64" y="220" text-anchor="start" font-weight="400" class="station-text">Franconville - Le Plessis-Bouchard</text></g>
+<g class="station" data-id="cernay" data-name="Cernay" data-x="50" data-y="260"><circle cx="50" cy="260" r="16" class="hit-area"/><circle cx="50" cy="260" r="5" class="station-dot"/><text x="64" y="264" text-anchor="start" font-weight="400" class="station-text">Cernay</text></g>
+<g class="station" data-id="ermont-eaubonne" data-name="Ermont Eaubonne" data-x="50" data-y="304"><circle cx="50" cy="304" r="16" class="hit-area"/><circle cx="50" cy="304" r="5" class="station-dot"/><text x="64" y="308" text-anchor="start" font-weight="400" class="station-text">Ermont Eaubonne</text></g>
+<g class="station" data-id="saint-gratien" data-name="Saint-Gratien" data-x="50" data-y="348"><circle cx="50" cy="348" r="16" class="hit-area"/><circle cx="50" cy="348" r="5" class="station-dot"/><text x="64" y="352" text-anchor="start" font-weight="400" class="station-text">Saint-Gratien</text></g>
+<g class="station" data-id="epinay-sur-seine" data-name="Épinay-sur-Seine" data-x="50" data-y="392"><circle cx="50" cy="392" r="16" class="hit-area"/><circle cx="50" cy="392" r="5" class="station-dot"/><text x="64" y="396" text-anchor="start" font-weight="400" class="station-text">Épinay-sur-Seine</text></g>
+<g class="station" data-id="gennevilliers" data-name="Gennevilliers" data-x="50" data-y="436"><circle cx="50" cy="436" r="16" class="hit-area"/><circle cx="50" cy="436" r="5" class="station-dot"/><text x="64" y="440" text-anchor="start" font-weight="400" class="station-text">Gennevilliers</text></g>
+<g class="station" data-id="les-gresillons" data-name="Les Grésillons" data-x="50" data-y="480"><circle cx="50" cy="480" r="16" class="hit-area"/><circle cx="50" cy="480" r="5" class="station-dot"/><text x="64" y="484" text-anchor="start" font-weight="400" class="station-text">Les Grésillons</text></g>
+<g class="station" data-id="saint-ouen" data-name="Saint-Ouen" data-x="50" data-y="524"><circle cx="50" cy="524" r="16" class="hit-area"/><circle cx="50" cy="524" r="5" class="station-dot"/><text x="64" y="528" text-anchor="start" font-weight="400" class="station-text">Saint-Ouen</text></g>
+<g class="station" data-id="porte-de-clichy" data-name="Porte de Clichy" data-x="50" data-y="568"><circle cx="50" cy="568" r="16" class="hit-area"/><circle cx="50" cy="568" r="5" class="station-dot"/><text x="64" y="572" text-anchor="start" font-weight="400" class="station-text">Porte de Clichy</text></g>
+<g class="station" data-id="pereire-levallois" data-name="Péreire - Levallois" data-x="50" data-y="612"><circle cx="50" cy="612" r="16" class="hit-area"/><circle cx="50" cy="612" r="5" class="station-dot"/><text x="64" y="616" text-anchor="start" font-weight="400" class="station-text">Péreire - Levallois</text></g>
+<g class="station" data-id="neuilly-porte-maillot" data-name="Neuilly - Porte Maillot" data-x="50" data-y="656"><circle cx="50" cy="656" r="16" class="hit-area"/><circle cx="50" cy="656" r="5" class="station-dot"/><text x="64" y="660" text-anchor="start" font-weight="400" class="station-text">Neuilly - Porte Maillot</text></g>
+<g class="station" data-id="avenue-foch" data-name="Avenue Foch" data-x="50" data-y="700"><circle cx="50" cy="700" r="16" class="hit-area"/><circle cx="50" cy="700" r="5" class="station-dot"/><text x="64" y="704" text-anchor="start" font-weight="400" class="station-text">Avenue Foch</text></g>
+<g class="station" data-id="avenue-henri-martin" data-name="Avenue Henri Martin" data-x="50" data-y="744"><circle cx="50" cy="744" r="16" class="hit-area"/><circle cx="50" cy="744" r="5" class="station-dot"/><text x="64" y="748" text-anchor="start" font-weight="400" class="station-text">Avenue Henri Martin</text></g>
+<g class="station" data-id="boulainvilliers" data-name="Boulainvilliers" data-x="50" data-y="788"><circle cx="50" cy="788" r="16" class="hit-area"/><circle cx="50" cy="788" r="5" class="station-dot"/><text x="64" y="792" text-anchor="start" font-weight="400" class="station-text">Boulainvilliers</text></g>
+<g class="station" data-id="av-pdt-kennedy" data-name="Av. Pdt Kennedy" data-x="50" data-y="832"><circle cx="50" cy="832" r="16" class="hit-area"/><circle cx="50" cy="832" r="5" class="station-dot"/><text x="64" y="836" text-anchor="start" font-weight="400" class="station-text">Av. Pdt Kennedy</text></g>
+<g class="station" data-id="saint-quentin-en-yvelines" data-name="Saint-Quentin-en-Yvelines" data-x="380" data-y="40"><circle cx="380" cy="40" r="16" class="hit-area"/><circle cx="380" cy="40" r="8" class="terminus-dot"/><text x="366" y="44" text-anchor="end" font-weight="700" class="station-text">Saint-Quentin-en-Yvelines</text></g>
+<g class="station" data-id="saint-cyr" data-name="Saint-Cyr" data-x="380" data-y="84"><circle cx="380" cy="84" r="16" class="hit-area"/><circle cx="380" cy="84" r="5" class="station-dot"/><text x="366" y="88" text-anchor="end" font-weight="400" class="station-text">Saint-Cyr</text></g>
+<g class="station" data-id="versailles-chantiers" data-name="Versailles Chantiers" data-x="380" data-y="128"><circle cx="380" cy="128" r="16" class="hit-area"/><circle cx="380" cy="128" r="5" class="station-dot"/><text x="366" y="132" text-anchor="end" font-weight="400" class="station-text">Versailles Chantiers</text></g>
+<g class="station" data-id="versailles-chateau-rg" data-name="Versailles Château RG" data-x="620" data-y="128"><circle cx="620" cy="128" r="16" class="hit-area"/><circle cx="620" cy="128" r="8" class="terminus-dot"/><text x="634" y="132" text-anchor="start" font-weight="700" class="station-text">Versailles Château RG</text></g>
+<g class="station" data-id="porchefontaine" data-name="Porchefontaine" data-x="620" data-y="172"><circle cx="620" cy="172" r="16" class="hit-area"/><circle cx="620" cy="172" r="5" class="station-dot"/><text x="634" y="176" text-anchor="start" font-weight="400" class="station-text">Porchefontaine</text></g>
+<g class="station" data-id="viroflay-rive-gauche" data-name="Viroflay Rive Gauche" data-x="500.0" data-y="172"><circle cx="500.0" cy="172" r="16" class="hit-area"/><circle cx="500.0" cy="172" r="5" class="station-dot"/><text x="486.0" y="176" text-anchor="end" font-weight="400" class="station-text">Viroflay Rive Gauche</text></g>
+<g class="station" data-id="chaville-velizy" data-name="Chaville - Vélizy" data-x="500.0" data-y="216"><circle cx="500.0" cy="216" r="16" class="hit-area"/><circle cx="500.0" cy="216" r="5" class="station-dot"/><text x="514.0" y="220" text-anchor="start" font-weight="400" class="station-text">Chaville - Vélizy</text></g>
+<g class="station" data-id="meudon-val-fleury" data-name="Meudon - Val Fleury" data-x="500.0" data-y="260"><circle cx="500.0" cy="260" r="16" class="hit-area"/><circle cx="500.0" cy="260" r="5" class="station-dot"/><text x="514.0" y="264" text-anchor="start" font-weight="400" class="station-text">Meudon - Val Fleury</text></g>
+<g class="station" data-id="issy" data-name="Issy" data-x="500.0" data-y="304"><circle cx="500.0" cy="304" r="16" class="hit-area"/><circle cx="500.0" cy="304" r="5" class="station-dot"/><text x="514.0" y="308" text-anchor="start" font-weight="400" class="station-text">Issy</text></g>
+<g class="station" data-id="issy-val-de-seine" data-name="Issy Val de Seine" data-x="500.0" data-y="348"><circle cx="500.0" cy="348" r="16" class="hit-area"/><circle cx="500.0" cy="348" r="5" class="station-dot"/><text x="514.0" y="352" text-anchor="start" font-weight="400" class="station-text">Issy Val de Seine</text></g>
+<g class="station" data-id="pont-du-garigliano" data-name="Pont du Garigliano" data-x="500.0" data-y="392"><circle cx="500.0" cy="392" r="16" class="hit-area"/><circle cx="500.0" cy="392" r="5" class="station-dot"/><text x="514.0" y="396" text-anchor="start" font-weight="400" class="station-text">Pont du Garigliano</text></g>
+<g class="station" data-id="javel" data-name="Javel" data-x="500.0" data-y="436"><circle cx="500.0" cy="436" r="16" class="hit-area"/><circle cx="500.0" cy="436" r="5" class="station-dot"/><text x="514.0" y="440" text-anchor="start" font-weight="400" class="station-text">Javel</text></g>
+<g class="station" data-id="champ-de-mars-tour-eiffel" data-name="Champ de Mars - Tour Eiffel" data-x="300" data-y="876"><circle cx="300" cy="876" r="16" class="hit-area"/><circle cx="300" cy="876" r="5" class="station-dot"/><text x="314" y="880" text-anchor="start" font-weight="400" class="station-text">Champ de Mars - Tour Eiffel</text></g>
+<g class="station" data-id="pont-de-lalma" data-name="Pont de l'Alma" data-x="300" data-y="920"><circle cx="300" cy="920" r="16" class="hit-area"/><circle cx="300" cy="920" r="5" class="station-dot"/><text x="314" y="924" text-anchor="start" font-weight="400" class="station-text">Pont de l'Alma</text></g>
+<g class="station" data-id="invalides" data-name="Invalides" data-x="300" data-y="964"><circle cx="300" cy="964" r="16" class="hit-area"/><circle cx="300" cy="964" r="5" class="station-dot"/><text x="314" y="968" text-anchor="start" font-weight="400" class="station-text">Invalides</text></g>
+<g class="station" data-id="musee-dorsay" data-name="Musée d'Orsay" data-x="300" data-y="1008"><circle cx="300" cy="1008" r="16" class="hit-area"/><circle cx="300" cy="1008" r="5" class="station-dot"/><text x="314" y="1012" text-anchor="start" font-weight="400" class="station-text">Musée d'Orsay</text></g>
+<g class="station" data-id="saint-michel-notre-dame" data-name="Saint-Michel Notre-Dame" data-x="300" data-y="1052"><circle cx="300" cy="1052" r="16" class="hit-area"/><circle cx="300" cy="1052" r="5" class="station-dot"/><text x="314" y="1056" text-anchor="start" font-weight="400" class="station-text">Saint-Michel Notre-Dame</text></g>
+<g class="station" data-id="paris-austerlitz" data-name="Paris Austerlitz" data-x="300" data-y="1096"><circle cx="300" cy="1096" r="16" class="hit-area"/><circle cx="300" cy="1096" r="5" class="station-dot"/><text x="314" y="1100" text-anchor="start" font-weight="400" class="station-text">Paris Austerlitz</text></g>
+<g class="station" data-id="bibliotheque-f-mitterrand" data-name="Bibliothèque F. Mitterrand" data-x="300" data-y="1140"><circle cx="300" cy="1140" r="16" class="hit-area"/><circle cx="300" cy="1140" r="5" class="station-dot"/><text x="314" y="1144" text-anchor="start" font-weight="400" class="station-text">Bibliothèque F. Mitterrand</text></g>
+<g class="station" data-id="ivry-sur-seine" data-name="Ivry-sur-Seine" data-x="300" data-y="1184"><circle cx="300" cy="1184" r="16" class="hit-area"/><circle cx="300" cy="1184" r="5" class="station-dot"/><text x="314" y="1188" text-anchor="start" font-weight="400" class="station-text">Ivry-sur-Seine</text></g>
+<g class="station" data-id="vitry-sur-seine" data-name="Vitry-sur-Seine" data-x="300" data-y="1228"><circle cx="300" cy="1228" r="16" class="hit-area"/><circle cx="300" cy="1228" r="5" class="station-dot"/><text x="314" y="1232" text-anchor="start" font-weight="400" class="station-text">Vitry-sur-Seine</text></g>
+<g class="station" data-id="les-ardoines" data-name="Les Ardoines" data-x="300" data-y="1272"><circle cx="300" cy="1272" r="16" class="hit-area"/><circle cx="300" cy="1272" r="5" class="station-dot"/><text x="314" y="1276" text-anchor="start" font-weight="400" class="station-text">Les Ardoines</text></g>
+<g class="station" data-id="choisy-le-roi" data-name="Choisy-le-Roi" data-x="300" data-y="1316"><circle cx="300" cy="1316" r="16" class="hit-area"/><circle cx="300" cy="1316" r="5" class="station-dot"/><text x="314" y="1320" text-anchor="start" font-weight="400" class="station-text">Choisy-le-Roi</text></g>
+<g class="station" data-id="les-saules" data-name="Les Saules" data-x="190" data-y="1416"><circle cx="190" cy="1416" r="16" class="hit-area"/><circle cx="190" cy="1416" r="5" class="station-dot"/><text x="176" y="1420" text-anchor="end" font-weight="400" class="station-text">Les Saules</text></g>
+<g class="station" data-id="orly-ville" data-name="Orly-Ville" data-x="190" data-y="1460"><circle cx="190" cy="1460" r="16" class="hit-area"/><circle cx="190" cy="1460" r="5" class="station-dot"/><text x="176" y="1464" text-anchor="end" font-weight="400" class="station-text">Orly-Ville</text></g>
+<g class="station" data-id="pont-de-rungis" data-name="Pont de Rungis" data-x="190" data-y="1504"><circle cx="190" cy="1504" r="16" class="hit-area"/><circle cx="190" cy="1504" r="5" class="station-dot"/><text x="176" y="1508" text-anchor="end" font-weight="400" class="station-text">Pont de Rungis</text></g>
+<g class="station" data-id="rungis-la-fraternelle" data-name="Rungis La Fraternelle" data-x="190" data-y="1548"><circle cx="190" cy="1548" r="16" class="hit-area"/><circle cx="190" cy="1548" r="5" class="station-dot"/><text x="176" y="1552" text-anchor="end" font-weight="400" class="station-text">Rungis La Fraternelle</text></g>
+<g class="station" data-id="chemin-dantony" data-name="Chemin d'Antony" data-x="190" data-y="1592"><circle cx="190" cy="1592" r="16" class="hit-area"/><circle cx="190" cy="1592" r="5" class="station-dot"/><text x="176" y="1596" text-anchor="end" font-weight="400" class="station-text">Chemin d'Antony</text></g>
+<g class="station" data-id="massy-verrieres" data-name="Massy Verrières" data-x="190" data-y="1636"><circle cx="190" cy="1636" r="16" class="hit-area"/><circle cx="190" cy="1636" r="5" class="station-dot"/><text x="176" y="1640" text-anchor="end" font-weight="400" class="station-text">Massy Verrières</text></g>
+<g class="station" data-id="massy-palaiseau" data-name="Massy-Palaiseau" data-x="190" data-y="1680"><circle cx="190" cy="1680" r="16" class="hit-area"/><circle cx="190" cy="1680" r="8" class="terminus-dot"/><text x="176" y="1684" text-anchor="end" font-weight="700" class="station-text">Massy-Palaiseau</text></g>
+<g class="station" data-id="villeneuve-le-roi" data-name="Villeneuve-le-Roi" data-x="300" data-y="1416"><circle cx="300" cy="1416" r="16" class="hit-area"/><circle cx="300" cy="1416" r="5" class="station-dot"/><text x="314" y="1420" text-anchor="start" font-weight="400" class="station-text">Villeneuve-le-Roi</text></g>
+<g class="station" data-id="ablon" data-name="Ablon" data-x="300" data-y="1460"><circle cx="300" cy="1460" r="16" class="hit-area"/><circle cx="300" cy="1460" r="5" class="station-dot"/><text x="314" y="1464" text-anchor="start" font-weight="400" class="station-text">Ablon</text></g>
+<g class="station" data-id="athis-mons" data-name="Athis-Mons" data-x="300" data-y="1504"><circle cx="300" cy="1504" r="16" class="hit-area"/><circle cx="300" cy="1504" r="5" class="station-dot"/><text x="314" y="1508" text-anchor="start" font-weight="400" class="station-text">Athis-Mons</text></g>
+<g class="station" data-id="juvisy" data-name="Juvisy" data-x="300" data-y="1548"><circle cx="300" cy="1548" r="16" class="hit-area"/><circle cx="300" cy="1548" r="5" class="station-dot"/><text x="314" y="1552" text-anchor="start" font-weight="400" class="station-text">Juvisy</text></g>
+<g class="station" data-id="savigny-sur-orge" data-name="Savigny-sur-Orge" data-x="300" data-y="1592"><circle cx="300" cy="1592" r="16" class="hit-area"/><circle cx="300" cy="1592" r="5" class="station-dot"/><text x="314" y="1596" text-anchor="start" font-weight="400" class="station-text">Savigny-sur-Orge</text></g>
+<g class="station" data-id="chilly-mazarin" data-name="Chilly-Mazarin" data-x="300" data-y="1636"><circle cx="300" cy="1636" r="16" class="hit-area"/><circle cx="300" cy="1636" r="5" class="station-dot"/><text x="314" y="1640" text-anchor="start" font-weight="400" class="station-text">Chilly-Mazarin</text></g>
+<g class="station" data-id="longjumeau" data-name="Longjumeau" data-x="300" data-y="1680"><circle cx="300" cy="1680" r="16" class="hit-area"/><circle cx="300" cy="1680" r="5" class="station-dot"/><text x="314" y="1684" text-anchor="start" font-weight="400" class="station-text">Longjumeau</text></g>
+<g class="station" data-id="massy-palaiseau" data-name="Massy-Palaiseau" data-x="300" data-y="1724"><circle cx="300" cy="1724" r="16" class="hit-area"/><circle cx="300" cy="1724" r="8" class="terminus-dot"/><text x="314" y="1728" text-anchor="start" font-weight="700" class="station-text">Massy-Palaiseau</text></g>
+<g class="station" data-id="epinay-sur-orge" data-name="Épinay-sur-Orge" data-x="410" data-y="1416"><circle cx="410" cy="1416" r="16" class="hit-area"/><circle cx="410" cy="1416" r="5" class="station-dot"/><text x="424" y="1420" text-anchor="start" font-weight="400" class="station-text">Épinay-sur-Orge</text></g>
+<g class="station" data-id="sainte-genevieve-des-bois" data-name="Sainte-Geneviève-des-Bois" data-x="410" data-y="1460"><circle cx="410" cy="1460" r="16" class="hit-area"/><circle cx="410" cy="1460" r="5" class="station-dot"/><text x="424" y="1464" text-anchor="start" font-weight="400" class="station-text">Sainte-Geneviève-des-Bois</text></g>
+<g class="station" data-id="saint-michel-sur-orge" data-name="Saint-Michel-sur-Orge" data-x="410" data-y="1504"><circle cx="410" cy="1504" r="16" class="hit-area"/><circle cx="410" cy="1504" r="5" class="station-dot"/><text x="424" y="1508" text-anchor="start" font-weight="400" class="station-text">Saint-Michel-sur-Orge</text></g>
+<g class="station" data-id="bretigny" data-name="Brétigny" data-x="410" data-y="1548"><circle cx="410" cy="1548" r="16" class="hit-area"/><circle cx="410" cy="1548" r="5" class="station-dot"/><text x="424" y="1552" text-anchor="start" font-weight="400" class="station-text">Brétigny</text></g>
+<g class="station" data-id="arpajon" data-name="Arpajon" data-x="410" data-y="1592"><circle cx="410" cy="1592" r="16" class="hit-area"/><circle cx="410" cy="1592" r="5" class="station-dot"/><text x="424" y="1596" text-anchor="start" font-weight="400" class="station-text">Arpajon</text></g>
+<g class="station" data-id="breuillet" data-name="Breuillet" data-x="410" data-y="1636"><circle cx="410" cy="1636" r="16" class="hit-area"/><circle cx="410" cy="1636" r="5" class="station-dot"/><text x="424" y="1640" text-anchor="start" font-weight="400" class="station-text">Breuillet</text></g>
+<g class="station" data-id="saint-cheron" data-name="Saint-Chéron" data-x="410" data-y="1680"><circle cx="410" cy="1680" r="16" class="hit-area"/><circle cx="410" cy="1680" r="5" class="station-dot"/><text x="424" y="1684" text-anchor="start" font-weight="400" class="station-text">Saint-Chéron</text></g>
+<g class="station" data-id="dourdan-la-foret" data-name="Dourdan-la-Forêt" data-x="410" data-y="1724"><circle cx="410" cy="1724" r="16" class="hit-area"/><circle cx="410" cy="1724" r="8" class="terminus-dot"/><text x="424" y="1728" text-anchor="start" font-weight="700" class="station-text">Dourdan-la-Forêt</text></g>
 </svg>
 </div>
+<div id="info-panel"></div>
+
+<script>
+const panel = document.getElementById('info-panel');
+document.querySelectorAll('.station').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.station.selected').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    const name = el.getAttribute('data-name');
+    const id = el.getAttribute('data-id');
+    panel.textContent = `Gare s\u00e9lectionn\u00e9e : ${name} (id: ${id})`;
+    panel.classList.add('open');
+    console.log('station click', id, name, el.dataset.x, el.dataset.y);
+  });
+});
+
+function placeTrain(x, y, id) {
+  const svg = document.getElementById('map');
+  let el = document.getElementById('train-' + id);
+  if (!el) {
+    el = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    el.setAttribute('id', 'train-' + id);
+    el.setAttribute('r', 6);
+    el.setAttribute('class', 'train');
+    svg.appendChild(el);
+  }
+  el.setAttribute('cx', x);
+  el.setAttribute('cy', y);
+}
+</script>
 </body>
 </html>
