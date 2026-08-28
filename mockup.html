@@ -2,275 +2,116 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>RER C - Mock-up (inspiré du plan officiel)</title>
+<title>RER C - Structure et gares (mock-up)</title>
 <style>
   * { box-sizing: border-box; }
-  body {
-    background: #ffffff;
-    margin: 0;
-    font-family: "Helvetica Neue", Arial, sans-serif;
-    color: #1a1a1a;
-  }
+  body { background:#fff; margin:0; font-family:Arial, Helvetica, sans-serif; color:#1a1a1a; }
   header {
-    position: sticky; top: 0; z-index: 20;
-    background: #fff;
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 20px 10px;
-    border-bottom: 1px solid #e6e6e6;
+    position: sticky; top:0; background:#fff; padding:12px 16px 8px;
+    border-bottom:1px solid #eee; z-index:10;
   }
-  .logo-c {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: #FFCE00; color: #1a1a1a; border: 2px solid #2b2b2b;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 18px; flex-shrink: 0;
-  }
-  header h1 { font-size: 14px; margin: 0; font-weight: 700; letter-spacing: 0.2px; }
-  header p { margin: 0; font-size: 10.5px; color: #6e6e6e; }
+  header h1 { font-size:14px; margin:0; font-weight:700; }
+  header p { margin:2px 0 0; font-size:10.5px; color:#777; }
+  .wrap { display:flex; justify-content:center; padding:10px 6px 200px; overflow-x:auto; }
 
-  .wrap { display: flex; justify-content: center; padding: 20px 10px 100px; overflow-x: auto; }
-
-  .track { stroke: #FFCE00; stroke-width: 7; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .track-edge { stroke: #2b2b2b; stroke-width: 10; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; }
-  .spur-line { stroke-dasharray: 2 8; stroke-width: 4; opacity: 0.6; }
-
-  .zoom-frame { fill: none; stroke: #bbb; stroke-width: 1.2; stroke-dasharray: 4 4; rx: 10; }
-  .zoom-label { fill: #9a9a9a; font-size: 9px; letter-spacing: 1px; font-weight: 600; }
-
-  .station-dot { fill: #fff; stroke: #2b2b2b; stroke-width: 1.6; }
-  .station-text { fill: #1a1a1a; font-size: 10.5px; }
-
-  .hub-outer { fill: #fff; stroke: #2b2b2b; stroke-width: 2.2; }
-  .hub-inner { fill: #2b2b2b; }
-  .hub-text { fill: #1a1a1a; font-size: 11.5px; font-weight: 700; }
-  .badge-text { fill: #fff; font-size: 8.5px; font-weight: 700; }
-
-  .terminus-dot { fill: #2b2b2b; stroke: #FFCE00; stroke-width: 2.5; }
-  .terminus-box { fill: #2b2b2b; }
-  .terminus-text { fill: #FFCE00; font-size: 11px; font-weight: 800; letter-spacing: 0.3px; }
-
-  .spur-dot { fill: #6e6e6e; stroke: none; }
-  .lane-title { fill: #6e6e6e; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-  .fork-title { fill: #6e6e6e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-  .spur-label { fill: #6e6e6e; font-size: 10.5px; font-style: italic; }
-
-  .train-body { fill: #FFCE00; stroke: #2b2b2b; stroke-width: 1.8; }
-
-  .legend { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; padding: 6px 16px 4px; font-size: 10.5px; color: #6e6e6e; }
-  .legend span { display: inline-flex; align-items: center; gap: 6px; }
-  .lg-dot { width: 10px; height: 10px; border-radius: 50%; background:#fff; border: 1.6px solid #2b2b2b; display:inline-block; }
-  .lg-hub { width: 12px; height: 12px; border-radius: 50%; background:#fff; border: 2.2px solid #2b2b2b; display:inline-block; }
-  .lg-term { width: 10px; height: 10px; border-radius: 50%; background:#2b2b2b; border: 2px solid #FFCE00; display:inline-block; }
-
-  footer {
-    text-align: center; font-size: 10px; color: #6e6e6e;
-    padding: 16px; border-top: 1px solid #eee;
-  }
+  .track { stroke:#F4C21A; stroke-width:8; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+  .station-dot { fill:#fff; stroke:#2b2b2b; stroke-width:1.8; }
+  .terminus-dot { fill:#2b2b2b; stroke:#F4C21A; stroke-width:2.5; }
+  .junction-dot { fill:#fff; stroke:#2b2b2b; stroke-width:1.2; opacity:0.6; }
+  .station-text { font-size:11px; fill:#1a1a1a; }
 </style>
 </head>
 <body>
-
 <header>
-  <div class="logo-c">C</div>
-  <div>
-    <h1>LIGNE C — Mock-up inspiré du plan officiel RATP / SNCF</h1>
-    <p>Gares, correspondances et bifurcations reproduites dans un style proche des schémas Transilien</p>
-  </div>
+  <h1>LIGNE C — Structure et gares</h1>
+  <p>Reproduction de la topologie officielle (convergences ouest, tronc parisien, fourche sud) — orientation verticale pour mobile</p>
 </header>
-
-<div class="legend">
-  <span><i class="lg-dot"></i> Gare normale</span>
-  <span><i class="lg-hub"></i> Gare de correspondance</span>
-  <span><i class="lg-term"></i> Terminus</span>
-</div>
-
 <div class="wrap">
-<svg width="620" height="1628" viewBox="-40 0 620 1628">
-  <defs>
-    <symbol id="train-pill" viewBox="-12 -7.5 24 15">
-      <rect x="-11" y="-6.5" width="22" height="13" rx="6.5" class="train-body"/>
-    </symbol>
-    <path id="motion-orly" d="M 140,60 L 140,104 L 140,148 L 140,192 L 140,236 L 140,280 L 140,324 L 140,368 L 140,412 L 140,456 L 140,500 L 140,544 L 140,588 L 140,632 L 140,676 L 140,720 L 140,764 L 140,808 L 140,852 L 140,896 L 140,940 L 140,984 L 140,1028 L 140,1072 L 140,1072 L 40,1192 L 40,1192 L 40,1236 L 40,1280 L 40,1324 L 40,1368 L 40,1412 L 40,1456" fill="none" stroke="none"/>
-<path id="motion-juvisy_massy" d="M 140,60 L 140,104 L 140,148 L 140,192 L 140,236 L 140,280 L 140,324 L 140,368 L 140,412 L 140,456 L 140,500 L 140,544 L 140,588 L 140,632 L 140,676 L 140,720 L 140,764 L 140,808 L 140,852 L 140,896 L 140,940 L 140,984 L 140,1028 L 140,1072 L 140,1072 L 140,1192 L 140,1192 L 140,1236 L 140,1280 L 140,1324 L 140,1368 L 140,1412 L 140,1456 L 140,1500" fill="none" stroke="none"/>
-<path id="motion-bretigny" d="M 140,60 L 140,104 L 140,148 L 140,192 L 140,236 L 140,280 L 140,324 L 140,368 L 140,412 L 140,456 L 140,500 L 140,544 L 140,588 L 140,632 L 140,676 L 140,720 L 140,764 L 140,808 L 140,852 L 140,896 L 140,940 L 140,984 L 140,1028 L 140,1072 L 140,1072 L 240,1192 L 240,1192 L 240,1236 L 240,1280 L 240,1324 L 240,1368 L 240,1412 L 240,1456 L 240,1500" fill="none" stroke="none"/>
-  </defs>
-
-  <rect x="106" y="38" width="264" height="1056" class="zoom-frame"/>
-<text x="364" y="30" text-anchor="end" class="zoom-label">PARIS INTRA-MUROS</text>
-<path d="M 140,60 L 140,104 L 140,148 L 140,192 L 140,236 L 140,280 L 140,324 L 140,368 L 140,412 L 140,456 L 140,500 L 140,544 L 140,588 L 140,632 L 140,676 L 140,720 L 140,764 L 140,808 L 140,852 L 140,896 L 140,940 L 140,984 L 140,1028 L 140,1072" class="track-edge"/>
-<path d="M 140,60 L 140,104 L 140,148 L 140,192 L 140,236 L 140,280 L 140,324 L 140,368 L 140,412 L 140,456 L 140,500 L 140,544 L 140,588 L 140,632 L 140,676 L 140,720 L 140,764 L 140,808 L 140,852 L 140,896 L 140,940 L 140,984 L 140,1028 L 140,1072" class="track"/>
-<line x1="140" y1="1072" x2="40" y2="1192" class="track-edge"/>
-<line x1="140" y1="1072" x2="40" y2="1192" class="track"/>
-<path d="M 40,1192 L 40,1236 L 40,1280 L 40,1324 L 40,1368 L 40,1412 L 40,1456" class="track-edge"/>
-<path d="M 40,1192 L 40,1236 L 40,1280 L 40,1324 L 40,1368 L 40,1412 L 40,1456" class="track"/>
-<line x1="140" y1="1072" x2="140" y2="1192" class="track-edge"/>
-<line x1="140" y1="1072" x2="140" y2="1192" class="track"/>
-<path d="M 140,1192 L 140,1236 L 140,1280 L 140,1324 L 140,1368 L 140,1412 L 140,1456 L 140,1500" class="track-edge"/>
-<path d="M 140,1192 L 140,1236 L 140,1280 L 140,1324 L 140,1368 L 140,1412 L 140,1456 L 140,1500" class="track"/>
-<line x1="140" y1="1072" x2="240" y2="1192" class="track-edge"/>
-<line x1="140" y1="1072" x2="240" y2="1192" class="track"/>
-<path d="M 240,1192 L 240,1236 L 240,1280 L 240,1324 L 240,1368 L 240,1412 L 240,1456 L 240,1500" class="track-edge"/>
-<path d="M 240,1192 L 240,1236 L 240,1280 L 240,1324 L 240,1368 L 240,1412 L 240,1456 L 240,1500" class="track"/>
-<line x1="140" y1="192" x2="290" y2="172" class="track spur-line"/>
-<line x1="240" y1="1324" x2="390" y2="1364" class="track spur-line"/>
-<circle cx="140" cy="60" r="8" class="terminus-dot"><title>Pontoise</title></circle>
-<rect x="156" y="48" width="64.8" height="24" rx="5" class="terminus-box"/>
-<text x="188.4" y="64.5" text-anchor="middle" class="terminus-text">Pontoise</text>
-<circle cx="140" cy="104" r="4.5" class="station-dot"><title>Saint-Ouen l'Aumône</title></circle>
-<text x="152" y="107.5" class="station-text">Saint-Ouen l'Aumône</text>
-<circle cx="140" cy="148" r="4.5" class="station-dot"><title>Montigny-Beauchamp</title></circle>
-<text x="152" y="151.5" class="station-text">Montigny-Beauchamp</text>
-<circle cx="140" cy="192" r="9" class="hub-outer"><title>Ermont Eaubonne</title></circle>
-<circle cx="140" cy="192" r="4.5" class="hub-inner"/>
-<text x="157" y="189" class="hub-text">Ermont Eaubonne</text>
-<rect x="157" y="194" width="15.2" height="16" rx="8" fill="#9E9E9E" stroke="#fff" stroke-width="0.8"/><text x="164.6" y="205.5" text-anchor="middle" class="badge-text">H</text>
-<circle cx="140" cy="236" r="4.5" class="station-dot"><title>Épinay-sur-Seine</title></circle>
-<text x="152" y="239.5" class="station-text">Épinay-sur-Seine</text>
-<circle cx="140" cy="280" r="4.5" class="station-dot"><title>Gennevilliers</title></circle>
-<text x="152" y="283.5" class="station-text">Gennevilliers</text>
-<circle cx="140" cy="324" r="9" class="hub-outer"><title>Saint-Ouen</title></circle>
-<circle cx="140" cy="324" r="4.5" class="hub-inner"/>
-<text x="157" y="321" class="hub-text">Saint-Ouen</text>
-<rect x="157" y="326" width="27.8" height="16" rx="8" fill="#8E44AD" stroke="#fff" stroke-width="0.8"/><text x="170.9" y="337.5" text-anchor="middle" class="badge-text">M13</text>
-<circle cx="140" cy="368" r="9" class="hub-outer"><title>Porte de Clichy</title></circle>
-<circle cx="140" cy="368" r="4.5" class="hub-inner"/>
-<text x="157" y="365" class="hub-text">Porte de Clichy</text>
-<rect x="157" y="370" width="27.8" height="16" rx="8" fill="#8E44AD" stroke="#fff" stroke-width="0.8"/><text x="170.9" y="381.5" text-anchor="middle" class="badge-text">M13</text><rect x="188.8" y="370" width="27.8" height="16" rx="8" fill="#5B2A86" stroke="#fff" stroke-width="0.8"/><text x="202.7" y="381.5" text-anchor="middle" class="badge-text">M14</text>
-<circle cx="140" cy="412" r="9" class="hub-outer"><title>Péreire Levallois</title></circle>
-<circle cx="140" cy="412" r="4.5" class="hub-inner"/>
-<text x="157" y="409" class="hub-text">Péreire Levallois</text>
-<rect x="157" y="414" width="21.6" height="16" rx="8" fill="#8C6239" stroke="#fff" stroke-width="0.8"/><text x="167.8" y="425.5" text-anchor="middle" class="badge-text">M3</text>
-<circle cx="140" cy="456" r="9" class="hub-outer"><title>Neuilly - Porte Maillot</title></circle>
-<circle cx="140" cy="456" r="4.5" class="hub-inner"/>
-<text x="157" y="453" class="hub-text">Neuilly - Porte Maillot</text>
-<rect x="157" y="458" width="21.6" height="16" rx="8" fill="#F6C200" stroke="#fff" stroke-width="0.8"/><text x="167.8" y="469.5" text-anchor="middle" class="badge-text">M1</text><rect x="178.8" y="458" width="15.2" height="16" rx="8" fill="#C85FA0" stroke="#fff" stroke-width="0.8"/><text x="186.4" y="469.5" text-anchor="middle" class="badge-text">E</text>
-<circle cx="140" cy="500" r="4.5" class="station-dot"><title>Avenue Foch</title></circle>
-<text x="152" y="503.5" class="station-text">Avenue Foch</text>
-<circle cx="140" cy="544" r="9" class="hub-outer"><title>Boulainvilliers</title></circle>
-<circle cx="140" cy="544" r="4.5" class="hub-inner"/>
-<text x="157" y="541" class="hub-text">Boulainvilliers</text>
-<rect x="157" y="546" width="21.6" height="16" rx="8" fill="#B2C000" stroke="#fff" stroke-width="0.8"/><text x="167.8" y="557.5" text-anchor="middle" class="badge-text">M9</text>
-<circle cx="140" cy="588" r="9" class="hub-outer"><title>Javel</title></circle>
-<circle cx="140" cy="588" r="4.5" class="hub-inner"/>
-<text x="157" y="585" class="hub-text">Javel</text>
-<rect x="157" y="590" width="27.8" height="16" rx="8" fill="#D8A438" stroke="#fff" stroke-width="0.8"/><text x="170.9" y="601.5" text-anchor="middle" class="badge-text">M10</text>
-<circle cx="140" cy="632" r="9" class="hub-outer"><title>Champ de Mars - Tour Eiffel</title></circle>
-<circle cx="140" cy="632" r="4.5" class="hub-inner"/>
-<text x="157" y="629" class="hub-text">Champ de Mars - Tour Eiffel</text>
-<rect x="157" y="634" width="21.6" height="16" rx="8" fill="#8FC93A" stroke="#fff" stroke-width="0.8"/><text x="167.8" y="645.5" text-anchor="middle" class="badge-text">M6</text>
-<circle cx="140" cy="676" r="4.5" class="station-dot"><title>Pont de l'Alma</title></circle>
-<text x="152" y="679.5" class="station-text">Pont de l'Alma</text>
-<circle cx="140" cy="720" r="9" class="hub-outer"><title>Invalides</title></circle>
-<circle cx="140" cy="720" r="4.5" class="hub-inner"/>
-<text x="157" y="717" class="hub-text">Invalides</text>
-<rect x="157" y="722" width="21.6" height="16" rx="8" fill="#D896C8" stroke="#fff" stroke-width="0.8"/><text x="167.8" y="733.5" text-anchor="middle" class="badge-text">M8</text><rect x="178.8" y="722" width="27.8" height="16" rx="8" fill="#8E44AD" stroke="#fff" stroke-width="0.8"/><text x="192.7" y="733.5" text-anchor="middle" class="badge-text">M13</text>
-<circle cx="140" cy="764" r="4.5" class="station-dot"><title>Musée d'Orsay</title></circle>
-<text x="152" y="767.5" class="station-text">Musée d'Orsay</text>
-<circle cx="140" cy="808" r="9" class="hub-outer"><title>Saint-Michel Notre-Dame</title></circle>
-<circle cx="140" cy="808" r="4.5" class="hub-inner"/>
-<text x="157" y="805" class="hub-text">Saint-Michel Notre-Dame</text>
-<rect x="157" y="810" width="21.6" height="16" rx="8" fill="#C0407A" stroke="#fff" stroke-width="0.8"/><text x="167.8" y="821.5" text-anchor="middle" class="badge-text">M4</text><rect x="178.8" y="810" width="15.2" height="16" rx="8" fill="#5091CB" stroke="#fff" stroke-width="0.8"/><text x="186.4" y="821.5" text-anchor="middle" class="badge-text">B</text>
-<circle cx="140" cy="852" r="9" class="hub-outer"><title>Paris Austerlitz</title></circle>
-<circle cx="140" cy="852" r="4.5" class="hub-inner"/>
-<text x="157" y="849" class="hub-text">Paris Austerlitz</text>
-<rect x="157" y="854" width="21.6" height="16" rx="8" fill="#F08C3A" stroke="#fff" stroke-width="0.8"/><text x="167.8" y="865.5" text-anchor="middle" class="badge-text">M5</text><rect x="178.8" y="854" width="27.8" height="16" rx="8" fill="#D8A438" stroke="#fff" stroke-width="0.8"/><text x="192.7" y="865.5" text-anchor="middle" class="badge-text">M10</text>
-<circle cx="140" cy="896" r="9" class="hub-outer"><title>Bibliothèque F. Mitterrand</title></circle>
-<circle cx="140" cy="896" r="4.5" class="hub-inner"/>
-<text x="157" y="893" class="hub-text">Bibliothèque F. Mitterrand</text>
-<rect x="157" y="898" width="27.8" height="16" rx="8" fill="#5B2A86" stroke="#fff" stroke-width="0.8"/><text x="170.9" y="909.5" text-anchor="middle" class="badge-text">M14</text>
-<circle cx="140" cy="940" r="4.5" class="station-dot"><title>Ivry-sur-Seine</title></circle>
-<text x="152" y="943.5" class="station-text">Ivry-sur-Seine</text>
-<circle cx="140" cy="984" r="4.5" class="station-dot"><title>Vitry-sur-Seine</title></circle>
-<text x="152" y="987.5" class="station-text">Vitry-sur-Seine</text>
-<circle cx="140" cy="1028" r="4.5" class="station-dot"><title>Les Ardoines</title></circle>
-<text x="152" y="1031.5" class="station-text">Les Ardoines</text>
-<circle cx="140" cy="1072" r="9" class="hub-outer"><title>Choisy-le-Roi</title></circle>
-<circle cx="140" cy="1072" r="4.5" class="hub-inner"/>
-<text x="157" y="1069" class="hub-text">Choisy-le-Roi</text>
-<circle cx="40" cy="1192" r="4.5" class="station-dot"><title>Les Saules</title></circle>
-<text x="52" y="1195.5" class="station-text">Les Saules</text>
-<circle cx="40" cy="1236" r="4.5" class="station-dot"><title>Orly-Ville</title></circle>
-<text x="52" y="1239.5" class="station-text">Orly-Ville</text>
-<circle cx="40" cy="1280" r="9" class="hub-outer"><title>Pont de Rungis</title></circle>
-<circle cx="40" cy="1280" r="4.5" class="hub-inner"/>
-<text x="57" y="1277" class="hub-text">Pont de Rungis</text>
-<rect x="57" y="1282" width="34.8" height="16" rx="8" fill="#4B4B9E" stroke="#fff" stroke-width="0.8"/><text x="74.4" y="1293.5" text-anchor="middle" class="badge-text">Orly</text>
-<circle cx="40" cy="1324" r="4.5" class="station-dot"><title>Rungis La Fraternelle</title></circle>
-<text x="52" y="1327.5" class="station-text">Rungis La Fraternelle</text>
-<circle cx="40" cy="1368" r="4.5" class="station-dot"><title>Chemin d'Antony</title></circle>
-<text x="52" y="1371.5" class="station-text">Chemin d'Antony</text>
-<circle cx="40" cy="1412" r="4.5" class="station-dot"><title>Massy Verrières</title></circle>
-<text x="52" y="1415.5" class="station-text">Massy Verrières</text>
-<circle cx="40" cy="1456" r="8" class="terminus-dot"><title>Massy-Palaiseau</title></circle>
-<rect x="56" y="1444" width="98.8" height="24" rx="5" class="terminus-box"/>
-<text x="105.4" y="1460.5" text-anchor="middle" class="terminus-text">Massy-Palaiseau</text>
-<circle cx="140" cy="1192" r="4.5" class="station-dot"><title>Villeneuve-le-Roi</title></circle>
-<text x="152" y="1195.5" class="station-text">Villeneuve-le-Roi</text>
-<circle cx="140" cy="1236" r="4.5" class="station-dot"><title>Ablon</title></circle>
-<text x="152" y="1239.5" class="station-text">Ablon</text>
-<circle cx="140" cy="1280" r="4.5" class="station-dot"><title>Athis-Mons</title></circle>
-<text x="152" y="1283.5" class="station-text">Athis-Mons</text>
-<circle cx="140" cy="1324" r="9" class="hub-outer"><title>Juvisy</title></circle>
-<circle cx="140" cy="1324" r="4.5" class="hub-inner"/>
-<text x="157" y="1321" class="hub-text">Juvisy</text>
-<rect x="157" y="1326" width="15.2" height="16" rx="8" fill="#00A651" stroke="#fff" stroke-width="0.8"/><text x="164.6" y="1337.5" text-anchor="middle" class="badge-text">D</text>
-<circle cx="140" cy="1368" r="4.5" class="station-dot"><title>Savigny-sur-Orge</title></circle>
-<text x="152" y="1371.5" class="station-text">Savigny-sur-Orge</text>
-<circle cx="140" cy="1412" r="4.5" class="station-dot"><title>Chilly-Mazarin</title></circle>
-<text x="152" y="1415.5" class="station-text">Chilly-Mazarin</text>
-<circle cx="140" cy="1456" r="4.5" class="station-dot"><title>Longjumeau</title></circle>
-<text x="152" y="1459.5" class="station-text">Longjumeau</text>
-<circle cx="140" cy="1500" r="8" class="terminus-dot"><title>Massy-Palaiseau</title></circle>
-<rect x="156" y="1488" width="98.8" height="24" rx="5" class="terminus-box"/>
-<text x="205.4" y="1504.5" text-anchor="middle" class="terminus-text">Massy-Palaiseau</text>
-<circle cx="240" cy="1192" r="4.5" class="station-dot"><title>Épinay-sur-Orge</title></circle>
-<text x="252" y="1195.5" class="station-text">Épinay-sur-Orge</text>
-<circle cx="240" cy="1236" r="4.5" class="station-dot"><title>Sainte-Geneviève-des-Bois</title></circle>
-<text x="252" y="1239.5" class="station-text">Sainte-Geneviève-des-Bois</text>
-<circle cx="240" cy="1280" r="4.5" class="station-dot"><title>Saint-Michel-sur-Orge</title></circle>
-<text x="252" y="1283.5" class="station-text">Saint-Michel-sur-Orge</text>
-<circle cx="240" cy="1324" r="9" class="hub-outer"><title>Brétigny</title></circle>
-<circle cx="240" cy="1324" r="4.5" class="hub-inner"/>
-<text x="257" y="1321" class="hub-text">Brétigny</text>
-<circle cx="240" cy="1368" r="4.5" class="station-dot"><title>Arpajon</title></circle>
-<text x="252" y="1371.5" class="station-text">Arpajon</text>
-<circle cx="240" cy="1412" r="4.5" class="station-dot"><title>Breuillet</title></circle>
-<text x="252" y="1415.5" class="station-text">Breuillet</text>
-<circle cx="240" cy="1456" r="4.5" class="station-dot"><title>Saint-Chéron</title></circle>
-<text x="252" y="1459.5" class="station-text">Saint-Chéron</text>
-<circle cx="240" cy="1500" r="8" class="terminus-dot"><title>Dourdan-la-Forêt</title></circle>
-<rect x="256" y="1488" width="114.6" height="24" rx="5" class="terminus-box"/>
-<text x="313.3" y="1504.5" text-anchor="middle" class="terminus-text">Dourdan-la-Forêt</text>
-<text x="40" y="1166" class="lane-title" text-anchor="middle">via Orly</text>
-<text x="140" y="1166" class="lane-title" text-anchor="middle">via Juvisy → Massy</text>
-<text x="240" y="1166" class="lane-title" text-anchor="middle">via Juvisy → Brétigny</text>
-<circle cx="290" cy="172" r="3" class="spur-dot"/>
-<text x="299" y="172" class="spur-label">vers Versailles-Château RG / Saint-Quentin</text>
-<circle cx="390" cy="1364" r="3" class="spur-dot"/>
-<text x="399" y="1364" class="spur-label">vers Saint-Martin-d'Étampes</text>
-<text x="140" y="1122" class="fork-title" text-anchor="middle">la ligne se divise en 3 itinéraires vers le sud</text>
-
-  <use href="#train-pill" width="24" height="15" x="-12" y="-7.5">
-  <animateMotion dur="34s" begin="0s" repeatCount="indefinite" rotate="auto">
-    <mpath href="#motion-orly"/>
-  </animateMotion>
-</use>
-<use href="#train-pill" width="24" height="15" x="-12" y="-7.5">
-  <animateMotion dur="30s" begin="-12s" repeatCount="indefinite" rotate="auto">
-    <mpath href="#motion-juvisy_massy"/>
-  </animateMotion>
-</use>
-<use href="#train-pill" width="24" height="15" x="-12" y="-7.5">
-  <animateMotion dur="38s" begin="-20s" repeatCount="indefinite" rotate="auto">
-    <mpath href="#motion-bretigny"/>
-  </animateMotion>
-</use>
-
+<svg width="700" height="1740" viewBox="-140 0 700 1740">
+<path d="M 60,40 L 60,80 L 60,120 L 60,160 L 60,200 L 60,240 L 60,280 L 60,320 L 60,360 L 60,400 L 60,440 L 60,480 L 60,520 L 60,560 L 60,600 L 60,640 L 60,680 L 60,720 L 60,760" class="track"/>
+<line x1="60" y1="760" x2="220" y2="800" class="track"/>
+<path d="M 250,40 L 250,80 L 250,120" class="track"/>
+<line x1="250" y1="120" x2="315.0" y2="200" class="track"/>
+<path d="M 380,120 L 380,160" class="track"/>
+<line x1="380" y1="160" x2="315.0" y2="200" class="track"/>
+<path d="M 315.0,200 L 315.0,240 L 315.0,280 L 315.0,320 L 315.0,360 L 315.0,400 L 315.0,440 L 315.0,480" class="track"/>
+<line x1="315.0" y1="480" x2="220" y2="800" class="track"/>
+<path d="M 220,800 L 220,840 L 220,880 L 220,920 L 220,960 L 220,1000 L 220,1040 L 220,1080 L 220,1120 L 220,1160 L 220,1200 L 220,1240" class="track"/>
+<line x1="220" y1="1240" x2="120" y2="1300" class="track"/>
+<path d="M 120,1300 L 120,1340 L 120,1380 L 120,1420 L 120,1460 L 120,1500 L 120,1540" class="track"/>
+<line x1="220" y1="1240" x2="220" y2="1300" class="track"/>
+<path d="M 220,1300 L 220,1340 L 220,1380 L 220,1420 L 220,1460 L 220,1500 L 220,1540 L 220,1580" class="track"/>
+<line x1="220" y1="1240" x2="320" y2="1300" class="track"/>
+<path d="M 320,1300 L 320,1340 L 320,1380 L 320,1420 L 320,1460 L 320,1500 L 320,1540 L 320,1580" class="track"/>
+<circle cx="60" cy="40" r="7" class="terminus-dot"/><text x="66" y="34" class="station-text" transform="rotate(-55 66 34)">Pontoise</text>
+<circle cx="60" cy="80" r="4.5" class="station-dot"/><text x="66" y="74" class="station-text" transform="rotate(-55 66 74)">Saint-Ouen l'Aumône</text>
+<circle cx="60" cy="120" r="4.5" class="station-dot"/><text x="66" y="114" class="station-text" transform="rotate(-55 66 114)">Pierrelaye</text>
+<circle cx="60" cy="160" r="4.5" class="station-dot"/><text x="66" y="154" class="station-text" transform="rotate(-55 66 154)">Montigny Beauchamp</text>
+<circle cx="60" cy="200" r="4.5" class="station-dot"/><text x="66" y="194" class="station-text" transform="rotate(-55 66 194)">Franconville - Le Plessis-Bouchard</text>
+<circle cx="60" cy="240" r="4.5" class="station-dot"/><text x="66" y="234" class="station-text" transform="rotate(-55 66 234)">Cernay</text>
+<circle cx="60" cy="280" r="4.5" class="station-dot"/><text x="66" y="274" class="station-text" transform="rotate(-55 66 274)">Ermont Eaubonne</text>
+<circle cx="60" cy="320" r="4.5" class="station-dot"/><text x="66" y="314" class="station-text" transform="rotate(-55 66 314)">Saint-Gratien</text>
+<circle cx="60" cy="360" r="4.5" class="station-dot"/><text x="66" y="354" class="station-text" transform="rotate(-55 66 354)">Épinay-sur-Seine</text>
+<circle cx="60" cy="400" r="4.5" class="station-dot"/><text x="66" y="394" class="station-text" transform="rotate(-55 66 394)">Gennevilliers</text>
+<circle cx="60" cy="440" r="4.5" class="station-dot"/><text x="66" y="434" class="station-text" transform="rotate(-55 66 434)">Les Grésillons</text>
+<circle cx="60" cy="480" r="4.5" class="station-dot"/><text x="66" y="474" class="station-text" transform="rotate(-55 66 474)">Saint-Ouen</text>
+<circle cx="60" cy="520" r="4.5" class="station-dot"/><text x="66" y="514" class="station-text" transform="rotate(-55 66 514)">Porte de Clichy - Tribunal de Paris</text>
+<circle cx="60" cy="560" r="4.5" class="station-dot"/><text x="66" y="554" class="station-text" transform="rotate(-55 66 554)">Péreire - Levallois</text>
+<circle cx="60" cy="600" r="4.5" class="station-dot"/><text x="66" y="594" class="station-text" transform="rotate(-55 66 594)">Neuilly - Porte Maillot</text>
+<circle cx="60" cy="640" r="4.5" class="station-dot"/><text x="66" y="634" class="station-text" transform="rotate(-55 66 634)">Avenue Foch</text>
+<circle cx="60" cy="680" r="4.5" class="station-dot"/><text x="66" y="674" class="station-text" transform="rotate(-55 66 674)">Avenue Henri Martin</text>
+<circle cx="60" cy="720" r="4.5" class="station-dot"/><text x="66" y="714" class="station-text" transform="rotate(-55 66 714)">Boulainvilliers</text>
+<circle cx="60" cy="760" r="4.5" class="station-dot"/><text x="66" y="754" class="station-text" transform="rotate(-55 66 754)">Av. du Pdt Kennedy - Maison de la Radio</text>
+<circle cx="250" cy="40" r="7" class="terminus-dot"/><text x="256" y="34" class="station-text" transform="rotate(-55 256 34)">Saint-Quentin-en-Yvelines</text>
+<circle cx="250" cy="80" r="4.5" class="station-dot"/><text x="256" y="74" class="station-text" transform="rotate(-55 256 74)">Saint-Cyr</text>
+<circle cx="250" cy="120" r="4.5" class="station-dot"/><text x="256" y="114" class="station-text" transform="rotate(-55 256 114)">Versailles Chantiers</text>
+<circle cx="380" cy="120" r="7" class="terminus-dot"/><text x="386" y="114" class="station-text" transform="rotate(-55 386 114)">Versailles Château Rive Gauche</text>
+<circle cx="380" cy="160" r="4.5" class="station-dot"/><text x="386" y="154" class="station-text" transform="rotate(-55 386 154)">Porchefontaine</text>
+<circle cx="315.0" cy="200" r="4.5" class="station-dot"/><text x="321.0" y="194" class="station-text" transform="rotate(-55 321.0 194)">Viroflay Rive Gauche</text>
+<circle cx="315.0" cy="240" r="4.5" class="station-dot"/><text x="321.0" y="234" class="station-text" transform="rotate(-55 321.0 234)">Chaville - Vélizy</text>
+<circle cx="315.0" cy="280" r="4.5" class="station-dot"/><text x="321.0" y="274" class="station-text" transform="rotate(-55 321.0 274)">Meudon - Val Fleury</text>
+<circle cx="315.0" cy="320" r="4.5" class="station-dot"/><text x="321.0" y="314" class="station-text" transform="rotate(-55 321.0 314)">Issy</text>
+<circle cx="315.0" cy="360" r="4.5" class="station-dot"/><text x="321.0" y="354" class="station-text" transform="rotate(-55 321.0 354)">Issy Val de Seine</text>
+<circle cx="315.0" cy="400" r="4.5" class="station-dot"/><text x="321.0" y="394" class="station-text" transform="rotate(-55 321.0 394)">Pont du Garigliano</text>
+<circle cx="315.0" cy="440" r="4.5" class="station-dot"/><text x="321.0" y="434" class="station-text" transform="rotate(-55 321.0 434)">Javel</text>
+<circle cx="220" cy="800" r="4.5" class="station-dot"/><text x="226" y="794" class="station-text" transform="rotate(-55 226 794)">Champ de Mars - Tour Eiffel</text>
+<circle cx="220" cy="840" r="4.5" class="station-dot"/><text x="226" y="834" class="station-text" transform="rotate(-55 226 834)">Pont de l'Alma</text>
+<circle cx="220" cy="880" r="4.5" class="station-dot"/><text x="226" y="874" class="station-text" transform="rotate(-55 226 874)">Invalides</text>
+<circle cx="220" cy="920" r="4.5" class="station-dot"/><text x="226" y="914" class="station-text" transform="rotate(-55 226 914)">Musée d'Orsay</text>
+<circle cx="220" cy="960" r="4.5" class="station-dot"/><text x="226" y="954" class="station-text" transform="rotate(-55 226 954)">Saint-Michel Notre-Dame</text>
+<circle cx="220" cy="1000" r="4.5" class="station-dot"/><text x="226" y="994" class="station-text" transform="rotate(-55 226 994)">Paris Austerlitz</text>
+<circle cx="220" cy="1040" r="4.5" class="station-dot"/><text x="226" y="1034" class="station-text" transform="rotate(-55 226 1034)">Bibliothèque F. Mitterrand</text>
+<circle cx="220" cy="1080" r="4.5" class="station-dot"/><text x="226" y="1074" class="station-text" transform="rotate(-55 226 1074)">Ivry-sur-Seine</text>
+<circle cx="220" cy="1120" r="4.5" class="station-dot"/><text x="226" y="1114" class="station-text" transform="rotate(-55 226 1114)">Vitry-sur-Seine</text>
+<circle cx="220" cy="1160" r="4.5" class="station-dot"/><text x="226" y="1154" class="station-text" transform="rotate(-55 226 1154)">Les Ardoines</text>
+<circle cx="220" cy="1200" r="4.5" class="station-dot"/><text x="226" y="1194" class="station-text" transform="rotate(-55 226 1194)">Choisy-le-Roi</text>
+<circle cx="120" cy="1300" r="4.5" class="station-dot"/><text x="126" y="1294" class="station-text" transform="rotate(-55 126 1294)">Les Saules</text>
+<circle cx="120" cy="1340" r="4.5" class="station-dot"/><text x="126" y="1334" class="station-text" transform="rotate(-55 126 1334)">Orly-Ville</text>
+<circle cx="120" cy="1380" r="4.5" class="station-dot"/><text x="126" y="1374" class="station-text" transform="rotate(-55 126 1374)">Pont de Rungis</text>
+<circle cx="120" cy="1420" r="4.5" class="station-dot"/><text x="126" y="1414" class="station-text" transform="rotate(-55 126 1414)">Rungis La Fraternelle</text>
+<circle cx="120" cy="1460" r="4.5" class="station-dot"/><text x="126" y="1454" class="station-text" transform="rotate(-55 126 1454)">Chemin d'Antony</text>
+<circle cx="120" cy="1500" r="4.5" class="station-dot"/><text x="126" y="1494" class="station-text" transform="rotate(-55 126 1494)">Massy Verrières</text>
+<circle cx="120" cy="1540" r="7" class="terminus-dot"/><text x="126" y="1534" class="station-text" transform="rotate(-55 126 1534)">Massy-Palaiseau</text>
+<circle cx="220" cy="1300" r="4.5" class="station-dot"/><text x="226" y="1294" class="station-text" transform="rotate(-55 226 1294)">Villeneuve-le-Roi</text>
+<circle cx="220" cy="1340" r="4.5" class="station-dot"/><text x="226" y="1334" class="station-text" transform="rotate(-55 226 1334)">Ablon</text>
+<circle cx="220" cy="1380" r="4.5" class="station-dot"/><text x="226" y="1374" class="station-text" transform="rotate(-55 226 1374)">Athis-Mons</text>
+<circle cx="220" cy="1420" r="4.5" class="station-dot"/><text x="226" y="1414" class="station-text" transform="rotate(-55 226 1414)">Juvisy</text>
+<circle cx="220" cy="1460" r="4.5" class="station-dot"/><text x="226" y="1454" class="station-text" transform="rotate(-55 226 1454)">Savigny-sur-Orge</text>
+<circle cx="220" cy="1500" r="4.5" class="station-dot"/><text x="226" y="1494" class="station-text" transform="rotate(-55 226 1494)">Chilly-Mazarin</text>
+<circle cx="220" cy="1540" r="4.5" class="station-dot"/><text x="226" y="1534" class="station-text" transform="rotate(-55 226 1534)">Longjumeau</text>
+<circle cx="220" cy="1580" r="7" class="terminus-dot"/><text x="226" y="1574" class="station-text" transform="rotate(-55 226 1574)">Massy-Palaiseau</text>
+<circle cx="320" cy="1300" r="4.5" class="station-dot"/><text x="326" y="1294" class="station-text" transform="rotate(-55 326 1294)">Épinay-sur-Orge</text>
+<circle cx="320" cy="1340" r="4.5" class="station-dot"/><text x="326" y="1334" class="station-text" transform="rotate(-55 326 1334)">Sainte-Geneviève-des-Bois</text>
+<circle cx="320" cy="1380" r="4.5" class="station-dot"/><text x="326" y="1374" class="station-text" transform="rotate(-55 326 1374)">Saint-Michel-sur-Orge</text>
+<circle cx="320" cy="1420" r="4.5" class="station-dot"/><text x="326" y="1414" class="station-text" transform="rotate(-55 326 1414)">Brétigny</text>
+<circle cx="320" cy="1460" r="4.5" class="station-dot"/><text x="326" y="1454" class="station-text" transform="rotate(-55 326 1454)">Arpajon</text>
+<circle cx="320" cy="1500" r="4.5" class="station-dot"/><text x="326" y="1494" class="station-text" transform="rotate(-55 326 1494)">Breuillet</text>
+<circle cx="320" cy="1540" r="4.5" class="station-dot"/><text x="326" y="1534" class="station-text" transform="rotate(-55 326 1534)">Saint-Chéron</text>
+<circle cx="320" cy="1580" r="7" class="terminus-dot"/><text x="326" y="1574" class="station-text" transform="rotate(-55 326 1574)">Dourdan-la-Forêt</text>
+<circle cx="315.0" cy="200" r="3.5" class="junction-dot"/>
+<circle cx="220" cy="800" r="3.5" class="junction-dot"/>
+<circle cx="220" cy="1200" r="3.5" class="junction-dot"/>
 </svg>
 </div>
-
-<footer>
-  Mock-up statique — gares, correspondances (M/RER) et bifurcations reproduites dans l'esprit des plans officiels RATP/SNCF Transilien. Positions réelles fournies ensuite par l'API PRIM (IDFM).
-</footer>
-
 </body>
 </html>
