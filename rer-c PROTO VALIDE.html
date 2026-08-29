@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>RER C – Schéma de ligne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --line:#F2A413; --line-dark:#c9860a; --ink:#20242b; --sub:#6b7280; --bg:#f3f2ef; --card:#ffffff;
+  --green:#1a8a53; --green-bg:#e7f6ee; --orange:#c07a06; --orange-bg:#fdf1de; --red:#c23b3b; --red-bg:#fbeaea;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);font-family:Inter,-apple-system,"Helvetica Neue",Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+header{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #ece9e3;padding:14px 18px;display:flex;align-items:center;gap:12px}
+.badge{flex:0 0 auto;width:40px;height:40px;border-radius:50%;background:var(--line);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:19px;box-shadow:inset 0 -2px 0 rgba(0,0,0,0.12)}
+header h1{margin:0;font-size:17px;font-weight:800;letter-spacing:-0.01em}
+header p{margin:1px 0 0;font-size:12px;color:var(--sub);font-weight:500}
+main{max-width:680px;margin:0 auto;padding:22px 14px 10px}
+.hint{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--sub);font-weight:500;padding:0 8px 14px}
+.hint svg{flex:0 0 auto}
+.card{background:var(--card);border-radius:18px;padding:22px 8px 26px;box-shadow:0 1px 2px rgba(20,20,20,0.04),0 8px 24px rgba(20,20,20,0.05);overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative}
+.card svg{display:block;width:100%;height:auto;max-width:620px;margin:0 auto}
+.stop{cursor:pointer}
+.stop .ring{stroke:transparent;stroke-width:3;transition:stroke .15s ease}
+.stop:hover .ring, .stop:focus .ring{stroke:rgba(242,164,19,0.55)}
+.stop:focus{outline:none}
+.stop.selected .ring{stroke:var(--ink);stroke-width:3.4}
+.stop.selected .main{stroke:var(--ink) !important}
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:14px 18px 4px;font-size:12px;color:var(--sub);font-weight:500}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:50%;display:inline-block;background:#fff;border:2.4px solid var(--line-dark)}
+.legend i.term{border-color:#1a1a1a;position:relative}
+.legend i.term::after{content:'';position:absolute;inset:2.4px;border-radius:50%;background:var(--line)}
+.legend i.train-legend{border:none;border-radius:3px;background:var(--ink)}
+footer{max-width:680px;margin:6px auto 40px;padding:0 22px;font-size:11.5px;line-height:1.5;color:#9a978f;font-style:italic}
+#scroll-spacer{height:0;transition:height .25s ease}
+
+#route-highlight{fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .25s ease;pointer-events:none}
+#route-highlight.visible{opacity:0.85}
+#route-highlight.dirA{stroke:#5b6472;stroke-width:11}
+#route-highlight.dirB{stroke:#ffcf85;stroke-width:11}
+
+.train-marker{cursor:pointer}
+.train-marker .train-pulse{fill:none;stroke-width:1.4;opacity:0.5;animation:trainPulse 2.6s ease-out infinite}
+.train-marker.dirA .train-pulse{stroke:var(--ink)}
+.train-marker.dirB .train-pulse{stroke:var(--line)}
+@keyframes trainPulse{
+  0%{r:10;opacity:0.45}
+  100%{r:18;opacity:0}
+}
+.train-marker .train-body{transition:filter .15s ease}
+.train-marker.dirA .train-body{fill:var(--ink)}
+.train-marker.dirB .train-body{fill:var(--line)}
+.train-marker .train-windshield{fill:rgba(255,255,255,0.6)}
+.train-marker .train-light{fill:#ffe07a}
+.train-marker .train-roofline{stroke:rgba(255,255,255,0.35);stroke-width:1;fill:none}
+.train-marker:hover .train-body{filter:brightness(1.15)}
+.train-marker.following .train-body{stroke:#ffe07a;stroke-width:2.4}
+
+#sheet{position:fixed;left:0;right:0;bottom:0;max-width:680px;margin:0 auto;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -8px 30px rgba(20,20,20,0.18);transform:translateY(105%);transition:transform .32s cubic-bezier(.32,.72,0,1);z-index:50;display:flex;flex-direction:column;max-height:72vh}
+#sheet.open{transform:translateY(0)}
+.sheet-handle{width:38px;height:4px;border-radius:3px;background:#e2e0da;margin:10px auto 2px;flex:0 0 auto}
+.sheet-header{display:flex;align-items:flex-start;justify-content:space-between;padding:10px 18px 12px;border-bottom:1px solid #f0eee9;flex:0 0 auto}
+.sheet-eyebrow{font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--line-dark);text-transform:uppercase}
+.sheet-header h2{margin:2px 0 0;font-size:19px;font-weight:800;letter-spacing:-0.01em}
+.sheet-updated{margin:3px 0 0;font-size:11.5px;color:var(--sub);font-weight:500}
+#sheet-close{border:none;background:#f3f2ef;color:var(--ink);width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;flex:0 0 auto;margin-top:2px}
+#sheet-close:hover{background:#e9e7e1}
+
+.sheet-filters{display:flex;gap:8px;padding:10px 18px;border-bottom:1px solid #f0eee9;flex:0 0 auto}
+.dir-btn{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 10px;border-radius:12px;border:1.6px solid #e7e4dd;background:#fff;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .15s ease}
+.dir-btn:hover{border-color:#d8d5cf}
+.dir-btn .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.dir-btn[data-dir="A"] .dot{background:var(--ink)}
+.dir-btn[data-dir="B"] .dot{background:var(--line)}
+.dir-btn.active[data-dir="A"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.dir-btn.active[data-dir="A"] .dot{background:#fff}
+.dir-btn.active[data-dir="B"]{background:var(--line);border-color:var(--line);color:#fff}
+.dir-btn.active[data-dir="B"] .dot{background:#fff}
+
+.sheet-train-controls{display:none;padding:10px 18px;border-bottom:1px solid #f0eee9;flex:0 0 auto}
+#follow-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:12px;border:1.6px solid #e7e4dd;background:#fff;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .15s ease}
+#follow-btn:hover{border-color:#d8d5cf}
+#follow-btn .live-dot{width:8px;height:8px;border-radius:50%;background:var(--sub);flex:0 0 auto;transition:background .15s ease}
+#follow-btn.active{background:var(--ink);border-color:var(--ink);color:#fff}
+#follow-btn.active .live-dot{background:#ff5b5b;animation:liveDotBlink 1s ease-in-out infinite}
+@keyframes liveDotBlink{0%,100%{opacity:1}50%{opacity:0.25}}
+.follow-hint{margin-top:8px;font-size:11px;color:var(--sub);text-align:center}
+
+#sheet-list{overflow-y:auto;padding:6px 0 10px}
+.dep-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #f5f4f1}
+.dep-row:last-child{border-bottom:none}
+.dep-code{flex:0 0 auto;width:52px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;letter-spacing:.03em;color:#fff}
+.dep-code.dirA{background:var(--ink)}
+.dep-code.dirB{background:var(--line)}
+.dep-main{flex:1 1 auto;min-width:0}
+.dep-dest{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dep-pos{font-size:12px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dep-pos.unknown{font-style:italic;color:#b7b4ac}
+.dep-time{flex:0 0 auto;text-align:right}
+.dep-hhmm{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.dep-delay{font-size:11px;font-weight:700;margin-top:3px;padding:2px 7px;border-radius:20px;display:inline-block}
+.dep-delay.ontime{color:var(--green);background:var(--green-bg)}
+.dep-delay.late{color:var(--orange);background:var(--orange-bg)}
+.dep-delay.verylate{color:var(--red);background:var(--red-bg)}
+.dep-delay.cancelled{color:var(--red);background:var(--red-bg)}
+.dep-row.cancelled .dep-dest, .dep-row.cancelled .dep-hhmm{color:#c4c1ba;text-decoration:line-through}
+.dep-row.cancelled .dep-code{background:#d8d5cf}
+.dep-empty{padding:28px 18px;text-align:center;color:var(--sub);font-size:13px}
+
+.train-info-card{padding:18px}
+.train-info-head{display:flex;align-items:center;gap:14px}
+.train-info-code{flex:0 0 auto;width:58px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;letter-spacing:.03em;color:#fff}
+.train-info-code.dirA{background:var(--ink)}
+.train-info-code.dirB{background:var(--line)}
+.train-info-dest{font-weight:700;font-size:16px}
+.train-info-sub{font-size:12.5px;color:var(--sub);margin-top:2px}
+.train-info-meta{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.train-info-chip{font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px;background:#f3f2ef;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.train-info-chip.formation-long{background:#eef1fb;color:#3b4b9e}
+.train-info-chip.formation-court{background:#fdf3e3;color:#9a6a10}
+.train-info-pos{margin-top:14px;font-size:14px;color:var(--ink);background:#f7f6f3;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.train-info-status{display:inline-block;margin-top:14px;font-size:12px;font-weight:700;padding:4px 11px;border-radius:20px}
+.train-info-status.ontime{color:var(--green);background:var(--green-bg)}
+.train-info-status.late{color:var(--orange);background:var(--orange-bg)}
+.train-info-status.verylate{color:var(--red);background:var(--red-bg)}
+
+@media (min-width:520px){#sheet-list{max-height:340px}}
+@media (max-width:519px){#sheet-list{max-height:296px}}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="badge">C</div>
+  <div><h1>RER&nbsp;C</h1><p>Schéma vertical de la ligne (maquette)</p></div>
+</header>
+<main>
+  <div class="hint">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b7b4ac" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16" r="0.5" fill="#b7b4ac"/></svg>
+    Touchez une gare pour simuler ses prochains départs, ou un train pour voir son tracé et le suivre en direct.
+  </div>
+  <div class="card">
+    <svg viewBox="0 0 620 2000" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Helvetica Neue, Arial, sans-serif">
+      <rect x="0" y="0" width="620" height="2000" fill="#ffffff"/>
+      <path d="M 275 40 L 275 80 L 275 120 L 275 160 L 275 200 L 275 240 L 275 280 L 275 320 L 275 360 L 275 400 L 275 440 L 275 480 L 275 520 L 275 560 L 275 600 L 275 640 L 275 680 L 275 720 L 275 760 L 275 800 L 275 840 L 275 880 L 275 920 L 275 960 L 275 1000 L 275 1040 L 275 1080 L 275 1120 L 275 1160 L 275 1200 L 275 1240 L 275 1280 L 275 1320 L 275 1360 L 275 1400 L 275 1440 L 275 1480 L 275 1520 L 275 1560 L 275 1600" fill="none" stroke="#F2A413" stroke-width="7.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 180 354 L 180 394 L 180 434 L 180 520 L 180 560 L 180 600 L 180 640 L 180 680 L 180 720 L 180 760 L 180 800" fill="none" stroke="#F2A413" stroke-width="7.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 180 800 L 180 805 Q 180 820 195 820 L 260 820 Q 275 820 275 835 L 275 840" fill="none" stroke="#F2A413" stroke-width="7.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 85 483 L 85 486.5 Q 85 501.5 100 501.5 L 165 501.5 Q 180 501.5 180 516.5 L 180 520" fill="none" stroke="#F2A413" stroke-width="7.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 275 1240 L 275 1245 Q 275 1260 290 1260 L 395 1260 Q 410 1260 410 1275 L 410 1280 L 410 1320 L 410 1360 L 410 1400 L 410 1440 L 410 1480 L 410 1520" fill="none" stroke="#F2A413" stroke-width="7.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 275 1600 L 275 1605 Q 275 1620 260 1620 L 195 1620 Q 180 1620 180 1635 L 180 1640 L 180 1680 L 180 1720 L 180 1760 L 180 1800 L 180 1840 L 180 1880 L 180 1920 L 180 1960" fill="none" stroke="#F2A413" stroke-width="7.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 275 1600 L 275 1605 Q 275 1620 290 1620 L 395 1620 Q 410 1620 410 1635 L 410 1640 L 410 1680 L 410 1720 L 410 1760 L 410 1800 L 410 1840 L 410 1880" fill="none" stroke="#F2A413" stroke-width="7.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path id="route-highlight"></path>
+      <g class="stop" data-seg="spine" data-idx="0" tabindex="0" role="button" aria-label="Pontoise"><circle class="hit" cx="275" cy="40" r="17" fill="transparent"/><circle class="ring" cx="275" cy="40" r="14" fill="none"/><circle class="main" cx="275" cy="40" r="9.5" fill="#ffffff" stroke="#1a1a1a" stroke-width="3.6"/><circle class="main-dot" cx="275" cy="40" r="3.4" fill="#F2A413"/></g>
+<g class="stop" data-seg="spine" data-idx="1" tabindex="0" role="button" aria-label="Saint-Ouen-l&#x27;Aumône"><circle class="hit" cx="275" cy="80" r="17" fill="transparent"/><circle class="ring" cx="275" cy="80" r="14" fill="none"/><circle class="main" cx="275" cy="80" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="2" tabindex="0" role="button" aria-label="St-Ouen-l&#x27;Aumône – Liesse"><circle class="hit" cx="275" cy="120" r="17" fill="transparent"/><circle class="ring" cx="275" cy="120" r="14" fill="none"/><circle class="main" cx="275" cy="120" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="3" tabindex="0" role="button" aria-label="Pierrelaye"><circle class="hit" cx="275" cy="160" r="17" fill="transparent"/><circle class="ring" cx="275" cy="160" r="14" fill="none"/><circle class="main" cx="275" cy="160" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="4" tabindex="0" role="button" aria-label="Montigny – Beauchamp"><circle class="hit" cx="275" cy="200" r="17" fill="transparent"/><circle class="ring" cx="275" cy="200" r="14" fill="none"/><circle class="main" cx="275" cy="200" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="5" tabindex="0" role="button" aria-label="Franconville – Le Plessis-Bouchard"><circle class="hit" cx="275" cy="240" r="17" fill="transparent"/><circle class="ring" cx="275" cy="240" r="14" fill="none"/><circle class="main" cx="275" cy="240" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="6" tabindex="0" role="button" aria-label="Cernay"><circle class="hit" cx="275" cy="280" r="17" fill="transparent"/><circle class="ring" cx="275" cy="280" r="14" fill="none"/><circle class="main" cx="275" cy="280" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="7" tabindex="0" role="button" aria-label="Ermont – Eaubonne"><circle class="hit" cx="275" cy="320" r="17" fill="transparent"/><circle class="ring" cx="275" cy="320" r="14" fill="none"/><circle class="main" cx="275" cy="320" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="8" tabindex="0" role="button" aria-label="Saint-Gratien"><circle class="hit" cx="275" cy="360" r="17" fill="transparent"/><circle class="ring" cx="275" cy="360" r="14" fill="none"/><circle class="main" cx="275" cy="360" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="9" tabindex="0" role="button" aria-label="Épinay-sur-Seine"><circle class="hit" cx="275" cy="400" r="17" fill="transparent"/><circle class="ring" cx="275" cy="400" r="14" fill="none"/><circle class="main" cx="275" cy="400" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="10" tabindex="0" role="button" aria-label="Gennevilliers"><circle class="hit" cx="275" cy="440" r="17" fill="transparent"/><circle class="ring" cx="275" cy="440" r="14" fill="none"/><circle class="main" cx="275" cy="440" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="11" tabindex="0" role="button" aria-label="Les Grésillons"><circle class="hit" cx="275" cy="480" r="17" fill="transparent"/><circle class="ring" cx="275" cy="480" r="14" fill="none"/><circle class="main" cx="275" cy="480" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="12" tabindex="0" role="button" aria-label="Saint-Ouen"><circle class="hit" cx="275" cy="520" r="17" fill="transparent"/><circle class="ring" cx="275" cy="520" r="14" fill="none"/><circle class="main" cx="275" cy="520" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="13" tabindex="0" role="button" aria-label="Porte de Clichy – Tribunal de Paris"><circle class="hit" cx="275" cy="560" r="17" fill="transparent"/><circle class="ring" cx="275" cy="560" r="14" fill="none"/><circle class="main" cx="275" cy="560" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="14" tabindex="0" role="button" aria-label="Péreire – Levallois"><circle class="hit" cx="275" cy="600" r="17" fill="transparent"/><circle class="ring" cx="275" cy="600" r="14" fill="none"/><circle class="main" cx="275" cy="600" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="15" tabindex="0" role="button" aria-label="Neuilly - Porte Maillot – Palais des Congrès"><circle class="hit" cx="275" cy="640" r="17" fill="transparent"/><circle class="ring" cx="275" cy="640" r="14" fill="none"/><circle class="main" cx="275" cy="640" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="16" tabindex="0" role="button" aria-label="Avenue Foch"><circle class="hit" cx="275" cy="680" r="17" fill="transparent"/><circle class="ring" cx="275" cy="680" r="14" fill="none"/><circle class="main" cx="275" cy="680" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="17" tabindex="0" role="button" aria-label="Avenue Henri Martin"><circle class="hit" cx="275" cy="720" r="17" fill="transparent"/><circle class="ring" cx="275" cy="720" r="14" fill="none"/><circle class="main" cx="275" cy="720" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="18" tabindex="0" role="button" aria-label="Boulainvilliers"><circle class="hit" cx="275" cy="760" r="17" fill="transparent"/><circle class="ring" cx="275" cy="760" r="14" fill="none"/><circle class="main" cx="275" cy="760" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="19" tabindex="0" role="button" aria-label="Av. du Pdt Kennedy – Maison de la Radio France"><circle class="hit" cx="275" cy="800" r="17" fill="transparent"/><circle class="ring" cx="275" cy="800" r="14" fill="none"/><circle class="main" cx="275" cy="800" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="20" tabindex="0" role="button" aria-label="Champ de Mars – Tour Eiffel"><circle class="hit" cx="275" cy="840" r="17" fill="transparent"/><circle class="ring" cx="275" cy="840" r="14" fill="none"/><circle class="main" cx="275" cy="840" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="21" tabindex="0" role="button" aria-label="Pont de l&#x27;Alma"><circle class="hit" cx="275" cy="880" r="17" fill="transparent"/><circle class="ring" cx="275" cy="880" r="14" fill="none"/><circle class="main" cx="275" cy="880" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="22" tabindex="0" role="button" aria-label="Invalides"><circle class="hit" cx="275" cy="920" r="17" fill="transparent"/><circle class="ring" cx="275" cy="920" r="14" fill="none"/><circle class="main" cx="275" cy="920" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="23" tabindex="0" role="button" aria-label="Musée d&#x27;Orsay"><circle class="hit" cx="275" cy="960" r="17" fill="transparent"/><circle class="ring" cx="275" cy="960" r="14" fill="none"/><circle class="main" cx="275" cy="960" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="24" tabindex="0" role="button" aria-label="Saint-Michel Notre-Dame"><circle class="hit" cx="275" cy="1000" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1000" r="14" fill="none"/><circle class="main" cx="275" cy="1000" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="25" tabindex="0" role="button" aria-label="Gare d&#x27;Austerlitz"><circle class="hit" cx="275" cy="1040" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1040" r="14" fill="none"/><circle class="main" cx="275" cy="1040" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="26" tabindex="0" role="button" aria-label="Bibliothèque F. Mitterrand"><circle class="hit" cx="275" cy="1080" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1080" r="14" fill="none"/><circle class="main" cx="275" cy="1080" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="27" tabindex="0" role="button" aria-label="Ivry-sur-Seine"><circle class="hit" cx="275" cy="1120" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1120" r="14" fill="none"/><circle class="main" cx="275" cy="1120" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="28" tabindex="0" role="button" aria-label="Vitry-sur-Seine"><circle class="hit" cx="275" cy="1160" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1160" r="14" fill="none"/><circle class="main" cx="275" cy="1160" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="29" tabindex="0" role="button" aria-label="Les Ardoines"><circle class="hit" cx="275" cy="1200" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1200" r="14" fill="none"/><circle class="main" cx="275" cy="1200" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="30" tabindex="0" role="button" aria-label="Choisy-le-Roi"><circle class="hit" cx="275" cy="1240" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1240" r="14" fill="none"/><circle class="main" cx="275" cy="1240" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="31" tabindex="0" role="button" aria-label="Villeneuve-le-Roi"><circle class="hit" cx="275" cy="1280" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1280" r="14" fill="none"/><circle class="main" cx="275" cy="1280" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="32" tabindex="0" role="button" aria-label="Ablon"><circle class="hit" cx="275" cy="1320" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1320" r="14" fill="none"/><circle class="main" cx="275" cy="1320" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="33" tabindex="0" role="button" aria-label="Athis-Mons"><circle class="hit" cx="275" cy="1360" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1360" r="14" fill="none"/><circle class="main" cx="275" cy="1360" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="34" tabindex="0" role="button" aria-label="Juvisy"><circle class="hit" cx="275" cy="1400" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1400" r="14" fill="none"/><circle class="main" cx="275" cy="1400" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="spine" data-idx="35" tabindex="0" role="button" aria-label="Savigny-sur-Orge"><circle class="hit" cx="275" cy="1440" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1440" r="14" fill="none"/><circle class="main" cx="275" cy="1440" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="36" tabindex="0" role="button" aria-label="Épinay-sur-Orge"><circle class="hit" cx="275" cy="1480" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1480" r="14" fill="none"/><circle class="main" cx="275" cy="1480" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="37" tabindex="0" role="button" aria-label="Sainte-Geneviève-des-Bois"><circle class="hit" cx="275" cy="1520" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1520" r="14" fill="none"/><circle class="main" cx="275" cy="1520" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="38" tabindex="0" role="button" aria-label="Saint-Michel-sur-Orge"><circle class="hit" cx="275" cy="1560" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1560" r="14" fill="none"/><circle class="main" cx="275" cy="1560" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spine" data-idx="39" tabindex="0" role="button" aria-label="Brétigny"><circle class="hit" cx="275" cy="1600" r="17" fill="transparent"/><circle class="ring" cx="275" cy="1600" r="14" fill="none"/><circle class="main" cx="275" cy="1600" r="7" fill="#ffffff" stroke="#c9860a" stroke-width="3.2"/></g>
+<g class="stop" data-seg="west" data-idx="0" tabindex="0" role="button" aria-label="Saint-Quentin-en-Yvelines"><circle class="hit" cx="180" cy="354" r="17" fill="transparent"/><circle class="ring" cx="180" cy="354" r="14" fill="none"/><circle class="main" cx="180" cy="354" r="9.5" fill="#ffffff" stroke="#1a1a1a" stroke-width="3.6"/><circle class="main-dot" cx="180" cy="354" r="3.4" fill="#F2A413"/></g>
+<g class="stop" data-seg="west" data-idx="1" tabindex="0" role="button" aria-label="Saint-Cyr"><circle class="hit" cx="180" cy="394" r="17" fill="transparent"/><circle class="ring" cx="180" cy="394" r="14" fill="none"/><circle class="main" cx="180" cy="394" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="west" data-idx="2" tabindex="0" role="button" aria-label="Versailles Chantiers"><circle class="hit" cx="180" cy="434" r="17" fill="transparent"/><circle class="ring" cx="180" cy="434" r="14" fill="none"/><circle class="main" cx="180" cy="434" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="west" data-idx="3" tabindex="0" role="button" aria-label="Porchefontaine"><circle class="hit" cx="180" cy="520" r="17" fill="transparent"/><circle class="ring" cx="180" cy="520" r="14" fill="none"/><circle class="main" cx="180" cy="520" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="west" data-idx="4" tabindex="0" role="button" aria-label="Viroflay Rive Gauche"><circle class="hit" cx="180" cy="560" r="17" fill="transparent"/><circle class="ring" cx="180" cy="560" r="14" fill="none"/><circle class="main" cx="180" cy="560" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="west" data-idx="5" tabindex="0" role="button" aria-label="Chaville Vélizy"><circle class="hit" cx="180" cy="600" r="17" fill="transparent"/><circle class="ring" cx="180" cy="600" r="14" fill="none"/><circle class="main" cx="180" cy="600" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="west" data-idx="6" tabindex="0" role="button" aria-label="Meudon Val Fleury"><circle class="hit" cx="180" cy="640" r="17" fill="transparent"/><circle class="ring" cx="180" cy="640" r="14" fill="none"/><circle class="main" cx="180" cy="640" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="west" data-idx="7" tabindex="0" role="button" aria-label="Issy"><circle class="hit" cx="180" cy="680" r="17" fill="transparent"/><circle class="ring" cx="180" cy="680" r="14" fill="none"/><circle class="main" cx="180" cy="680" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="west" data-idx="8" tabindex="0" role="button" aria-label="Issy Val de Seine"><circle class="hit" cx="180" cy="720" r="17" fill="transparent"/><circle class="ring" cx="180" cy="720" r="14" fill="none"/><circle class="main" cx="180" cy="720" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="west" data-idx="9" tabindex="0" role="button" aria-label="Pont du Garigliano – Hôp. Eur. G. Pompidou"><circle class="hit" cx="180" cy="760" r="17" fill="transparent"/><circle class="ring" cx="180" cy="760" r="14" fill="none"/><circle class="main" cx="180" cy="760" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="west" data-idx="10" tabindex="0" role="button" aria-label="Javel"><circle class="hit" cx="180" cy="800" r="17" fill="transparent"/><circle class="ring" cx="180" cy="800" r="14" fill="none"/><circle class="main" cx="180" cy="800" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="spur" data-idx="0" tabindex="0" role="button" aria-label="Versailles-Château Rive Gauche"><circle class="hit" cx="85" cy="483.0" r="17" fill="transparent"/><circle class="ring" cx="85" cy="483.0" r="14" fill="none"/><circle class="main" cx="85" cy="483.0" r="9.5" fill="#ffffff" stroke="#1a1a1a" stroke-width="3.6"/><circle class="main-dot" cx="85" cy="483.0" r="3.4" fill="#F2A413"/></g>
+<g class="stop" data-seg="orly" data-idx="0" tabindex="0" role="button" aria-label="Pont de Rungis – Aéroport d&#x27;Orly"><circle class="hit" cx="410" cy="1280" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1280" r="14" fill="none"/><circle class="main" cx="410" cy="1280" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="orly" data-idx="1" tabindex="0" role="button" aria-label="Orly-Ville"><circle class="hit" cx="410" cy="1320" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1320" r="14" fill="none"/><circle class="main" cx="410" cy="1320" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="orly" data-idx="2" tabindex="0" role="button" aria-label="Rungis la Fraternelle"><circle class="hit" cx="410" cy="1360" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1360" r="14" fill="none"/><circle class="main" cx="410" cy="1360" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="orly" data-idx="3" tabindex="0" role="button" aria-label="Chemin d&#x27;Antony"><circle class="hit" cx="410" cy="1400" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1400" r="14" fill="none"/><circle class="main" cx="410" cy="1400" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="orly" data-idx="4" tabindex="0" role="button" aria-label="Les Saules"><circle class="hit" cx="410" cy="1440" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1440" r="14" fill="none"/><circle class="main" cx="410" cy="1440" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="orly" data-idx="5" tabindex="0" role="button" aria-label="Massy-Verrières"><circle class="hit" cx="410" cy="1480" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1480" r="14" fill="none"/><circle class="main" cx="410" cy="1480" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="orly" data-idx="6" tabindex="0" role="button" aria-label="Massy-Palaiseau"><circle class="hit" cx="410" cy="1520" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1520" r="14" fill="none"/><circle class="main" cx="410" cy="1520" r="9.5" fill="#ffffff" stroke="#1a1a1a" stroke-width="3.6"/><circle class="main-dot" cx="410" cy="1520" r="3.4" fill="#F2A413"/></g>
+<g class="stop" data-seg="dourdan" data-idx="0" tabindex="0" role="button" aria-label="La Norville – St-Germain-lès-Arpajon"><circle class="hit" cx="180" cy="1640" r="17" fill="transparent"/><circle class="ring" cx="180" cy="1640" r="14" fill="none"/><circle class="main" cx="180" cy="1640" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="dourdan" data-idx="1" tabindex="0" role="button" aria-label="Arpajon"><circle class="hit" cx="180" cy="1680" r="17" fill="transparent"/><circle class="ring" cx="180" cy="1680" r="14" fill="none"/><circle class="main" cx="180" cy="1680" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="dourdan" data-idx="2" tabindex="0" role="button" aria-label="Égly"><circle class="hit" cx="180" cy="1720" r="17" fill="transparent"/><circle class="ring" cx="180" cy="1720" r="14" fill="none"/><circle class="main" cx="180" cy="1720" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="dourdan" data-idx="3" tabindex="0" role="button" aria-label="Breuillet Bruyères-le-Châtel"><circle class="hit" cx="180" cy="1760" r="17" fill="transparent"/><circle class="ring" cx="180" cy="1760" r="14" fill="none"/><circle class="main" cx="180" cy="1760" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="dourdan" data-idx="4" tabindex="0" role="button" aria-label="Breuillet-Village"><circle class="hit" cx="180" cy="1800" r="17" fill="transparent"/><circle class="ring" cx="180" cy="1800" r="14" fill="none"/><circle class="main" cx="180" cy="1800" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="dourdan" data-idx="5" tabindex="0" role="button" aria-label="Saint-Chéron"><circle class="hit" cx="180" cy="1840" r="17" fill="transparent"/><circle class="ring" cx="180" cy="1840" r="14" fill="none"/><circle class="main" cx="180" cy="1840" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="dourdan" data-idx="6" tabindex="0" role="button" aria-label="Sermaise"><circle class="hit" cx="180" cy="1880" r="17" fill="transparent"/><circle class="ring" cx="180" cy="1880" r="14" fill="none"/><circle class="main" cx="180" cy="1880" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="dourdan" data-idx="7" tabindex="0" role="button" aria-label="Dourdan"><circle class="hit" cx="180" cy="1920" r="17" fill="transparent"/><circle class="ring" cx="180" cy="1920" r="14" fill="none"/><circle class="main" cx="180" cy="1920" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="dourdan" data-idx="8" tabindex="0" role="button" aria-label="Dourdan-la-Forêt"><circle class="hit" cx="180" cy="1960" r="17" fill="transparent"/><circle class="ring" cx="180" cy="1960" r="14" fill="none"/><circle class="main" cx="180" cy="1960" r="9.5" fill="#ffffff" stroke="#1a1a1a" stroke-width="3.6"/><circle class="main-dot" cx="180" cy="1960" r="3.4" fill="#F2A413"/></g>
+<g class="stop" data-seg="etampes" data-idx="0" tabindex="0" role="button" aria-label="Marolles-en-Hurepoix"><circle class="hit" cx="410" cy="1640" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1640" r="14" fill="none"/><circle class="main" cx="410" cy="1640" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="etampes" data-idx="1" tabindex="0" role="button" aria-label="Bouray"><circle class="hit" cx="410" cy="1680" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1680" r="14" fill="none"/><circle class="main" cx="410" cy="1680" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="etampes" data-idx="2" tabindex="0" role="button" aria-label="Lardy"><circle class="hit" cx="410" cy="1720" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1720" r="14" fill="none"/><circle class="main" cx="410" cy="1720" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="etampes" data-idx="3" tabindex="0" role="button" aria-label="Chamarande"><circle class="hit" cx="410" cy="1760" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1760" r="14" fill="none"/><circle class="main" cx="410" cy="1760" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="etampes" data-idx="4" tabindex="0" role="button" aria-label="Étréchy"><circle class="hit" cx="410" cy="1800" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1800" r="14" fill="none"/><circle class="main" cx="410" cy="1800" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="etampes" data-idx="5" tabindex="0" role="button" aria-label="Étampes"><circle class="hit" cx="410" cy="1840" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1840" r="14" fill="none"/><circle class="main" cx="410" cy="1840" r="5" fill="#ffffff" stroke="#c9860a" stroke-width="2.8"/></g>
+<g class="stop" data-seg="etampes" data-idx="6" tabindex="0" role="button" aria-label="Saint-Martin-d&#x27;Étampes"><circle class="hit" cx="410" cy="1880" r="17" fill="transparent"/><circle class="ring" cx="410" cy="1880" r="14" fill="none"/><circle class="main" cx="410" cy="1880" r="9.5" fill="#ffffff" stroke="#1a1a1a" stroke-width="3.6"/><circle class="main-dot" cx="410" cy="1880" r="3.4" fill="#F2A413"/></g>
+      
+<text x="180" y="330" text-anchor="middle" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#c9860a" font-style="italic">VERS SAINT-QUENTIN</text>
+<text x="275" y="20" text-anchor="middle" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#c9860a" font-style="italic">VERS PONTOISE</text>
+<text x="410" y="1254" text-anchor="middle" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#c9860a" font-style="italic">VERS MASSY (ORLY)</text>
+<text x="180" y="1614" text-anchor="middle" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#c9860a" font-style="italic">VERS DOURDAN</text>
+<text x="410" y="1614" text-anchor="middle" font-size="10.5" font-weight="700" letter-spacing="0.4" fill="#c9860a" font-style="italic">VERS ÉTAMPES</text>
+
+      <text x="290" y="44.5" text-anchor="start" font-size="13.3" font-weight="700" fill="#20242b">Pontoise</text>
+<text x="290" y="84.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Saint-Ouen-l&#x27;Aumône</text>
+<text x="290" y="117" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">St-Ouen-l&#x27;Aumône</text><text x="290" y="132" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Liesse</text>
+<text x="290" y="164.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Pierrelaye</text>
+<text x="290" y="197" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Montigny</text><text x="290" y="212" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Beauchamp</text>
+<text x="290" y="237" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Franconville</text><text x="290" y="252" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Le Plessis-Bouchard</text>
+<text x="290" y="284.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Cernay</text>
+<text x="290" y="317" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Ermont</text><text x="290" y="332" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Eaubonne</text>
+<text x="290" y="364.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Saint-Gratien</text>
+<text x="290" y="404.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Épinay-sur-Seine</text>
+<text x="290" y="444.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Gennevilliers</text>
+<text x="290" y="484.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Les Grésillons</text>
+<text x="290" y="524.5" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Saint-Ouen</text>
+<text x="290" y="557" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Porte de Clichy</text><text x="290" y="572" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Tribunal de Paris</text>
+<text x="290" y="597" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Péreire</text><text x="290" y="612" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Levallois</text>
+<text x="290" y="637" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Neuilly - Porte Maillot</text><text x="290" y="652" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Palais des Congrès</text>
+<text x="290" y="684.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Avenue Foch</text>
+<text x="290" y="724.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Avenue Henri Martin</text>
+<text x="290" y="764.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Boulainvilliers</text>
+<text x="290" y="797" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Av. du Pdt Kennedy</text><text x="290" y="812" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Maison de la Radio France</text>
+<text x="290" y="837" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Champ de Mars</text><text x="290" y="852" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Tour Eiffel</text>
+<text x="290" y="884.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Pont de l&#x27;Alma</text>
+<text x="290" y="924.5" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Invalides</text>
+<text x="290" y="957" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Musée</text><text x="290" y="972" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">d&#x27;Orsay</text>
+<text x="290" y="997" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Saint-Michel</text><text x="290" y="1012" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Notre-Dame</text>
+<text x="290" y="1044.5" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Gare d&#x27;Austerlitz</text>
+<text x="290" y="1077" text-anchor="start" font-size="13.0" font-weight="700" fill="#20242b">Bibliothèque</text><text x="290" y="1092" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">F. Mitterrand</text>
+<text x="290" y="1124.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Ivry-sur-Seine</text>
+<text x="290" y="1164.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Vitry-sur-Seine</text>
+<text x="290" y="1204.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Les Ardoines</text>
+<text x="260" y="1244.5" text-anchor="end" font-size="13.0" font-weight="700" fill="#20242b">Choisy-le-Roi</text>
+<text x="260" y="1284.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Villeneuve-le-Roi</text>
+<text x="260" y="1324.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Ablon</text>
+<text x="260" y="1364.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Athis-Mons</text>
+<text x="260" y="1404.5" text-anchor="end" font-size="13.0" font-weight="700" fill="#20242b">Juvisy</text>
+<text x="260" y="1444.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Savigny-sur-Orge</text>
+<text x="260" y="1484.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Épinay-sur-Orge</text>
+<text x="260" y="1517" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Sainte-Geneviève</text><text x="260" y="1532" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">des-Bois</text>
+<text x="260" y="1557" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Saint-Michel</text><text x="260" y="1572" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">sur-Orge</text>
+<text x="260" y="1604.5" text-anchor="end" font-size="13.0" font-weight="700" fill="#20242b">Brétigny</text>
+<text x="165" y="351" text-anchor="end" font-size="13.3" font-weight="700" fill="#20242b">Saint-Quentin</text><text x="165" y="366" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">en-Yvelines</text>
+<text x="165" y="398.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Saint-Cyr</text>
+<text x="165" y="431" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Versailles</text><text x="165" y="446" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">Chantiers</text>
+<text x="165" y="524.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Porchefontaine</text>
+<text x="165" y="557" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Viroflay</text><text x="165" y="572" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">Rive Gauche</text>
+<text x="165" y="597" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Chaville</text><text x="165" y="612" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">Vélizy</text>
+<text x="165" y="637" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Meudon</text><text x="165" y="652" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">Val Fleury</text>
+<text x="165" y="684.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Issy</text>
+<text x="165" y="717" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Issy</text><text x="165" y="732" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">Val de Seine</text>
+<text x="165" y="757" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Pont du Garigliano</text><text x="165" y="772" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">Hôp. Eur. G. Pompidou</text>
+<text x="165" y="804.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Javel</text>
+<text x="85" y="462.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#20242b">Versailles-Château</text>
+<text x="425" y="1277" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Pont de Rungis</text><text x="425" y="1292" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">Aéroport d&#x27;Orly</text>
+<text x="425" y="1324.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Orly-Ville</text>
+<text x="425" y="1357" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Rungis</text><text x="425" y="1372" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">la Fraternelle</text>
+<text x="425" y="1404.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Chemin d&#x27;Antony</text>
+<text x="425" y="1444.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Les Saules</text>
+<text x="425" y="1484.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Massy-Verrières</text>
+<text x="425" y="1524.5" text-anchor="start" font-size="13.3" font-weight="700" fill="#20242b">Massy-Palaiseau</text>
+<text x="165" y="1637" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">La Norville</text><text x="165" y="1652" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">St-Germain-lès-Arpajon</text>
+<text x="165" y="1684.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Arpajon</text>
+<text x="165" y="1724.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Égly</text>
+<text x="165" y="1757" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Breuillet</text><text x="165" y="1772" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">Bruyères-le-Châtel</text>
+<text x="165" y="1804.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Breuillet-Village</text>
+<text x="165" y="1844.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Saint-Chéron</text>
+<text x="165" y="1884.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Sermaise</text>
+<text x="165" y="1924.5" text-anchor="end" font-size="13.0" font-weight="600" fill="#20242b">Dourdan</text>
+<text x="165" y="1957" text-anchor="end" font-size="13.3" font-weight="700" fill="#20242b">Dourdan</text><text x="165" y="1972" text-anchor="end" font-size="11.2" font-weight="500" fill="#6b7280">la Forêt</text>
+<text x="425" y="1644.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Marolles-en-Hurepoix</text>
+<text x="425" y="1684.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Bouray</text>
+<text x="425" y="1724.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Lardy</text>
+<text x="425" y="1764.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Chamarande</text>
+<text x="425" y="1804.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Étréchy</text>
+<text x="425" y="1844.5" text-anchor="start" font-size="13.0" font-weight="600" fill="#20242b">Étampes</text>
+<text x="425" y="1877" text-anchor="start" font-size="13.3" font-weight="700" fill="#20242b">Saint-Martin</text><text x="425" y="1892" text-anchor="start" font-size="11.2" font-weight="500" fill="#6b7280">d&#x27;Étampes</text>
+      <g id="trains-layer"></g>
+    </svg>
+  </div>
+  <div class="legend">
+    <span><i class="term"></i> Terminus</span>
+    <span><i style="border-width:3px;width:13px;height:13px"></i> Correspondance / bifurcation</span>
+    <span><i></i> Gare</span>
+    <span><i class="train-legend"></i> Train en circulation (simulation)</span>
+  </div>
+</main>
+<footer>Maquette stylisée à but illustratif, dessinée d'après la topologie réelle de la ligne C du RER (75 gares, 6 branches). Les départs et la circulation des trains affichés sont entièrement simulés (codes mission, horaires, retards, formations et positions fictifs) et ne reflètent aucune donnée de trafic réelle — pour le trafic en temps réel, consultez transilien.com.</footer>
+<div id="scroll-spacer"></div>
+
+<div id="sheet" aria-hidden="true">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div>
+      <div class="sheet-eyebrow" id="sheet-eyebrow">Prochains départs (simulation)</div>
+      <h2 id="sheet-station-name"></h2>
+      <p class="sheet-updated" id="sheet-updated"></p>
+    </div>
+    <button id="sheet-close" aria-label="Fermer">✕</button>
+  </div>
+  <div class="sheet-filters" id="sheet-filters">
+    <button class="dir-btn" data-dir="A"><span class="dot"></span>Direction Nord</button>
+    <button class="dir-btn" data-dir="B"><span class="dot"></span>Direction Sud</button>
+  </div>
+  <div class="sheet-train-controls" id="sheet-train-controls">
+    <button id="follow-btn"><span class="live-dot"></span><span class="follow-label">Suivre ce train en direct</span></button>
+    <div class="follow-hint">La carte suit le train tant que vous ne scrollez pas manuellement.</div>
+  </div>
+  <div id="sheet-list"></div>
+</div>
+
+<script>
+
+const ROUTES = {"R1": {"points": [[275, 40], [275, 60.0], [275, 80], [275, 100.0], [275, 120], [275, 140.0], [275, 160], [275, 180.0], [275, 200], [275, 220.0], [275, 240], [275, 260.0], [275, 280], [275, 300.0], [275, 320], [275, 340.0], [275, 360], [275, 380.0], [275, 400], [275, 420.0], [275, 440], [275, 460.0], [275, 480], [275, 500.0], [275, 520], [275, 540.0], [275, 560], [275, 580.0], [275, 600], [275, 620.0], [275, 640], [275, 660.0], [275, 680], [275, 700.0], [275, 720], [275, 740.0], [275, 760], [275, 780.0], [275, 800], [275, 820.0], [275, 840], [275, 860.0], [275, 880], [275, 900.0], [275, 920], [275, 940.0], [275, 960], [275, 980.0], [275, 1000], [275, 1020.0], [275, 1040], [275, 1060.0], [275, 1080], [275, 1100.0], [275, 1120], [275, 1140.0], [275, 1160], [275, 1180.0], [275, 1200], [275, 1220.0], [275, 1240], [276.6, 1249.6], [281.4, 1253.3], [289.4, 1256.2], [300.6, 1258.3], [314.9, 1259.6], [332.5, 1260.0], [395, 1260], [399.6, 1260.4], [403.3, 1261.7], [406.2, 1263.8], [408.3, 1266.7], [409.6, 1270.4], [410.0, 1275.0], [410, 1280], [410, 1300.0], [410, 1320], [410, 1340.0], [410, 1360], [410, 1380.0], [410, 1400], [410, 1420.0], [410, 1440], [410, 1460.0], [410, 1480], [410, 1500.0], [410, 1520]], "milestones": {"0": "Pontoise", "2": "Saint-Ouen-l'Aumône", "4": "St-Ouen-l'Aumône – Liesse", "6": "Pierrelaye", "8": "Montigny – Beauchamp", "10": "Franconville – Le Plessis-Bouchard", "12": "Cernay", "14": "Ermont – Eaubonne", "16": "Saint-Gratien", "18": "Épinay-sur-Seine", "20": "Gennevilliers", "22": "Les Grésillons", "24": "Saint-Ouen", "26": "Porte de Clichy – Tribunal de Paris", "28": "Péreire – Levallois", "30": "Neuilly - Porte Maillot – Palais des Congrès", "32": "Avenue Foch", "34": "Avenue Henri Martin", "36": "Boulainvilliers", "38": "Av. du Pdt Kennedy – Maison de la Radio France", "40": "Champ de Mars – Tour Eiffel", "42": "Pont de l'Alma", "44": "Invalides", "46": "Musée d'Orsay", "48": "Saint-Michel Notre-Dame", "50": "Gare d'Austerlitz", "52": "Bibliothèque F. Mitterrand", "54": "Ivry-sur-Seine", "56": "Vitry-sur-Seine", "58": "Les Ardoines", "60": "Choisy-le-Roi", "74": "Pont de Rungis – Aéroport d'Orly", "76": "Orly-Ville", "78": "Rungis la Fraternelle", "80": "Chemin d'Antony", "82": "Les Saules", "84": "Massy-Verrières", "86": "Massy-Palaiseau"}, "termini": ["Pontoise", "Massy-Palaiseau"]}, "R2": {"points": [[275, 40], [275, 60.0], [275, 80], [275, 100.0], [275, 120], [275, 140.0], [275, 160], [275, 180.0], [275, 200], [275, 220.0], [275, 240], [275, 260.0], [275, 280], [275, 300.0], [275, 320], [275, 340.0], [275, 360], [275, 380.0], [275, 400], [275, 420.0], [275, 440], [275, 460.0], [275, 480], [275, 500.0], [275, 520], [275, 540.0], [275, 560], [275, 580.0], [275, 600], [275, 620.0], [275, 640], [275, 660.0], [275, 680], [275, 700.0], [275, 720], [275, 740.0], [275, 760], [275, 780.0], [275, 800], [275, 820.0], [275, 840], [275, 860.0], [275, 880], [275, 900.0], [275, 920], [275, 940.0], [275, 960], [275, 980.0], [275, 1000], [275, 1020.0], [275, 1040], [275, 1060.0], [275, 1080], [275, 1100.0], [275, 1120], [275, 1140.0], [275, 1160], [275, 1180.0], [275, 1200], [275, 1220.0], [275, 1240], [275, 1260.0], [275, 1280], [275, 1300.0], [275, 1320], [275, 1340.0], [275, 1360], [275, 1380.0], [275, 1400], [275, 1420.0], [275, 1440], [275, 1460.0], [275, 1480], [275, 1500.0], [275, 1520], [275, 1540.0], [275, 1560], [275, 1580.0], [275, 1600], [273.7, 1609.6], [269.7, 1613.3], [263.1, 1616.2], [253.9, 1618.3], [242.0, 1619.6], [227.5, 1620.0], [195, 1620], [190.4, 1620.4], [186.7, 1621.7], [183.8, 1623.8], [181.7, 1626.7], [180.4, 1630.4], [180.0, 1635.0], [180, 1640], [180, 1660.0], [180, 1680], [180, 1700.0], [180, 1720], [180, 1740.0], [180, 1760], [180, 1780.0], [180, 1800], [180, 1820.0], [180, 1840], [180, 1860.0], [180, 1880], [180, 1900.0], [180, 1920], [180, 1940.0], [180, 1960]], "milestones": {"0": "Pontoise", "2": "Saint-Ouen-l'Aumône", "4": "St-Ouen-l'Aumône – Liesse", "6": "Pierrelaye", "8": "Montigny – Beauchamp", "10": "Franconville – Le Plessis-Bouchard", "12": "Cernay", "14": "Ermont – Eaubonne", "16": "Saint-Gratien", "18": "Épinay-sur-Seine", "20": "Gennevilliers", "22": "Les Grésillons", "24": "Saint-Ouen", "26": "Porte de Clichy – Tribunal de Paris", "28": "Péreire – Levallois", "30": "Neuilly - Porte Maillot – Palais des Congrès", "32": "Avenue Foch", "34": "Avenue Henri Martin", "36": "Boulainvilliers", "38": "Av. du Pdt Kennedy – Maison de la Radio France", "40": "Champ de Mars – Tour Eiffel", "42": "Pont de l'Alma", "44": "Invalides", "46": "Musée d'Orsay", "48": "Saint-Michel Notre-Dame", "50": "Gare d'Austerlitz", "52": "Bibliothèque F. Mitterrand", "54": "Ivry-sur-Seine", "56": "Vitry-sur-Seine", "58": "Les Ardoines", "60": "Choisy-le-Roi", "62": "Villeneuve-le-Roi", "64": "Ablon", "66": "Athis-Mons", "68": "Juvisy", "70": "Savigny-sur-Orge", "72": "Épinay-sur-Orge", "74": "Sainte-Geneviève-des-Bois", "76": "Saint-Michel-sur-Orge", "78": "Brétigny", "92": "La Norville – St-Germain-lès-Arpajon", "94": "Arpajon", "96": "Égly", "98": "Breuillet Bruyères-le-Châtel", "100": "Breuillet-Village", "102": "Saint-Chéron", "104": "Sermaise", "106": "Dourdan", "108": "Dourdan-la-Forêt"}, "termini": ["Pontoise", "Dourdan-la-Forêt"]}, "R3": {"points": [[275, 40], [275, 60.0], [275, 80], [275, 100.0], [275, 120], [275, 140.0], [275, 160], [275, 180.0], [275, 200], [275, 220.0], [275, 240], [275, 260.0], [275, 280], [275, 300.0], [275, 320], [275, 340.0], [275, 360], [275, 380.0], [275, 400], [275, 420.0], [275, 440], [275, 460.0], [275, 480], [275, 500.0], [275, 520], [275, 540.0], [275, 560], [275, 580.0], [275, 600], [275, 620.0], [275, 640], [275, 660.0], [275, 680], [275, 700.0], [275, 720], [275, 740.0], [275, 760], [275, 780.0], [275, 800], [275, 820.0], [275, 840], [275, 860.0], [275, 880], [275, 900.0], [275, 920], [275, 940.0], [275, 960], [275, 980.0], [275, 1000], [275, 1020.0], [275, 1040], [275, 1060.0], [275, 1080], [275, 1100.0], [275, 1120], [275, 1140.0], [275, 1160], [275, 1180.0], [275, 1200], [275, 1220.0], [275, 1240], [275, 1260.0], [275, 1280], [275, 1300.0], [275, 1320], [275, 1340.0], [275, 1360], [275, 1380.0], [275, 1400], [275, 1420.0], [275, 1440], [275, 1460.0], [275, 1480], [275, 1500.0], [275, 1520], [275, 1540.0], [275, 1560], [275, 1580.0], [275, 1600], [276.6, 1609.6], [281.4, 1613.3], [289.4, 1616.2], [300.6, 1618.3], [314.9, 1619.6], [332.5, 1620.0], [395, 1620], [399.6, 1620.4], [403.3, 1621.7], [406.2, 1623.8], [408.3, 1626.7], [409.6, 1630.4], [410.0, 1635.0], [410, 1640], [410, 1660.0], [410, 1680], [410, 1700.0], [410, 1720], [410, 1740.0], [410, 1760], [410, 1780.0], [410, 1800], [410, 1820.0], [410, 1840], [410, 1860.0], [410, 1880]], "milestones": {"0": "Pontoise", "2": "Saint-Ouen-l'Aumône", "4": "St-Ouen-l'Aumône – Liesse", "6": "Pierrelaye", "8": "Montigny – Beauchamp", "10": "Franconville – Le Plessis-Bouchard", "12": "Cernay", "14": "Ermont – Eaubonne", "16": "Saint-Gratien", "18": "Épinay-sur-Seine", "20": "Gennevilliers", "22": "Les Grésillons", "24": "Saint-Ouen", "26": "Porte de Clichy – Tribunal de Paris", "28": "Péreire – Levallois", "30": "Neuilly - Porte Maillot – Palais des Congrès", "32": "Avenue Foch", "34": "Avenue Henri Martin", "36": "Boulainvilliers", "38": "Av. du Pdt Kennedy – Maison de la Radio France", "40": "Champ de Mars – Tour Eiffel", "42": "Pont de l'Alma", "44": "Invalides", "46": "Musée d'Orsay", "48": "Saint-Michel Notre-Dame", "50": "Gare d'Austerlitz", "52": "Bibliothèque F. Mitterrand", "54": "Ivry-sur-Seine", "56": "Vitry-sur-Seine", "58": "Les Ardoines", "60": "Choisy-le-Roi", "62": "Villeneuve-le-Roi", "64": "Ablon", "66": "Athis-Mons", "68": "Juvisy", "70": "Savigny-sur-Orge", "72": "Épinay-sur-Orge", "74": "Sainte-Geneviève-des-Bois", "76": "Saint-Michel-sur-Orge", "78": "Brétigny", "92": "Marolles-en-Hurepoix", "94": "Bouray", "96": "Lardy", "98": "Chamarande", "100": "Étréchy", "102": "Étampes", "104": "Saint-Martin-d'Étampes"}, "termini": ["Pontoise", "Saint-Martin-d'Étampes"]}, "R4": {"points": [[180, 354], [180, 374.0], [180, 394], [180, 414.0], [180, 434], [180, 451.2], [180, 468.4], [180, 485.6], [180, 502.8], [180, 520], [180, 540.0], [180, 560], [180, 580.0], [180, 600], [180, 620.0], [180, 640], [180, 660.0], [180, 680], [180, 700.0], [180, 720], [180, 740.0], [180, 760], [180, 780.0], [180, 800], [181.0, 809.6], [184.2, 813.3], [189.4, 816.2], [196.7, 818.3], [206.0, 819.6], [217.5, 820.0], [260, 820], [264.6, 820.4], [268.3, 821.7], [271.2, 823.8], [273.3, 826.7], [274.6, 830.4], [275.0, 835.0], [275, 840], [275, 860.0], [275, 880], [275, 900.0], [275, 920], [275, 940.0], [275, 960], [275, 980.0], [275, 1000], [275, 1020.0], [275, 1040], [275, 1060.0], [275, 1080], [275, 1100.0], [275, 1120], [275, 1140.0], [275, 1160], [275, 1180.0], [275, 1200], [275, 1220.0], [275, 1240], [276.6, 1249.6], [281.4, 1253.3], [289.4, 1256.2], [300.6, 1258.3], [314.9, 1259.6], [332.5, 1260.0], [395, 1260], [399.6, 1260.4], [403.3, 1261.7], [406.2, 1263.8], [408.3, 1266.7], [409.6, 1270.4], [410.0, 1275.0], [410, 1280], [410, 1300.0], [410, 1320], [410, 1340.0], [410, 1360], [410, 1380.0], [410, 1400], [410, 1420.0], [410, 1440], [410, 1460.0], [410, 1480], [410, 1500.0], [410, 1520]], "milestones": {"0": "Saint-Quentin-en-Yvelines", "2": "Saint-Cyr", "4": "Versailles Chantiers", "9": "Porchefontaine", "11": "Viroflay Rive Gauche", "13": "Chaville Vélizy", "15": "Meudon Val Fleury", "17": "Issy", "19": "Issy Val de Seine", "21": "Pont du Garigliano – Hôp. Eur. G. Pompidou", "23": "Javel", "77": "Chemin d'Antony", "79": "Les Saules", "81": "Massy-Verrières", "83": "Massy-Palaiseau", "85": "Saint-Michel Notre-Dame", "87": "Gare d'Austerlitz", "89": "Bibliothèque F. Mitterrand", "91": "Ivry-sur-Seine", "93": "Vitry-sur-Seine", "95": "Les Ardoines", "97": "Choisy-le-Roi", "71": "Pont de Rungis – Aéroport d'Orly", "73": "Orly-Ville", "75": "Rungis la Fraternelle"}, "termini": ["Saint-Quentin-en-Yvelines", "Massy-Palaiseau"]}, "R5": {"points": [[180, 354], [180, 374.0], [180, 394], [180, 414.0], [180, 434], [180, 451.2], [180, 468.4], [180, 485.6], [180, 502.8], [180, 520], [180, 540.0], [180, 560], [180, 580.0], [180, 600], [180, 620.0], [180, 640], [180, 660.0], [180, 680], [180, 700.0], [180, 720], [180, 740.0], [180, 760], [180, 780.0], [180, 800], [181.0, 809.6], [184.2, 813.3], [189.4, 816.2], [196.7, 818.3], [206.0, 819.6], [217.5, 820.0], [260, 820], [264.6, 820.4], [268.3, 821.7], [271.2, 823.8], [273.3, 826.7], [274.6, 830.4], [275.0, 835.0], [275, 840], [275, 860.0], [275, 880], [275, 900.0], [275, 920], [275, 940.0], [275, 960], [275, 980.0], [275, 1000], [275, 1020.0], [275, 1040], [275, 1060.0], [275, 1080], [275, 1100.0], [275, 1120], [275, 1140.0], [275, 1160], [275, 1180.0], [275, 1200], [275, 1220.0], [275, 1240], [275, 1260.0], [275, 1280], [275, 1300.0], [275, 1320], [275, 1340.0], [275, 1360], [275, 1380.0], [275, 1400], [275, 1420.0], [275, 1440], [275, 1460.0], [275, 1480], [275, 1500.0], [275, 1520], [275, 1540.0], [275, 1560], [275, 1580.0], [275, 1600], [273.7, 1609.6], [269.7, 1613.3], [263.1, 1616.2], [253.9, 1618.3], [242.0, 1619.6], [227.5, 1620.0], [195, 1620], [190.4, 1620.4], [186.7, 1621.7], [183.8, 1623.8], [181.7, 1626.7], [180.4, 1630.4], [180.0, 1635.0], [180, 1640], [180, 1660.0], [180, 1680], [180, 1700.0], [180, 1720], [180, 1740.0], [180, 1760], [180, 1780.0], [180, 1800], [180, 1820.0], [180, 1840], [180, 1860.0], [180, 1880], [180, 1900.0], [180, 1920], [180, 1940.0], [180, 1960]], "milestones": {"0": "Saint-Quentin-en-Yvelines", "2": "Saint-Cyr", "4": "Versailles Chantiers", "9": "Porchefontaine", "11": "Viroflay Rive Gauche", "13": "Chaville Vélizy", "15": "Meudon Val Fleury", "17": "Issy", "19": "Issy Val de Seine", "21": "Pont du Garigliano – Hôp. Eur. G. Pompidou", "23": "Javel", "77": "Champ de Mars – Tour Eiffel", "79": "Pont de l'Alma", "81": "Invalides", "83": "Musée d'Orsay", "85": "Saint-Michel Notre-Dame", "87": "Gare d'Austerlitz", "89": "La Norville – St-Germain-lès-Arpajon", "91": "Arpajon", "93": "Égly", "95": "Breuillet Bruyères-le-Châtel", "97": "Breuillet-Village", "99": "Saint-Chéron", "101": "Sermaise", "103": "Dourdan", "105": "Dourdan-la-Forêt", "107": "Savigny-sur-Orge", "109": "Épinay-sur-Orge", "111": "Sainte-Geneviève-des-Bois", "113": "Saint-Michel-sur-Orge", "115": "Brétigny"}, "termini": ["Saint-Quentin-en-Yvelines", "Dourdan-la-Forêt"]}, "R6": {"points": [[85, 483.0], [86.0, 491.1], [89.2, 494.8], [94.4, 497.8], [101.7, 499.8], [111.0, 501.1], [122.5, 501.5], [165, 501.5], [169.6, 501.9], [173.3, 503.2], [176.2, 505.2], [178.3, 508.2], [179.6, 511.9], [180.0, 516.5], [180, 520], [180, 540.0], [180, 560], [180, 580.0], [180, 600], [180, 620.0], [180, 640], [180, 660.0], [180, 680], [180, 700.0], [180, 720], [180, 740.0], [180, 760], [180, 780.0], [180, 800], [181.0, 809.6], [184.2, 813.3], [189.4, 816.2], [196.7, 818.3], [206.0, 819.6], [217.5, 820.0], [260, 820], [264.6, 820.4], [268.3, 821.7], [271.2, 823.8], [273.3, 826.7], [274.6, 830.4], [275.0, 835.0], [275, 840], [275, 860.0], [275, 880], [275, 900.0], [275, 920], [275, 940.0], [275, 960], [275, 980.0], [275, 1000], [275, 1020.0], [275, 1040], [275, 1060.0], [275, 1080], [275, 1100.0], [275, 1120], [275, 1140.0], [275, 1160], [275, 1180.0], [275, 1200], [275, 1220.0], [275, 1240], [275, 1260.0], [275, 1280], [275, 1300.0], [275, 1320], [275, 1340.0], [275, 1360], [275, 1380.0], [275, 1400], [275, 1420.0], [275, 1440], [275, 1460.0], [275, 1480], [275, 1500.0], [275, 1520], [275, 1540.0], [275, 1560], [275, 1580.0], [275, 1600], [276.6, 1609.6], [281.4, 1613.3], [289.4, 1616.2], [300.6, 1618.3], [314.9, 1619.6], [332.5, 1620.0], [395, 1620], [399.6, 1620.4], [403.3, 1621.7], [406.2, 1623.8], [408.3, 1626.7], [409.6, 1630.4], [410.0, 1635.0], [410, 1640], [410, 1660.0], [410, 1680], [410, 1700.0], [410, 1720], [410, 1740.0], [410, 1760], [410, 1780.0], [410, 1800], [410, 1820.0], [410, 1840], [410, 1860.0], [410, 1880]], "milestones": {"0": "Versailles-Château Rive Gauche", "23": "Porchefontaine", "25": "Viroflay Rive Gauche", "27": "Chaville Vélizy", "29": "Meudon Val Fleury", "31": "Issy", "33": "Issy Val de Seine", "35": "Pont du Garigliano – Hôp. Eur. G. Pompidou", "37": "Javel", "82": "Champ de Mars – Tour Eiffel", "84": "Pont de l'Alma", "86": "Invalides", "88": "Musée d'Orsay", "90": "Saint-Michel Notre-Dame", "92": "Gare d'Austerlitz", "94": "Marolles-en-Hurepoix", "96": "Bouray", "98": "Lardy", "100": "Chamarande", "102": "Étréchy", "104": "Étampes", "106": "Saint-Martin-d'Étampes", "108": "Athis-Mons", "110": "Juvisy", "112": "Savigny-sur-Orge", "114": "Épinay-sur-Orge", "116": "Sainte-Geneviève-des-Bois", "118": "Saint-Michel-sur-Orge", "120": "Brétigny"}, "termini": ["Versailles-Château Rive Gauche", "Saint-Martin-d'Étampes"]}};
+const TRAIN_DEFS = [{"code": "GOTA", "route": "R1", "startFrac": 0.08, "dir": 1, "speed": 0.55, "length": "long", "cars": 8}, {"code": "VETO", "route": "R1", "startFrac": 0.85, "dir": -1, "speed": 0.45, "length": "court", "cars": 4}, {"code": "KOBE", "route": "R2", "startFrac": 0.3, "dir": 1, "speed": 0.6, "length": "court", "cars": 4}, {"code": "BOBA", "route": "R2", "startFrac": 0.7, "dir": -1, "speed": 0.5, "length": "long", "cars": 8}, {"code": "PALI", "route": "R3", "startFrac": 0.45, "dir": 1, "speed": 0.48, "length": "long", "cars": 8}, {"code": "ELBA", "route": "R4", "startFrac": 0.55, "dir": -1, "speed": 0.52, "length": "court", "cars": 4}, {"code": "JAKO", "route": "R5", "startFrac": 0.2, "dir": 1, "speed": 0.58, "length": "long", "cars": 8}, {"code": "NILU", "route": "R6", "startFrac": 0.6, "dir": -1, "speed": 0.46, "length": "court", "cars": 4}];
+const SOUTH_TERMINI = ["Massy-Palaiseau","Dourdan-la-Forêt","Saint-Martin-d'Étampes"];
+const SPEED_SCALE = 1.0;
+
+const SEG = {
+  spine: ["Pontoise","Saint-Ouen-l'Aumône","St-Ouen-l'Aumône – Liesse","Pierrelaye","Montigny – Beauchamp","Franconville – Le Plessis-Bouchard","Cernay","Ermont – Eaubonne","Saint-Gratien","Épinay-sur-Seine","Gennevilliers","Les Grésillons","Saint-Ouen","Porte de Clichy – Tribunal de Paris","Péreire – Levallois","Neuilly - Porte Maillot – Palais des Congrès","Avenue Foch","Avenue Henri Martin","Boulainvilliers","Av. du Pdt Kennedy – Maison de la Radio France","Champ de Mars – Tour Eiffel","Pont de l'Alma","Invalides","Musée d'Orsay","Saint-Michel Notre-Dame","Gare d'Austerlitz","Bibliothèque F. Mitterrand","Ivry-sur-Seine","Vitry-sur-Seine","Les Ardoines","Choisy-le-Roi","Villeneuve-le-Roi","Ablon","Athis-Mons","Juvisy","Savigny-sur-Orge","Épinay-sur-Orge","Sainte-Geneviève-des-Bois","Saint-Michel-sur-Orge","Brétigny"],
+  west: ["Saint-Quentin-en-Yvelines","Saint-Cyr","Versailles Chantiers","Porchefontaine","Viroflay Rive Gauche","Chaville Vélizy","Meudon Val Fleury","Issy","Issy Val de Seine","Pont du Garigliano – Hôp. Eur. G. Pompidou","Javel"],
+  spur: ["Versailles-Château Rive Gauche"],
+  orly: ["Pont de Rungis – Aéroport d'Orly","Orly-Ville","Rungis la Fraternelle","Chemin d'Antony","Les Saules","Massy-Verrières","Massy-Palaiseau"],
+  dourdan: ["La Norville – St-Germain-lès-Arpajon","Arpajon","Égly","Breuillet Bruyères-le-Châtel","Breuillet-Village","Saint-Chéron","Sermaise","Dourdan","Dourdan-la-Forêt"],
+  etampes: ["Marolles-en-Hurepoix","Bouray","Lardy","Chamarande","Étréchy","Étampes","Saint-Martin-d'Étampes"]
+};
+const TERM = {
+  pontoise: "Pontoise", vcrg: "Versailles-Château Rive Gauche", stquentin: "Saint-Quentin-en-Yvelines",
+  massy: "Massy-Palaiseau", dourdan: "Dourdan-la-Forêt", etampes: "Saint-Martin-d'Étampes"
+};
+const CODES = ["GOTA","VETO","KOBE","BOBA","PALI","ELBA","JAKO","NILU","ZEBU","RIKO","VIVA","NORA","MIKA","LUNA","DALI","TOVA","BEMO","LARA","SIDO","RANO","TOKA","VELO","JUNO","PIKO"];
+
+function getDirections(seg, idx){
+  const lastIdx = SEG[seg].length - 1;
+  if(seg === 'spine'){
+    if(idx <= 19){
+      if(idx === 0) return {A:null, B:[TERM.massy,TERM.dourdan,TERM.etampes]};
+      return {A:[TERM.pontoise], B:[TERM.massy,TERM.dourdan,TERM.etampes]};
+    } else if(idx <= 30){
+      return {A:[TERM.pontoise,TERM.vcrg,TERM.stquentin], B:[TERM.massy,TERM.dourdan,TERM.etampes]};
+    } else {
+      return {A:[TERM.pontoise,TERM.vcrg,TERM.stquentin], B:[TERM.dourdan,TERM.etampes]};
+    }
+  }
+  if(seg === 'west'){
+    if(idx <= 2){
+      if(idx === 0) return {A:null, B:[TERM.pontoise,TERM.massy,TERM.dourdan,TERM.etampes]};
+      return {A:[TERM.stquentin], B:[TERM.pontoise,TERM.massy,TERM.dourdan,TERM.etampes]};
+    }
+    return {A:[TERM.stquentin,TERM.vcrg], B:[TERM.pontoise,TERM.massy,TERM.dourdan,TERM.etampes]};
+  }
+  if(seg === 'spur') return {A:null, B:[TERM.pontoise,TERM.massy,TERM.dourdan,TERM.etampes]};
+  if(seg === 'orly'){
+    if(idx === lastIdx) return {A:[TERM.pontoise,TERM.vcrg,TERM.stquentin], B:null};
+    return {A:[TERM.pontoise,TERM.vcrg,TERM.stquentin], B:[TERM.massy]};
+  }
+  if(seg === 'dourdan'){
+    if(idx === lastIdx) return {A:[TERM.pontoise,TERM.vcrg,TERM.stquentin], B:null};
+    return {A:[TERM.pontoise,TERM.vcrg,TERM.stquentin], B:[TERM.dourdan]};
+  }
+  if(seg === 'etampes'){
+    if(idx === lastIdx) return {A:[TERM.pontoise,TERM.vcrg,TERM.stquentin], B:null};
+    return {A:[TERM.pontoise,TERM.vcrg,TERM.stquentin], B:[TERM.etampes]};
+  }
+}
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pad(n){ return n.toString().padStart(2,'0'); }
+function fmtTime(d){ return pad(d.getHours())+':'+pad(d.getMinutes()); }
+
+function randomPosition(seg, idx){
+  const roll = Math.random();
+  if(roll < 0.22) return {text:"Information non disponible", unknown:true};
+  if(idx > 0 && roll < 0.62){
+    const j = Math.floor(Math.random()*idx);
+    return {text:"Actuellement à "+SEG[seg][j], unknown:false};
+  }
+  return {text: pick(["Train à l'approche","Entre deux gares","À quai"]), unknown:false};
+}
+
+function buildDepartures(seg, idx){
+  const dirs = getDirections(seg, idx);
+  const n = 6;
+  const trains = [];
+  let cursor = new Date(Date.now() + (60 + Math.random()*120) * 1000);
+  const usedCodes = new Set();
+  for(let i=0;i<n;i++){
+    let dir;
+    if(dirs.A && dirs.B) dir = Math.random() < 0.5 ? 'A' : 'B';
+    else dir = dirs.A ? 'A' : 'B';
+    const pool = dir === 'A' ? dirs.A : dirs.B;
+    const dest = pick(pool);
+    let code;
+    do { code = pick(CODES); } while(usedCodes.has(code) && usedCodes.size < CODES.length);
+    usedCodes.add(code);
+    const roll = Math.random();
+    let status, delay;
+    if(roll < 0.05){ status='cancelled'; delay=0; }
+    else if(roll < 0.70){ status='ontime'; delay=0; }
+    else if(roll < 0.92){ status='late'; delay=2+Math.floor(Math.random()*8); }
+    else { status='verylate'; delay=10+Math.floor(Math.random()*16); }
+    const scheduled = new Date(cursor.getTime());
+    const position = randomPosition(seg, idx);
+    trains.push({code, dest, dir, scheduled, status, delay, position});
+    cursor = new Date(cursor.getTime() + (5 + Math.random()*7) * 60000);
+  }
+  return trains;
+}
+
+const sheet = document.getElementById('sheet');
+const sheetList = document.getElementById('sheet-list');
+const scrollSpacer = document.getElementById('scroll-spacer');
+const sheetFilters = document.getElementById('sheet-filters');
+const sheetTrainControls = document.getElementById('sheet-train-controls');
+const followBtn = document.getElementById('follow-btn');
+const sheetEyebrow = document.getElementById('sheet-eyebrow');
+const sheetTitle = document.getElementById('sheet-station-name');
+const sheetUpdated = document.getElementById('sheet-updated');
+const routeHighlight = document.getElementById('route-highlight');
+
+let selectedEl = null;
+let currentTrains = [];
+let activeFilter = null;
+let sheetMode = null;
+let selectedTrain = null;
+let followActive = false;
+let expectedScrollY = null;
+let suppressScrollCheck = 0;
+
+function renderList(){
+  sheetList.innerHTML = '';
+  const filtered = activeFilter ? currentTrains.filter(t => t.dir === activeFilter) : currentTrains;
+  if(filtered.length === 0){
+    sheetList.innerHTML = '<div class="dep-empty">Aucun départ simulé dans cette direction pour le moment.</div>';
+    return;
+  }
+  filtered.forEach(t => {
+    const row = document.createElement('div');
+    row.className = 'dep-row' + (t.status === 'cancelled' ? ' cancelled' : '');
+    const delayLabel = t.status === 'ontime' ? "à l'heure" : t.status === 'cancelled' ? 'Supprimé' : (t.delay + ' min');
+    row.innerHTML = `
+      <div class="dep-code dir${t.dir}">${t.code}</div>
+      <div class="dep-main">
+        <div class="dep-dest">${t.dest}</div>
+        <div class="dep-pos ${t.position.unknown ? 'unknown' : ''}">${t.position.text}</div>
+      </div>
+      <div class="dep-time">
+        <div class="dep-hhmm">${fmtTime(t.scheduled)}</div>
+        <div class="dep-delay ${t.status}">${delayLabel}</div>
+      </div>`;
+    sheetList.appendChild(row);
+  });
+}
+
+function setFilter(dir){
+  activeFilter = (activeFilter === dir) ? null : dir;
+  document.querySelectorAll('.dir-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.dir === activeFilter);
+  });
+  renderList();
+}
+
+function renderSheet(seg, idx, name){
+  currentTrains = buildDepartures(seg, idx);
+  activeFilter = null;
+  document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('active'));
+  renderList();
+  sheetEyebrow.textContent = 'Prochains départs (simulation)';
+  sheetTitle.textContent = name;
+  sheetUpdated.textContent = 'Simulation actualisée à ' + fmtTime(new Date());
+}
+
+function scrollElIntoView(el, smooth){
+  const headerEl = document.querySelector('header');
+  const headerH = headerEl ? headerEl.getBoundingClientRect().height : 0;
+  const sheetH = sheet.getBoundingClientRect().height;
+  const visibleH = Math.max(window.innerHeight - headerH - sheetH, 0);
+  const topPadding = Math.min(Math.max(visibleH * 0.32, 56), 140);
+  const rect = el.getBoundingClientRect();
+  const targetY = window.scrollY + rect.top - headerH - topPadding;
+  const top = Math.max(targetY, 0);
+  suppressScrollCheck = 2;
+  expectedScrollY = top;
+  if(smooth){
+    window.scrollTo({ top, behavior: 'smooth' });
+  } else if(Math.abs(window.scrollY - top) > 1.5){
+    window.scrollTo({ top, behavior: 'auto' });
+  }
+}
+
+window.addEventListener('scroll', () => {
+  if(!followActive) return;
+  if(suppressScrollCheck > 0){ suppressScrollCheck--; return; }
+  if(expectedScrollY !== null && Math.abs(window.scrollY - expectedScrollY) > 45){
+    stopFollowing();
+  }
+});
+
+function updateScrollSpacer(){
+  if(sheet.classList.contains('open')){
+    const sheetH = sheet.getBoundingClientRect().height;
+    scrollSpacer.style.height = (sheetH + 24) + 'px';
+  } else {
+    scrollSpacer.style.height = '0px';
+  }
+}
+window.addEventListener('resize', updateScrollSpacer);
+
+function stopFollowing(){
+  followActive = false;
+  expectedScrollY = null;
+  followBtn.classList.remove('active');
+  followBtn.querySelector('.follow-label').textContent = 'Suivre ce train en direct';
+  if(selectedTrain && selectedTrain.el) selectedTrain.el.classList.remove('following');
+}
+
+function hideRouteHighlight(){
+  routeHighlight.classList.remove('visible');
+}
+
+function showRouteHighlight(t){
+  const d = 'M ' + t.points.map(p => p[0] + ' ' + p[1]).join(' L ');
+  routeHighlight.setAttribute('d', d);
+  routeHighlight.classList.remove('dirA', 'dirB');
+  routeHighlight.classList.add('dir' + southDir(currentDestination(t)));
+  routeHighlight.classList.add('visible');
+}
+
+function openSheetFor(el){
+  const seg = el.dataset.seg, idx = parseInt(el.dataset.idx, 10);
+  const name = el.getAttribute('aria-label');
+  if(sheetMode === 'station' && selectedEl === el && sheet.classList.contains('open')){
+    closeSheet();
+    return;
+  }
+  stopFollowing();
+  selectedTrain = null;
+  hideRouteHighlight();
+  if(selectedEl) selectedEl.classList.remove('selected');
+  selectedEl = el;
+  el.classList.add('selected');
+  sheetMode = 'station';
+  sheetFilters.style.display = 'flex';
+  sheetTrainControls.style.display = 'none';
+  renderSheet(seg, idx, name);
+  sheet.classList.add('open');
+  sheet.setAttribute('aria-hidden','false');
+  updateScrollSpacer();
+  scrollElIntoView(el, true);
+}
+
+function closeSheet(){
+  sheet.classList.remove('open');
+  sheet.setAttribute('aria-hidden','true');
+  if(selectedEl) selectedEl.classList.remove('selected');
+  selectedEl = null;
+  sheetMode = null;
+  stopFollowing();
+  selectedTrain = null;
+  hideRouteHighlight();
+  updateScrollSpacer();
+}
+
+document.querySelectorAll('.stop').forEach(el => {
+  el.addEventListener('click', () => openSheetFor(el));
+  el.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openSheetFor(el); }
+  });
+});
+document.getElementById('sheet-close').addEventListener('click', closeSheet);
+document.querySelectorAll('.dir-btn').forEach(b => {
+  b.addEventListener('click', () => setFilter(b.dataset.dir));
+});
+
+const trainsLayer = document.getElementById('trains-layer');
+const NS = 'http://www.w3.org/2000/svg';
+
+function southDir(name){ return SOUTH_TERMINI.includes(name) ? 'B' : 'A'; }
+
+const liveTrains = TRAIN_DEFS.map((def, i) => {
+  const route = ROUTES[def.route];
+  const n = route.points.length;
+  return {
+    id: i, code: def.code, route: def.route, points: route.points, milestones: route.milestones,
+    termini: route.termini, ci: def.startFrac * (n - 1), dir: def.dir, speed: def.speed,
+    length: def.length, cars: def.cars,
+    status: pick(['ontime','ontime','ontime','late','verylate']), delay: 0, el: null
+  };
+});
+liveTrains.forEach(t => {
+  if(t.status === 'late') t.delay = 2 + Math.floor(Math.random()*8);
+  if(t.status === 'verylate') t.delay = 10 + Math.floor(Math.random()*16);
+});
+
+function createTrainMarker(t){
+  const g = document.createElementNS(NS, 'g');
+  g.setAttribute('class', 'train-marker dir' + southDir(currentDestination(t)));
+  g.setAttribute('tabindex', '0');
+  g.setAttribute('role', 'button');
+
+  const pulse = document.createElementNS(NS, 'circle');
+  pulse.setAttribute('class', 'train-pulse');
+  pulse.setAttribute('r', '10');
+  g.appendChild(pulse);
+
+  const body = document.createElementNS(NS, 'path');
+  body.setAttribute('class', 'train-body');
+  body.setAttribute('d', 'M -8 5.5 L -8 -3 Q -8 -10 0 -10 Q 8 -10 8 -3 L 8 5.5 Q 8 9.5 4.5 9.5 L -4.5 9.5 Q -8 9.5 -8 5.5 Z');
+  body.setAttribute('stroke', '#ffffff');
+  body.setAttribute('stroke-width', '1.5');
+  g.appendChild(body);
+
+  const roofline = document.createElementNS(NS, 'path');
+  roofline.setAttribute('class', 'train-roofline');
+  roofline.setAttribute('d', 'M -6 -7.5 Q 0 -9.2 6 -7.5');
+  g.appendChild(roofline);
+
+  const windshield = document.createElementNS(NS, 'path');
+  windshield.setAttribute('class', 'train-windshield');
+  windshield.setAttribute('d', 'M -5.6 -5.8 Q 0 -8 5.6 -5.8 Q 5.6 -1.8 0 -0.6 Q -5.6 -1.8 -5.6 -5.8 Z');
+  g.appendChild(windshield);
+
+  const lightL = document.createElementNS(NS, 'circle');
+  lightL.setAttribute('class', 'train-light');
+  lightL.setAttribute('cx', '-4.4'); lightL.setAttribute('cy', '4.6'); lightL.setAttribute('r', '1.5');
+  g.appendChild(lightL);
+
+  const lightR = document.createElementNS(NS, 'circle');
+  lightR.setAttribute('class', 'train-light');
+  lightR.setAttribute('cx', '4.4'); lightR.setAttribute('cy', '4.6'); lightR.setAttribute('r', '1.5');
+  g.appendChild(lightR);
+
+  g.addEventListener('click', (e) => { e.stopPropagation(); openTrainSheet(t); });
+  g.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); e.stopPropagation(); openTrainSheet(t); }
+  });
+  trainsLayer.appendChild(g);
+  return g;
+}
+
+function currentDestination(t){
+  return t.dir > 0 ? t.termini[1] : t.termini[0];
+}
+function currentOrigin(t){
+  return t.dir > 0 ? t.termini[0] : t.termini[1];
+}
+
+function positionText(t){
+  const keys = Object.keys(t.milestones).map(Number).sort((a,b) => a-b);
+  if(keys.length === 0) return 'Entre deux gares';
+  let below = null, above = null;
+  for(const k of keys){
+    if(k <= t.ci) below = k;
+    if(k >= t.ci && above === null) above = k;
+  }
+  const EPS = 0.6;
+  if(below !== null && Math.abs(t.ci - below) < EPS) return 'En gare de ' + t.milestones[below];
+  if(above !== null && Math.abs(above - t.ci) < EPS) return 'En gare de ' + t.milestones[above];
+  if(below !== null && above !== null && below !== above){
+    return 'Entre ' + t.milestones[below] + ' et ' + t.milestones[above];
+  }
+  if(below !== null) return 'Après ' + t.milestones[below];
+  if(above !== null) return 'Avant ' + t.milestones[above];
+  return 'Entre deux gares';
+}
+
+function pointAt(t, ci){
+  const pts = t.points, n = pts.length;
+  const clamped = Math.max(0, Math.min(n - 1, ci));
+  const i0 = Math.floor(clamped);
+  const i1 = Math.min(n - 1, i0 + 1);
+  const frac = clamped - i0;
+  return [pts[i0][0] + (pts[i1][0]-pts[i0][0])*frac, pts[i0][1] + (pts[i1][1]-pts[i0][1])*frac];
+}
+
+function renderTrainSheet(t){
+  const dest = currentDestination(t);
+  const origin = currentOrigin(t);
+  const dirLabel = southDir(dest);
+  const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
+  const statusLabel = t.status === 'ontime' ? "à l'heure" : (t.delay + ' min de retard');
+  const formationLabel = t.length === 'long' ? 'Train long' : 'Train court';
+  const formationIcon = t.length === 'long' ? '🚃🚃' : '🚃';
+
+  sheetEyebrow.textContent = 'Train en circulation (simulation)';
+  sheetTitle.textContent = t.code;
+  sheetUpdated.textContent = dirText + ' — ' + origin + ' → ' + dest;
+
+  sheetList.innerHTML = `
+    <div class="train-info-card">
+      <div class="train-info-head">
+        <div class="train-info-code dir${dirLabel}">${t.code}</div>
+        <div>
+          <div class="train-info-dest">Vers ${dest}</div>
+          <div class="train-info-sub">${dirText} · en provenance de ${origin}</div>
+        </div>
+      </div>
+      <div class="train-info-meta">
+        <span class="train-info-chip formation-${t.length}">${formationIcon} ${formationLabel} (${t.cars} voitures)</span>
+      </div>
+      <div class="train-info-pos">📍 <span id="train-info-pos-text">${positionText(t)}</span></div>
+      <div class="train-info-status ${t.status}" id="train-info-status">${statusLabel}</div>
+    </div>`;
+}
+
+function refreshTrainSheetLive(t){
+  if(sheetMode !== 'train' || selectedTrain !== t) return;
+  const posEl = document.getElementById('train-info-pos-text');
+  if(posEl) posEl.textContent = positionText(t);
+  const dest = currentDestination(t);
+  const dirLabel = southDir(dest);
+  const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
+  sheetUpdated.textContent = dirText + ' — ' + currentOrigin(t) + ' → ' + dest;
+}
+
+function openTrainSheet(t){
+  if(selectedEl){ selectedEl.classList.remove('selected'); selectedEl = null; }
+  if(sheetMode === 'train' && selectedTrain === t && sheet.classList.contains('open')){
+    closeSheet();
+    return;
+  }
+  stopFollowing();
+  selectedTrain = t;
+  sheetMode = 'train';
+  sheetFilters.style.display = 'none';
+  sheetTrainControls.style.display = 'block';
+  renderTrainSheet(t);
+  showRouteHighlight(t);
+  sheet.classList.add('open');
+  sheet.setAttribute('aria-hidden','false');
+  updateScrollSpacer();
+  activateFollowing();
+}
+
+function activateFollowing(){
+  followActive = true;
+  followBtn.classList.add('active');
+  followBtn.querySelector('.follow-label').textContent = 'Suivi en direct actif';
+  if(selectedTrain && selectedTrain.el) selectedTrain.el.classList.add('following');
+  if(selectedTrain && selectedTrain.el) scrollElIntoView(selectedTrain.el, true);
+}
+
+followBtn.addEventListener('click', () => {
+  if(!selectedTrain) return;
+  if(followActive) stopFollowing();
+  else activateFollowing();
+});
+
+let lastTs = null;
+function animate(ts){
+  if(lastTs === null) lastTs = ts;
+  const dt = Math.min((ts - lastTs) / 1000, 0.1);
+  lastTs = ts;
+  liveTrains.forEach(t => {
+    const n = t.points.length;
+    t.ci += t.dir * t.speed * dt * SPEED_SCALE;
+    if(t.ci >= n - 1){
+      t.ci = n - 1; t.dir = -1;
+      t.status = pick(['ontime','ontime','ontime','late','verylate']);
+      t.delay = t.status === 'late' ? 2 + Math.floor(Math.random()*8) : (t.status === 'verylate' ? 10 + Math.floor(Math.random()*16) : 0);
+    } else if(t.ci <= 0){
+      t.ci = 0; t.dir = 1;
+      t.status = pick(['ontime','ontime','ontime','late','verylate']);
+      t.delay = t.status === 'late' ? 2 + Math.floor(Math.random()*8) : (t.status === 'verylate' ? 10 + Math.floor(Math.random()*16) : 0);
+    }
+    const [x, y] = pointAt(t, t.ci);
+    if(!t.el) t.el = createTrainMarker(t);
+    t.el.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')');
+    const dirLabel = southDir(currentDestination(t));
+    t.el.classList.remove('dirA', 'dirB');
+    t.el.classList.add('dir' + dirLabel);
+    if(followActive && selectedTrain === t) t.el.classList.add('following');
+    if(sheetMode === 'train' && selectedTrain === t) refreshTrainSheetLive(t);
+    if(selectedTrain === t && routeHighlight.classList.contains('visible')){
+      routeHighlight.classList.remove('dirA', 'dirB');
+      routeHighlight.classList.add('dir' + dirLabel);
+    }
+  });
+  if(followActive && selectedTrain && selectedTrain.el){
+    scrollElIntoView(selectedTrain.el, false);
+  }
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+
+</script>
+</body>
+</html>
