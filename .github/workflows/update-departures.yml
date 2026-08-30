@@ -20,6 +20,20 @@ name: Update live departures (RER C)
 # job s'arrete immediatement hors fenetre), mais n'appelle l'API PRIM que
 # lorsque la fenetre de service/pointe le justifie.
 #
+# Le cron est decale sur des minutes non-rondes (:02, :07, :12...) plutot que
+# */5 pile (:00, :05, :10...). GitHub documente explicitement que le
+# declencheur schedule peut etre retarde pendant les periodes de forte charge,
+# notamment en debut d'heure et sur les minutes rondes ou des millions de
+# workflows dans le monde se declenchent simultanement. Ce decalage reduit la
+# contention sans changer le nombre de runs/jour ni le budget quota.
+#
+# IMPORTANT : les schedules GitHub Actions restent "best effort" (aucune
+# garantie de precision a la minute, des retards ponctuels meme apres ce
+# decalage restent possibles). Cote front-end, js/trains.js interpole la
+# position des trains en continu a partir des heures PRIM reelles (voir PR
+# "interpolation continue"), donc un run legerement retarde n'immobilise pas
+# les trains a l'ecran.
+#
 # Budget quotidien estime (quota officiel "Prochains passages - requete
 # unitaire" : 20 000 requetes/jour, 75 gares interrogees par run) :
 #   - Jour avec pointe (330 min a 5 min => 66 runs, 870 min a 10 min => 87 runs)
@@ -32,7 +46,7 @@ name: Update live departures (RER C)
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '2-59/5 * * * *'
   workflow_dispatch: {}     # permet aussi un declenchement manuel depuis l'onglet Actions
 
 permissions:
@@ -74,13 +88,13 @@ jobs:
             exit 0
           fi
 
-          # Reste du service : cadence 10 min (un declenchement sur deux)
-          if [ $((minute10 % 10)) -eq 0 ]; then
+          # Reste du service : cadence 10 min (un declenchement sur deux, arrondi a la minute du cron)
+          if [ $((minute10 % 10)) -le 2 ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
-            echo "Heure creuse en service (${hour}h${minute}) - run retenu (cadence 10 min)"
+            echo "Heure creuse en service (${hour}h${minute}) - run retenu (cadence ~10 min)"
           else
             echo "should_run=false" >> "$GITHUB_OUTPUT"
-            echo "Heure creuse en service (${hour}h${minute}) - run ignore (cadence 10 min)"
+            echo "Heure creuse en service (${hour}h${minute}) - run ignore (cadence ~10 min)"
           fi
 
       - uses: actions/setup-python@v5
