@@ -8,16 +8,21 @@
  *
  * Suivi des trains réels (actif quand IS_LIVE === true, positionné par
  * real-schedule.js) :
- * - liveTrains est reconstruit et mis à jour périodiquement à partir de
- *   data/live-trains.json (voir refreshLiveTrains ci-dessous), au lieu
- *   d'être généré une fois pour toutes depuis TRAIN_DEFS.
+ * - liveTrains est mis à jour périodiquement à partir de data/live-trains.json
+ *   (voir refreshLiveTrains), au lieu d'être généré une fois pour toutes
+ *   depuis TRAIN_DEFS.
  * - Chaque train réel est rattaché à la route ROUTES[Rx] qui correspond
- *   effectivement à sa mission (cf. resolveRoute) : il suit donc TOUJOURS
- *   le tracé réel de la ligne (jamais de trajectoire à vol d'oiseau entre
- *   deux gares).
- * - animate() n'applique plus de physique aléatoire en mode live : il fait
- *   glisser t.ci vers t.targetCi (recalculé par refreshLiveTrains) pour une
- *   animation fluide entre deux rafraîchissements des données PRIM.
+ *   effectivement à sa mission (cf. resolveRoute) : il suit donc TOUJOURS le
+ *   tracé réel de la ligne (jamais de trajectoire à vol d'oiseau).
+ * - IMPORTANT : la position (t.ci) n'est PAS figée entre deux rafraîchissements
+ *   de data/live-trains.json (toutes les 15 s, lui-même mis à jour par le cron
+ *   PRIM toutes les 5-10 min). refreshLiveTrains() stocke seulement les bornes
+ *   temporelles (fromTime/toTime) et spatiales (fromCi/toCi) du tronçon en
+ *   cours ; animate() recalcule la fraction parcourue à CHAQUE FRAME à partir
+ *   de l'heure réelle du navigateur (Date.now()). Le train avance donc en
+ *   continu même si le backend ne tourne que toutes les 5-10 min — sans appel
+ *   PRIM supplémentaire. Le fetch périodique ne sert qu'à détecter l'arrivée
+ *   à "to" (promotion du tronçon suivant) et à récupérer retards/annulations.
  */
 const trainsLayer = document.getElementById('trains-layer');
 const NS = 'http://www.w3.org/2000/svg';
@@ -39,7 +44,6 @@ const liveTrains = IS_LIVE ? [] : TRAIN_DEFS.map((def, i) => {
     milestones: route.milestones,
     termini: route.termini,
     ci: def.startFrac * (n - 1),
-    targetCi: def.startFrac * (n - 1),
     dir: def.dir,
     speed: def.speed,
     length: def.length,
@@ -48,6 +52,8 @@ const liveTrains = IS_LIVE ? [] : TRAIN_DEFS.map((def, i) => {
     delay: 0,
     dest: null,
     cancelled: false,
+    // Bornes du tronçon en cours (mode live uniquement) :
+    fromCi: null, toCi: null, fromTime: null, toTime: null,
     el: null
   };
 });
@@ -79,8 +85,8 @@ function routeNameIndex(routeKey) {
   return map;
 }
 
-// Résout une clé de gare "seg:idx" (format utilisé par PRIM / live-trains.json,
-// identique à stations-idfm.js) en nom de gare réel, via SEG (data.js).
+// Résout une clé de gare "seg:idx" (format PRIM / live-trains.json, identique
+// à stations-idfm.js) en nom de gare réel, via SEG (data.js).
 function stationKeyToName(stationKey) {
   if (!stationKey) return null;
   const sepIdx = stationKey.lastIndexOf(':');
@@ -93,8 +99,8 @@ function stationKeyToName(stationKey) {
 
 // Trouve, parmi ROUTES (R1..R6), celle qui contient TOUTES les gares connues
 // du train (mission.stops) dans le bon ordre. Retourne {routeKey, indices} ou
-// null si aucune route ne correspond — dans ce cas le train est ignoré plutôt
-// que dessiné hors tracé.
+// null si aucune route ne correspond — le train est alors ignoré plutôt que
+// dessiné hors tracé.
 function resolveRoute(stops) {
   const names = stops.map(s => stationKeyToName(s.station)).filter(Boolean);
   if (names.length === 0) return null;
@@ -147,15 +153,8 @@ async function refreshLiveTrains() {
     const toName = stationKeyToName(rt.to && rt.to.station);
     const fromCi = fromName ? nameIndex[normName(fromName)] : undefined;
     const toCi = toName ? nameIndex[normName(toName)] : undefined;
-
-    let targetCi;
-    if (fromCi !== undefined && toCi !== undefined) {
-      targetCi = fromCi + (toCi - fromCi) * (rt.progress || 0);
-    } else if (fromCi !== undefined) {
-      targetCi = fromCi;
-    } else {
-      targetCi = resolved.indices[resolved.indices.length - 1];
-    }
+    const fromTime = rt.from && rt.from.expected ? new Date(rt.from.expected).getTime() : null;
+    const toTime = rt.to && rt.to.expected ? new Date(rt.to.expected).getTime() : null;
 
     const dir = (toCi !== undefined && fromCi !== undefined && toCi < fromCi) ? -1 : 1;
     const status = rt.cancelled ? 'cancelled' : (rt.delay >= 10 ? 'verylate' : (rt.delay >= 2 ? 'late' : 'ontime'));
@@ -163,6 +162,7 @@ async function refreshLiveTrains() {
     seenCodes.add(rt.code);
     let t = liveTrainsById[rt.code];
     if (!t) {
+      const initialCi = fromCi !== undefined ? fromCi : resolved.indices[resolved.indices.length - 1];
       t = {
         id: rt.code,
         code: rt.code,
@@ -170,8 +170,7 @@ async function refreshLiveTrains() {
         points: route.points,
         milestones: route.milestones,
         termini: route.termini,
-        ci: targetCi,
-        targetCi: targetCi,
+        ci: initialCi,
         dir: dir,
         speed: 0,
         length: 'long',
@@ -180,6 +179,10 @@ async function refreshLiveTrains() {
         delay: rt.delay || 0,
         dest: rt.dest,
         cancelled: !!rt.cancelled,
+        fromCi: fromCi !== undefined ? fromCi : null,
+        toCi: toCi !== undefined ? toCi : null,
+        fromTime: fromTime,
+        toTime: toTime,
         el: null
       };
       liveTrainsById[rt.code] = t;
@@ -189,12 +192,15 @@ async function refreshLiveTrains() {
       t.points = route.points;
       t.milestones = route.milestones;
       t.termini = route.termini;
-      t.targetCi = targetCi;
       t.dir = dir;
       t.dest = rt.dest;
       t.cancelled = !!rt.cancelled;
       t.delay = rt.delay || 0;
       t.status = status;
+      t.fromCi = fromCi !== undefined ? fromCi : null;
+      t.toCi = toCi !== undefined ? toCi : null;
+      t.fromTime = fromTime;
+      t.toTime = toTime;
     }
   });
 
@@ -214,7 +220,7 @@ async function refreshLiveTrains() {
 
 if (IS_LIVE) {
   refreshLiveTrains();
-  setInterval(refreshLiveTrains, 15000); // 15 s : fluide sans matraquer le navigateur/l'hébergement statique
+  setInterval(refreshLiveTrains, 15000); // 15 s : détecte l'arrivée à "to" et les retards, sans faire avancer la position (voir animate)
 }
 
 // --- Rendu du marqueur SVG (inchangé) ---------------------------------------
@@ -376,13 +382,16 @@ function animate(ts) {
     const n = t.points.length;
 
     if (IS_LIVE) {
-      // Glisse en douceur vers la position cible (recalculée par refreshLiveTrains)
-      // au lieu d'une physique simulée : la position reste fidèle à PRIM, jamais
-      // extrapolée au-delà de ce que les horaires réels indiquent.
-      const diff = t.targetCi - t.ci;
-      if (Math.abs(diff) > 0.001) {
-        const EASE = Math.min(1, dt * 1.5);
-        t.ci += diff * EASE;
+      // Position recalculée en continu à partir de l'heure réelle du
+      // navigateur, entre les deux bornes fournies par le dernier
+      // refreshLiveTrains — pas d'attente du prochain run PRIM pour avancer.
+      if (t.fromCi !== null && t.toCi !== null && t.fromTime !== null && t.toTime !== null) {
+        const span = t.toTime - t.fromTime;
+        const now = Date.now();
+        const frac = span > 0 ? Math.max(0, Math.min(1, (now - t.fromTime) / span)) : 1;
+        t.ci = t.fromCi + (t.toCi - t.fromCi) * frac;
+      } else if (t.fromCi !== null) {
+        t.ci = t.fromCi;
       }
     } else {
       t.ci += t.dir * t.speed * dt * SPEED_SCALE;
