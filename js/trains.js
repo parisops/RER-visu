@@ -14,15 +14,20 @@
  * - Chaque train réel est rattaché à la route ROUTES[Rx] qui correspond
  *   effectivement à sa mission (cf. resolveRoute) : il suit donc TOUJOURS le
  *   tracé réel de la ligne (jamais de trajectoire à vol d'oiseau).
- * - IMPORTANT : la position (t.ci) n'est PAS figée entre deux rafraîchissements
- *   de data/live-trains.json (toutes les 15 s, lui-même mis à jour par le cron
- *   PRIM toutes les 5-10 min). refreshLiveTrains() stocke seulement les bornes
- *   temporelles (fromTime/toTime) et spatiales (fromCi/toCi) du tronçon en
- *   cours ; animate() recalcule la fraction parcourue à CHAQUE FRAME à partir
- *   de l'heure réelle du navigateur (Date.now()). Le train avance donc en
- *   continu même si le backend ne tourne que toutes les 5-10 min — sans appel
- *   PRIM supplémentaire. Le fetch périodique ne sert qu'à détecter l'arrivée
- *   à "to" (promotion du tronçon suivant) et à récupérer retards/annulations.
+ * - t.waypoints contient TOUS les arrêts connus de la mission (pas
+ *   seulement le prochain), chacun avec sa position sur le tracé (ci) et son
+ *   heure attendue (time, epoch ms). animate() recalcule à CHAQUE FRAME, via
+ *   Date.now(), entre quels deux waypoints consécutifs on se trouve et
+ *   interpole entre les deux — le train traverse donc en continu tous les
+ *   tronçons connus, pas seulement le premier, même si le backend PRIM ne
+ *   tourne que toutes les 5-15 min. Au-delà du dernier waypoint connu, il
+ *   reste sur ce point (en attente de données plus fraîches) plutôt que de
+ *   disparaître ou dévier du tracé.
+ * - Chaque rafraîchissement de data/live-trains.json (15 s) recalcule les
+ *   waypoints à partir des données les plus récentes : si un retard a changé
+ *   ou que de nouveaux arrêts futurs sont connus, la trajectoire se corrige
+ *   pour les prochaines frames sans téléportation brutale (sauf incohérence
+ *   majeure, ex. arrêt manqué entre deux refresh).
  */
 const trainsLayer = document.getElementById('trains-layer');
 const NS = 'http://www.w3.org/2000/svg';
@@ -52,8 +57,7 @@ const liveTrains = IS_LIVE ? [] : TRAIN_DEFS.map((def, i) => {
     delay: 0,
     dest: null,
     cancelled: false,
-    // Bornes du tronçon en cours (mode live uniquement) :
-    fromCi: null, toCi: null, fromTime: null, toTime: null,
+    waypoints: null, // mode live uniquement
     el: null
   };
 });
@@ -98,9 +102,9 @@ function stationKeyToName(stationKey) {
 }
 
 // Trouve, parmi ROUTES (R1..R6), celle qui contient TOUTES les gares connues
-// du train (mission.stops) dans le bon ordre. Retourne {routeKey, indices} ou
-// null si aucune route ne correspond — le train est alors ignoré plutôt que
-// dessiné hors tracé.
+// du train (mission.stops) dans le bon ordre. Retourne {routeKey, indices}
+// (indices aligné terme à terme avec stops) ou null si aucune route ne
+// correspond — le train est alors ignoré plutôt que dessiné hors tracé.
 function resolveRoute(stops) {
   const names = stops.map(s => stationKeyToName(s.station)).filter(Boolean);
   if (names.length === 0) return null;
@@ -147,22 +151,23 @@ async function refreshLiveTrains() {
     if (!resolved) return; // impossible de rattacher ce train à une route connue : on l'ignore
 
     const route = ROUTES[resolved.routeKey];
-    const nameIndex = routeNameIndex(resolved.routeKey);
 
-    const fromName = stationKeyToName(rt.from && rt.from.station);
-    const toName = stationKeyToName(rt.to && rt.to.station);
-    const fromCi = fromName ? nameIndex[normName(fromName)] : undefined;
-    const toCi = toName ? nameIndex[normName(toName)] : undefined;
-    const fromTime = rt.from && rt.from.expected ? new Date(rt.from.expected).getTime() : null;
-    const toTime = rt.to && rt.to.expected ? new Date(rt.to.expected).getTime() : null;
+    // Construit la liste complète des points d'ancrage (ci, heure attendue)
+    // à partir de TOUS les arrêts connus de la mission, pas seulement from/to.
+    const waypoints = stops
+      .map((s, i) => ({ ci: resolved.indices[i], time: new Date(s.expected).getTime() }))
+      .filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time))
+      .sort((a, b) => a.time - b.time);
+    if (waypoints.length === 0) return;
 
-    const dir = (toCi !== undefined && fromCi !== undefined && toCi < fromCi) ? -1 : 1;
+    const firstCi = waypoints[0].ci;
+    const lastCi = waypoints[waypoints.length - 1].ci;
+    const dir = lastCi < firstCi ? -1 : 1;
     const status = rt.cancelled ? 'cancelled' : (rt.delay >= 10 ? 'verylate' : (rt.delay >= 2 ? 'late' : 'ontime'));
 
     seenCodes.add(rt.code);
     let t = liveTrainsById[rt.code];
     if (!t) {
-      const initialCi = fromCi !== undefined ? fromCi : resolved.indices[resolved.indices.length - 1];
       t = {
         id: rt.code,
         code: rt.code,
@@ -170,7 +175,7 @@ async function refreshLiveTrains() {
         points: route.points,
         milestones: route.milestones,
         termini: route.termini,
-        ci: initialCi,
+        ci: waypoints[0].ci,
         dir: dir,
         speed: 0,
         length: 'long',
@@ -179,10 +184,7 @@ async function refreshLiveTrains() {
         delay: rt.delay || 0,
         dest: rt.dest,
         cancelled: !!rt.cancelled,
-        fromCi: fromCi !== undefined ? fromCi : null,
-        toCi: toCi !== undefined ? toCi : null,
-        fromTime: fromTime,
-        toTime: toTime,
+        waypoints: waypoints,
         el: null
       };
       liveTrainsById[rt.code] = t;
@@ -197,10 +199,7 @@ async function refreshLiveTrains() {
       t.cancelled = !!rt.cancelled;
       t.delay = rt.delay || 0;
       t.status = status;
-      t.fromCi = fromCi !== undefined ? fromCi : null;
-      t.toCi = toCi !== undefined ? toCi : null;
-      t.fromTime = fromTime;
-      t.toTime = toTime;
+      t.waypoints = waypoints;
     }
   });
 
@@ -220,7 +219,22 @@ async function refreshLiveTrains() {
 
 if (IS_LIVE) {
   refreshLiveTrains();
-  setInterval(refreshLiveTrains, 15000); // 15 s : détecte l'arrivée à "to" et les retards, sans faire avancer la position (voir animate)
+  setInterval(refreshLiveTrains, 15000); // 15 s : recale les waypoints, ne fait pas avancer la position elle-même (voir animate)
+}
+
+// Trouve la position (ci) correspondant à l'heure "now" en interpolant entre
+// les deux waypoints consécutifs qui l'encadrent. Reste sur le premier/dernier
+// point connu si "now" est hors de la plage couverte par les waypoints.
+function ciFromWaypoints(waypoints, now) {
+  if (!waypoints || waypoints.length === 0) return null;
+  if (now <= waypoints[0].time) return waypoints[0].ci;
+  let i = 0;
+  while (i < waypoints.length - 1 && waypoints[i + 1].time <= now) i++;
+  if (i >= waypoints.length - 1) return waypoints[waypoints.length - 1].ci;
+  const a = waypoints[i], b = waypoints[i + 1];
+  const span = b.time - a.time;
+  const frac = span > 0 ? Math.max(0, Math.min(1, (now - a.time) / span)) : 1;
+  return a.ci + (b.ci - a.ci) * frac;
 }
 
 // --- Rendu du marqueur SVG (inchangé) ---------------------------------------
@@ -382,17 +396,10 @@ function animate(ts) {
     const n = t.points.length;
 
     if (IS_LIVE) {
-      // Position recalculée en continu à partir de l'heure réelle du
-      // navigateur, entre les deux bornes fournies par le dernier
-      // refreshLiveTrains — pas d'attente du prochain run PRIM pour avancer.
-      if (t.fromCi !== null && t.toCi !== null && t.fromTime !== null && t.toTime !== null) {
-        const span = t.toTime - t.fromTime;
-        const now = Date.now();
-        const frac = span > 0 ? Math.max(0, Math.min(1, (now - t.fromTime) / span)) : 1;
-        t.ci = t.fromCi + (t.toCi - t.fromCi) * frac;
-      } else if (t.fromCi !== null) {
-        t.ci = t.fromCi;
-      }
+      // Parcourt en continu TOUS les arrêts connus de la mission (pas
+      // seulement le prochain), en interpolant à partir de l'heure réelle.
+      const ci = ciFromWaypoints(t.waypoints, Date.now());
+      if (ci !== null) t.ci = ci;
     } else {
       t.ci += t.dir * t.speed * dt * SPEED_SCALE;
       if (t.ci >= n - 1) {
