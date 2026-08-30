@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-30T16:37:33Z",
+  "generatedAt": "2026-08-30T16:45:03Z",
   "trains": [
     {
       "code": "GOTA·1",
@@ -17,14 +17,14 @@
         "platform": "M"
       },
       "to": {
-        "station": "spine:12",
-        "scheduled": "2026-08-30T16:39:20.000Z",
-        "expected": "2026-08-30T16:39:27.000Z",
+        "station": "spine:10",
+        "scheduled": "2026-08-30T16:45:30.000Z",
+        "expected": "2026-08-30T16:45:40.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
       },
-      "progress": 0.6262295081967213,
+      "progress": 0.9454277286135693,
       "stops": [
         {
           "station": "spine:4",
@@ -35,17 +35,25 @@
           "platform": "M"
         },
         {
-          "station": "spine:12",
-          "scheduled": "2026-08-30T16:39:20.000Z",
-          "expected": "2026-08-30T16:39:27.000Z",
+          "station": "spine:10",
+          "scheduled": "2026-08-30T16:45:30.000Z",
+          "expected": "2026-08-30T16:45:40.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
         },
         {
-          "station": "spine:11",
-          "scheduled": "2026-08-30T16:43:00.000Z",
-          "expected": "2026-08-30T16:43:07.000Z",
+          "station": "spine:21",
+          "scheduled": "2026-08-30T16:45:30.000Z",
+          "expected": "2026-08-30T16:45:30.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2"
+        },
+        {
+          "station": "spine:20",
+          "scheduled": "2026-08-30T16:47:40.000Z",
+          "expected": "2026-08-30T16:47:40.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -53,58 +61,101 @@
       ]
     },
     {
-      "code": "ORET·1",
-      "dest": "Musée d'Orsay",
-      "dir": "A",
+      "code": "JUJU·1",
+      "dest": "Juvisy",
+      "dir": "B",
       "state": "arrived",
       "cancelled": false,
-      "delay": 0,
+      "delay": 1,
       "from": {
-        "station": "spine:23",
-        "scheduled": "2026-08-30T16:36:10.000Z",
-        "expected": "2026-08-30T16:36:10.000Z",
+        "station": "west:3",
+        "scheduled": "2026-08-30T16:44:20.000Z",
+        "expected": "2026-08-30T16:45:00.000Z",
         "status": "onTime",
-        "delay": 0,
+        "delay": 1,
         "platform": "1"
       },
       "to": null,
       "progress": 1.0,
       "stops": [
         {
-          "station": "spine:23",
-          "scheduled": "2026-08-30T16:36:10.000Z",
-          "expected": "2026-08-30T16:36:10.000Z",
+          "station": "west:3",
+          "scheduled": "2026-08-30T16:44:20.000Z",
+          "expected": "2026-08-30T16:45:00.000Z",
           "status": "onTime",
-          "delay": 0,
+          "delay": 1,
           "platform": "1"
         }
       ]
     },
     {
-      "code": "ORET·2",
-      "dest": "Musée d'Orsay",
+      "code": "NORA·1",
+      "dest": "Pontoise",
       "dir": "A",
       "state": "arrived",
       "cancelled": false,
       "delay": 0,
       "from": {
-        "station": "etampes:4",
-        "scheduled": "2026-08-30T16:37:30.000Z",
-        "expected": "2026-08-30T16:37:30.000Z",
+        "station": "spine:15",
+        "scheduled": "2026-08-30T16:44:50.000Z",
+        "expected": "2026-08-30T16:44:50.000Z",
         "status": "onTime",
         "delay": 0,
-        "platform": "2B"
+        "platform": "2"
       },
       "to": null,
       "progress": 1.0,
       "stops": [
         {
-          "station": "etampes:4",
-          "scheduled": "2026-08-30T16:37:30.000Z",
-          "expected": "2026-08-30T16:37:30.000Z",
+          "station": "spine:15",
+          "scheduled": "2026-08-30T16:44:50.000Z",
+          "expected": "2026-08-30T16:44:50.000Z",
           "status": "onTime",
           "delay": 0,
-          "platform": "2B"
+          "platform": "2"
+        }
+      ]
+    },
+    {
+      "code": "VACK·1",
+      "dest": "Versailles Château Rive Gauche",
+      "dir": "A",
+      "state": "enRoute",
+      "cancelled": false,
+      "delay": 2,
+      "from": {
+        "station": "spine:34",
+        "scheduled": "2026-08-30T16:44:00.000Z",
+        "expected": "2026-08-30T16:45:00.000Z",
+        "status": "onTime",
+        "delay": 1,
+        "platform": "45"
+      },
+      "to": {
+        "station": "spine:24",
+        "scheduled": "2026-08-30T16:43:40.000Z",
+        "expected": "2026-08-30T16:45:19.000Z",
+        "status": "onTime",
+        "delay": 2,
+        "platform": "2"
+      },
+      "progress": 0.15789473684210525,
+      "stops": [
+        {
+          "station": "spine:24",
+          "scheduled": "2026-08-30T16:43:40.000Z",
+          "expected": "2026-08-30T16:45:19.000Z",
+          "status": "onTime",
+          "delay": 2,
+          "platform": "2"
+        },
+        {
+          "station": "spine:34",
+          "scheduled": "2026-08-30T16:44:00.000Z",
+          "expected": "2026-08-30T16:45:00.000Z",
+          "status": "onTime",
+          "delay": 1,
+          "platform": "45"
         }
       ]
     },
@@ -124,14 +175,14 @@
         "platform": "D"
       },
       "to": {
-        "station": "orly:0",
-        "scheduled": "2026-08-30T16:38:40.000Z",
-        "expected": "2026-08-30T16:38:40.000Z",
+        "station": "spine:26",
+        "scheduled": "2026-08-30T16:46:30.000Z",
+        "expected": "2026-08-30T16:46:30.000Z",
         "status": "onTime",
         "delay": 0,
-        "platform": "Z"
+        "platform": "A"
       },
-      "progress": 0.7362204724409449,
+      "progress": 0.8798342541436464,
       "stops": [
         {
           "station": "spine:25",
@@ -150,12 +201,12 @@
           "platform": "D"
         },
         {
-          "station": "orly:0",
-          "scheduled": "2026-08-30T16:38:40.000Z",
-          "expected": "2026-08-30T16:38:40.000Z",
+          "station": "spine:26",
+          "scheduled": "2026-08-30T16:46:30.000Z",
+          "expected": "2026-08-30T16:46:30.000Z",
           "status": "onTime",
           "delay": 0,
-          "platform": "Z"
+          "platform": "A"
         }
       ]
     }
