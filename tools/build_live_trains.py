@@ -3,32 +3,39 @@
 build_live_trains.py — Reconstruit la position de chaque train RER C a partir
 de data/live-departures.json (sortie de fetch_prim_departures.py) et ecrit
 data/live-trains.json, consomme par js/trains.js pour l'animation "suivi des
-trains" (position interpolee entre deux gares, faute de position GPS
-temps reel cote PRIM pour les RER/Transilien).
+trains" (position interpolee entre gares, faute de position GPS temps reel
+cote PRIM pour les RER/Transilien).
 
 Principe :
 - PRIM ne donne pas la position GPS d'un train RER, seulement, gare par gare,
-  l'heure theorique/estimee de passage. On regroupe donc tous les passages
-  par code mission ("ORET", "DEBA", ...) - deja capture par
-  fetch_prim_departures.py - pour reconstituer la liste ordonnee des gares
-  desservies aujourd'hui par un train, puis on interpole sa position entre la
-  derniere gare deja desservie et la prochaine.
+  l'heure theorique/estimee de passage, et seulement sur une fenetre limitee
+  (les quelques prochains passages par gare, ~30-60 min d'horizon). On
+  regroupe les passages par code mission ("ORET", "DEBA", ...), MAIS :
 
-ATTENTION - un code mission n'est PAS un identifiant unique a un instant
-donne : PRIM/SNCF reutilise le meme code a 4 lettres pour PLUSIEURS trains
-differents circulant simultanement sur des portions distinctes de la ligne
-(observe empiriquement : "GOTA" attache a la fois a un passage vers
-Epinay-sur-Seine et a un passage vers Champ de Mars a 1 minute d'intervalle,
-soit ~650 km/h implicite). Ce script utilise donc les coordonnees GPS des
-gares (stations-idfm.js) pour detecter ces incoherences et scinder un code
-en plusieurs trains distincts quand la vitesse impliquee entre deux passages
-consecutifs depasse un seuil physiquement absurde (MAX_PLAUSIBLE_KMH).
+  1. Un code mission n'est PAS unique a un instant donne : PRIM/SNCF reutilise
+     le meme code a 4 lettres pour PLUSIEURS trains differents circulant
+     simultanement sur des portions distinctes de la ligne (observe : "GOTA"
+     attache a la fois a un passage vers Epinay-sur-Seine et vers Champ de
+     Mars a 1 minute d'intervalle, ~650 km/h implicite). On scinde donc les
+     passages d'un code en sous-sequences physiquement plausibles avant toute
+     autre chose (split_into_runs, via les coordonnees GPS de
+     stations-idfm.js).
+
+  2. Un seul instantane PRIM ne suffit generalement pas a couvrir tout le
+     trajet d'un train (fenetre de visibilite trop courte par gare). On
+     persiste donc un historique entre les executions (data/train-tracks.json)
+     : chaque run tente de rattacher ses nouvelles sequences aux "tracks"
+     deja connus (meme code + continuite physique plausible), les enrichit,
+     et supprime les tracks devenus obsoletes (dernier arret connu trop
+     ancien). Le fichier de sortie live-trains.json est calcule a partir de
+     cet historique cumule, pas seulement du dernier instantane.
 
 USAGE (local, apres avoir lance fetch_prim_departures.py) :
   python3 tools/build_live_trains.py
 
-Entree : data/live-departures.json, js/stations-idfm.js (pour les coordonnees)
-Sortie : data/live-trains.json
+Entree  : data/live-departures.json, js/stations-idfm.js (coordonnees),
+          data/train-tracks.json (historique, cree automatiquement)
+Sortie  : data/live-trains.json, data/train-tracks.json (mis a jour)
 """
 import json
 import math
@@ -40,16 +47,21 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 IN_PATH = os.path.join(ROOT, "data", "live-departures.json")
 OUT_PATH = os.path.join(ROOT, "data", "live-trains.json")
+TRACKS_PATH = os.path.join(ROOT, "data", "train-tracks.json")
 STATIONS_JS_PATH = os.path.join(ROOT, "js", "stations-idfm.js")
 
 # Duree pendant laquelle un train reste affiche "a quai" apres son dernier
 # arret connu quand aucun arret suivant n'est encore visible dans PRIM.
 ARRIVED_GRACE_MINUTES = 3
 
-# Vitesse au-dela de laquelle deux passages consecutifs d'un meme code
-# mission sont consideres comme appartenant a deux trains differents plutot
-# qu'au meme train (RER C ne depasse pas ~160 km/h en pointe ; grande marge
-# de securite pour ne jamais couper un vrai trajet rapide).
+# Un track dont le dernier arret connu est plus ancien que ca est considere
+# termine et est retire de l'historique persiste.
+TRACK_MAX_AGE_MINUTES = 90
+
+# Vitesse au-dela de laquelle deux arrets consecutifs (au sein d'un meme
+# instantane OU entre un track existant et un nouveau passage) sont
+# consideres comme appartenant a deux trains differents plutot qu'au meme
+# train (RER C ne depasse pas ~160 km/h en pointe ; grande marge de securite).
 MAX_PLAUSIBLE_KMH = 180
 
 
@@ -87,9 +99,21 @@ def haversine_km(a, b):
     return 2 * R * math.asin(math.sqrt(x))
 
 
+def implied_speed_kmh(coords, stop_a, stop_b):
+    """Vitesse implicite (km/h) entre deux arrets, ou None si non calculable
+    (coordonnees manquantes ou meme gare)."""
+    c_a = coords.get(stop_a["station"])
+    c_b = coords.get(stop_b["station"])
+    if not c_a or not c_b or c_a == c_b:
+        return None
+    dt_h = (parse_iso(stop_b["expected"]) - parse_iso(stop_a["expected"])).total_seconds() / 3600
+    if dt_h <= 0:
+        return None
+    return haversine_km(c_a, c_b) / dt_h
+
+
 def build_missions(data):
-    """Regroupe tous les passages par code mission -> liste de gares triees
-    (sans encore separer les collisions de code, voir split_into_trains)."""
+    """Regroupe tous les passages du DERNIER instantane par code mission."""
     missions = {}
     for station_key, station_data in data.get("stations", {}).items():
         for dep in station_data.get("departures", []):
@@ -116,46 +140,106 @@ def build_missions(data):
     return missions
 
 
-def split_into_trains(mission, coords):
-    """Scinde les arrets d'un code mission en sous-sequences physiquement
-    plausibles (vitesse implicite <= MAX_PLAUSIBLE_KMH entre deux arrets
-    consecutifs). Retourne une liste de mini-"mission" (memes cles que
-    l'entree), chacune representant un train distinct."""
+def split_into_runs(mission, coords):
+    """Scinde les arrets d'un code mission (dans UN instantane) en
+    sous-sequences physiquement plausibles. Retourne une liste de mini-
+    "mission" (memes cles que l'entree)."""
     stops = mission["stops"]
     if len(stops) <= 1:
-        return [mission] if stops else []
+        return [dict(mission, stops=list(stops))] if stops else []
 
     runs = [[stops[0]]]
     for prev, cur in zip(stops, stops[1:]):
-        c_prev = coords.get(prev["station"])
-        c_cur = coords.get(cur["station"])
-        same_train = True
-        if c_prev and c_cur and c_prev != c_cur:
-            dt_h = (parse_iso(cur["expected"]) - parse_iso(prev["expected"])).total_seconds() / 3600
-            if dt_h > 0:
-                speed = haversine_km(c_prev, c_cur) / dt_h
-                if speed > MAX_PLAUSIBLE_KMH:
-                    same_train = False
-        if same_train:
-            runs[-1].append(cur)
-        else:
+        speed = implied_speed_kmh(coords, prev, cur)
+        if speed is not None and speed > MAX_PLAUSIBLE_KMH:
             runs.append([cur])
+        else:
+            runs[-1].append(cur)
 
-    result = []
+    return [dict(mission, stops=run) for run in runs]
+
+
+def load_tracks():
+    if not os.path.exists(TRACKS_PATH):
+        return []
+    try:
+        with open(TRACKS_PATH, encoding="utf-8") as f:
+            return json.load(f).get("tracks", [])
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def save_tracks(tracks):
+    with open(TRACKS_PATH, "w", encoding="utf-8") as f:
+        json.dump({"tracks": tracks}, f, ensure_ascii=False, indent=2)
+
+
+def merge_stops(existing_stops, new_stops):
+    """Fusionne deux listes de stops, dedupliquees par (station, scheduled), triees."""
+    seen = {(s["station"], s["scheduled"]): s for s in existing_stops}
+    for s in new_stops:
+        seen[(s["station"], s["scheduled"])] = s  # la version la plus recente gagne (retard a jour)
+    return sorted(seen.values(), key=lambda s: s["scheduled"])
+
+
+def attach_runs_to_tracks(tracks, runs, coords):
+    """Tente de rattacher chaque nouvelle sequence (run, issue de l'instantane
+    courant) a un track existant (meme code + continuite physique plausible).
+    Sinon cree un nouveau track. Modifie `tracks` en place et le retourne."""
+    by_code = {}
+    for i, track in enumerate(tracks):
+        by_code.setdefault(track["code"], []).append(i)
+
     for run in runs:
-        result.append({
-            "code": mission["code"],
-            "dest": mission["dest"],
-            "dir": mission["dir"],
-            "stops": run,
-        })
-    return result
+        candidates = by_code.get(run["code"], [])
+        best_idx, best_gap = None, None
+        for idx in candidates:
+            track = tracks[idx]
+            last_stop = track["stops"][-1]
+            first_new = run["stops"][0]
+            speed = implied_speed_kmh(coords, last_stop, first_new)
+            t_last = parse_iso(last_stop["expected"])
+            t_new = parse_iso(first_new["expected"])
+            plausible = (speed is not None and speed <= MAX_PLAUSIBLE_KMH and t_new >= t_last) \
+                or (last_stop["station"] == first_new["station"])
+            if plausible:
+                gap = abs((t_new - t_last).total_seconds())
+                if best_gap is None or gap < best_gap:
+                    best_idx, best_gap = idx, gap
+
+        if best_idx is not None:
+            track = tracks[best_idx]
+            track["stops"] = merge_stops(track["stops"], run["stops"])
+            track["dest"] = run["dest"]
+            track["dir"] = run["dir"]
+        else:
+            tracks.append({
+                "code": run["code"],
+                "dest": run["dest"],
+                "dir": run["dir"],
+                "stops": list(run["stops"]),
+            })
+            by_code.setdefault(run["code"], []).append(len(tracks) - 1)
+
+    return tracks
 
 
-def locate_train(mission, now):
+def prune_tracks(tracks, now):
+    kept = []
+    for track in tracks:
+        if not track["stops"]:
+            continue
+        last_time = parse_iso(track["stops"][-1]["expected"])
+        age_min = (now - last_time).total_seconds() / 60
+        if age_min <= TRACK_MAX_AGE_MINUTES:
+            kept.append(track)
+    return kept
+
+
+def locate_train(track, now):
     """Determine la derniere gare deja desservie (from) et la prochaine (to),
     et la fraction de trajet parcourue entre les deux."""
-    stops = mission["stops"]
+    stops = track["stops"]
     past = [s for s in stops if parse_iso(s["expected"]) <= now]
     future = [s for s in stops if parse_iso(s["expected"]) > now]
 
@@ -177,7 +261,7 @@ def locate_train(mission, now):
         return None, None, None, "expired"
 
     if to_stop and not from_stop:
-        return None, to_stop, None, "notStarted"
+        return None, to_stop, 0.0, "notStarted"
 
     return None, None, None, "unknown"
 
@@ -186,33 +270,47 @@ def build_live_trains():
     data = load_departures()
     now = parse_iso(data["generatedAt"])
     coords = load_station_coords()
+
     missions = build_missions(data)
+    new_runs = []
+    for mission in missions.values():
+        new_runs.extend(split_into_runs(mission, coords))
+
+    tracks = load_tracks()
+    tracks = attach_runs_to_tracks(tracks, new_runs, coords)
+    tracks = prune_tracks(tracks, now)
+    save_tracks(tracks)
+
+    counts = {}
+    for track in tracks:
+        counts[track["code"]] = counts.get(track["code"], 0) + 1
+    seen_per_code = {}
 
     trains = []
-    for code, mission in missions.items():
-        runs = split_into_trains(mission, coords)
-        multi = len(runs) > 1
-        for i, run in enumerate(runs, 1):
-            if not run["stops"]:
-                continue
-            from_stop, to_stop, progress, state = locate_train(run, now)
-            if state in ("expired", "notStarted", "unknown"):
-                continue
-            cancelled = any(s["status"] == "cancelled" for s in run["stops"])
-            reference_stop = to_stop or from_stop
-            display_code = f"{code}\u00b7{i}" if multi else code
-            trains.append({
-                "code": display_code,
-                "dest": run["dest"],
-                "dir": run["dir"],
-                "state": state,
-                "cancelled": cancelled,
-                "delay": reference_stop["delay"] if reference_stop else 0,
-                "from": from_stop,
-                "to": to_stop,
-                "progress": progress,
-                "stops": run["stops"],
-            })
+    for track in tracks:
+        from_stop, to_stop, progress, state = locate_train(track, now)
+        if state in ("expired", "unknown"):
+            continue
+        cancelled = any(s["status"] == "cancelled" for s in track["stops"])
+        reference_stop = to_stop or from_stop
+        code = track["code"]
+        if counts[code] > 1:
+            seen_per_code[code] = seen_per_code.get(code, 0) + 1
+            display_code = f"{code}\u00b7{seen_per_code[code]}"
+        else:
+            display_code = code
+        trains.append({
+            "code": display_code,
+            "dest": track["dest"],
+            "dir": track["dir"],
+            "state": state,
+            "cancelled": cancelled,
+            "delay": reference_stop["delay"] if reference_stop else 0,
+            "from": from_stop,
+            "to": to_stop,
+            "progress": progress,
+            "stops": track["stops"],
+        })
 
     trains.sort(key=lambda t: t["code"])
     return {"generatedAt": data["generatedAt"], "trains": trains}
@@ -224,8 +322,9 @@ def main():
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
     n_active = sum(1 for t in out["trains"] if t["state"] == "enRoute")
+    n_waiting = sum(1 for t in out["trains"] if t["state"] == "notStarted")
     n_total = len(out["trains"])
-    print(f"Ecrit : {OUT_PATH} ({n_total} trains suivis, {n_active} en circulation)")
+    print(f"Ecrit : {OUT_PATH} ({n_total} trains suivis, {n_active} en circulation, {n_waiting} en attente)")
 
 
 if __name__ == "__main__":

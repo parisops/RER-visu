@@ -3,7 +3,9 @@ name: Update live departures (RER C)
 # Interroge l'API PRIM (SIRI Lite StopMonitoring) pour les 75 gares, ecrit
 # data/live-departures.json (consomme par js/real-schedule.js), puis derive
 # data/live-trains.json (positions interpolees des trains en circulation,
-# consomme par js/trains.js pour le suivi des trains).
+# consomme par js/trains.js pour le suivi des trains) en s'appuyant sur un
+# historique persiste (data/train-tracks.json) qui accumule les arrets
+# observes d'un train au fil des runs successifs.
 #
 # Prerequis : un secret de repo PRIM_API_KEY (Settings > Secrets and variables
 # > Actions > New repository secret). Ne jamais mettre la cle ailleurs.
@@ -30,9 +32,9 @@ name: Update live departures (RER C)
 # IMPORTANT : les schedules GitHub Actions restent "best effort" (aucune
 # garantie de precision a la minute, des retards ponctuels meme apres ce
 # decalage restent possibles). Cote front-end, js/trains.js interpole la
-# position des trains en continu a partir des heures PRIM reelles (voir PR
-# "interpolation continue"), donc un run legerement retarde n'immobilise pas
-# les trains a l'ecran.
+# position des trains en continu a partir des heures PRIM reelles sur TOUTE
+# la mission connue (pas seulement le prochain arret), donc un run legerement
+# retarde n'immobilise pas les trains a l'ecran.
 #
 # Budget quotidien estime (quota officiel "Prochains passages - requete
 # unitaire" : 20 000 requetes/jour, 75 gares interrogees par run) :
@@ -42,7 +44,8 @@ name: Update live departures (RER C)
 #     => 120 runs) => 120 x 75 = 9 000 requetes/jour
 # Marge confortable sous les 20 000/jour dans tous les cas.
 # build_live_trains.py ne fait aucun appel reseau (il derive uniquement
-# live-departures.json) : il n'a aucun impact sur ce budget.
+# live-departures.json + son propre historique) : il n'a aucun impact sur ce
+# budget.
 
 on:
   schedule:
@@ -88,7 +91,7 @@ jobs:
             exit 0
           fi
 
-          # Reste du service : cadence 10 min (un declenchement sur deux, arrondi a la minute du cron)
+          # Reste du service : cadence ~10 min (un declenchement sur deux, arrondi a la minute du cron)
           if [ $((minute10 % 10)) -le 2 ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
             echo "Heure creuse en service (${hour}h${minute}) - run retenu (cadence ~10 min)"
@@ -117,6 +120,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/live-departures.json data/live-trains.json
+          git add data/live-departures.json data/live-trains.json data/train-tracks.json
           git diff --staged --quiet || git commit -m "chore: update live departures and train positions [skip ci]"
           git push
