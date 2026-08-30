@@ -30,6 +30,15 @@ Principe :
      ancien). Le fichier de sortie live-trains.json est calcule a partir de
      cet historique cumule, pas seulement du dernier instantane.
 
+     ATTENTION : le rattachement "meme gare" (cas ou le calcul de vitesse ne
+     s'applique pas, coordonnees identiques) doit imperativement exiger un
+     ecart de temps court (SAME_STATION_TOLERANCE_S) entre le dernier arret du
+     track et le nouveau passage. Sans cette limite, des gares partagees par
+     plusieurs missions (ex. Gare d'Austerlitz, desservie par les 6 routes)
+     finissent par fusionner des trains totalement sans rapport au fil des
+     runs, corrompant l'historique (observe : 209 trains connus cote backend,
+     4 seulement resolubles sur une route reelle cote navigateur).
+
 USAGE (local, apres avoir lance fetch_prim_departures.py) :
   python3 tools/build_live_trains.py
 
@@ -63,6 +72,11 @@ TRACK_MAX_AGE_MINUTES = 90
 # consideres comme appartenant a deux trains differents plutot qu'au meme
 # train (RER C ne depasse pas ~160 km/h en pointe ; grande marge de securite).
 MAX_PLAUSIBLE_KMH = 180
+
+# Tolerance pour considerer un passage a la MEME gare comme la reobservation
+# du meme arret (pas un train different) : ecart de temps maximal accepte.
+# Indispensable sur les gares partagees par plusieurs routes (voir docstring).
+SAME_STATION_TOLERANCE_S = 5 * 60  # 5 minutes
 
 
 def parse_iso(ts):
@@ -200,10 +214,18 @@ def attach_runs_to_tracks(tracks, runs, coords):
             speed = implied_speed_kmh(coords, last_stop, first_new)
             t_last = parse_iso(last_stop["expected"])
             t_new = parse_iso(first_new["expected"])
-            plausible = (speed is not None and speed <= MAX_PLAUSIBLE_KMH and t_new >= t_last) \
-                or (last_stop["station"] == first_new["station"])
+            gap_s = (t_new - t_last).total_seconds()
+            # Meme gare acceptee seulement si l'ecart de temps est court et
+            # dans le bon sens : reobservation du meme arret entre deux runs
+            # proches, jamais un train totalement different repasse par la
+            # meme gare (frequent sur les gares partagees par plusieurs
+            # routes, ex. Gare d'Austerlitz). Sans cette restriction, des
+            # trains sans rapport se retrouvaient fusionnes dans un meme
+            # track, corrompant l'historique.
+            plausible = (speed is not None and speed <= MAX_PLAUSIBLE_KMH and gap_s >= 0) \
+                or (last_stop["station"] == first_new["station"] and 0 <= gap_s <= SAME_STATION_TOLERANCE_S)
             if plausible:
-                gap = abs((t_new - t_last).total_seconds())
+                gap = abs(gap_s)
                 if best_gap is None or gap < best_gap:
                     best_idx, best_gap = idx, gap
 
