@@ -1,26 +1,26 @@
 /*
- * mock-schedule.js — Générateur de départs / positions SIMULÉS.
+ * mock-schedule.js — Générateur de départs / positions SIMULÉS, calibré sur les
+ * VRAIES destinations observées dans le GTFS statique IDFM (voir destinations-observed.js,
+ * miné à partir de 4434 trajets réels de la ligne C). Les horaires, retards et
+ * codes mission restent simulés — seules les destinations reflètent la réalité.
  *
- * >>> C'EST LE FICHIER À REMPLACER EN PRIORITÉ POUR BRANCHER DE VRAIES DONNÉES. <<<
+ * >>> POUR DU VRAI TEMPS RÉEL : remplacer ce fichier par un real-schedule.js qui <<<
+ * >>> expose la même interface (voir ci-dessous), chargé à la place dans index.html. <<<
  *
- * Toutes les fonctions ci-dessous fabriquent des données aléatoires mais plausibles
- * (codes mission, horaires, retards, positions). Pour connecter une vraie source
- * (API temps réel IDFM, GTFS-RT, etc.), il suffit d'écrire un fichier équivalent
- * (ex: real-schedule.js) qui expose exactement les mêmes fonctions avec la même
- * signature, chargé à la place de celui-ci dans index.html :
- *
- *   - getDirections(seg, idx)   -> {A: [destinations] | null, B: [destinations] | null}
+ *   - getDirections(seg, idx)   -> {A: [[dest,poids],...] | null, B: [...] | null}
  *   - buildDepartures(seg, idx) -> tableau de 6 objets {code, dest, dir, scheduled, status, delay, position}
- *   - randomPosition(seg, idx)  -> {text, unknown}  (position "actuellement à ..." d'un train)
- *   - pick / pad / fmtTime      -> petits utilitaires réutilisés par panel.js et trains.js
+ *   - randomPosition(seg, idx)  -> {text, unknown}  (position "actuellement à ...")
+ *   - pick / pickWeighted / pad / fmtTime -> utilitaires réutilisés par panel.js et trains.js
  *
- * Rien d'autre dans le code (panel.js, trains.js) n'a besoin de changer tant que
- * cette interface est respectée.
+ * Rien d'autre (panel.js, trains.js) n'a besoin de changer tant que cette
+ * interface est respectée.
  *
- * Dépend de : data.js (SEG, TERM, CODES)
+ * Dépend de : data.js (SEG, TERM, CODES), destinations-observed.js (OBSERVED_DESTINATIONS)
  */
 
-function getDirections(seg, idx){
+// Repli si une gare n'a pas (ou plus) de données observées pour un sens donné —
+// ne devrait normalement jamais servir (couverture 100% sur les 75 gares).
+function getDirectionsFallback(seg, idx){
   const lastIdx = SEG[seg].length - 1;
   if(seg === 'spine'){
     if(idx <= 19){
@@ -54,9 +54,38 @@ function getDirections(seg, idx){
   }
 }
 
+// Normalise n'importe quel pool (paires [nom,poids] OU simples noms) en paires pondérées.
+function toWeightedPairs(pool){
+  if(!pool) return null;
+  return pool.map(v => Array.isArray(v) ? v : [v, 1]);
+}
+
+function getDirections(seg, idx){
+  const obs = (typeof OBSERVED_DESTINATIONS !== 'undefined') ? OBSERVED_DESTINATIONS[seg+':'+idx] : null;
+  if(obs && ((obs.A && obs.A.length) || (obs.B && obs.B.length))){
+    return {
+      A: obs.A && obs.A.length ? obs.A : null,
+      B: obs.B && obs.B.length ? obs.B : null,
+    };
+  }
+  const fb = getDirectionsFallback(seg, idx);
+  return {A: toWeightedPairs(fb.A), B: toWeightedPairs(fb.B)};
+}
+
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function pad(n){ return n.toString().padStart(2,'0'); }
 function fmtTime(d){ return pad(d.getHours())+':'+pad(d.getMinutes()); }
+
+// Tirage aléatoire pondéré dans une liste de paires [valeur, poids].
+function pickWeighted(pairs){
+  const total = pairs.reduce((s,p) => s+p[1], 0);
+  let r = Math.random() * total;
+  for(const p of pairs){
+    if(r < p[1]) return p[0];
+    r -= p[1];
+  }
+  return pairs[pairs.length-1][0];
+}
 
 function randomPosition(seg, idx){
   const roll = Math.random();
@@ -79,7 +108,7 @@ function buildDepartures(seg, idx){
     if(dirs.A && dirs.B) dir = Math.random() < 0.5 ? 'A' : 'B';
     else dir = dirs.A ? 'A' : 'B';
     const pool = dir === 'A' ? dirs.A : dirs.B;
-    const dest = pick(pool);
+    const dest = pickWeighted(pool);
     let code;
     do { code = pick(CODES); } while(usedCodes.has(code) && usedCodes.size < CODES.length);
     usedCodes.add(code);
