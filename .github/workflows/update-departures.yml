@@ -1,21 +1,35 @@
 name: Update live departures (RER C)
 
 # Interroge l'API PRIM (SIRI Lite StopMonitoring) pour les 75 gares et commit
-# data/live-departures.json, consommé par js/real-schedule.js dans le navigateur.
+# data/live-departures.json, consomme par js/real-schedule.js dans le navigateur.
 #
-# Prérequis : un secret de repo PRIM_API_KEY (Settings > Secrets and variables
-# > Actions > New repository secret). Ne jamais mettre la clé ailleurs.
+# Prerequis : un secret de repo PRIM_API_KEY (Settings > Secrets and variables
+# > Actions > New repository secret). Ne jamais mettre la cle ailleurs.
+#
+# Cadence adaptee au service RER C (heure de Paris, gere automatiquement les
+# changements d'heure ete/hiver car calculee via TZ=Europe/Paris dans le job,
+# et non via le cron GitHub qui lui est toujours en UTC) :
+#   - Hors service (1h-5h du matin)            : aucun appel API
+#   - Heures de pointe 7h-9h30 et 16h30-19h30   : 1 appel toutes les 5 min
+#   - Reste du service (5h-7h, 9h30-16h30,
+#     19h30-1h)                                 : 1 appel toutes les 10 min
+#
+# Le workflow se declenche toutes les 5 min (cron GitHub, cout minime car le
+# job s'arrete immediatement hors fenetre), mais n'appelle l'API PRIM que
+# lorsque la fenetre de service/pointe le justifie.
+#
+# Budget quotidien estime (quota officiel "Prochains passages - requete
+# unitaire" : 20 000 requetes/jour, 75 gares interrogees par run) :
+#   - Jour avec pointe (330 min a 5 min => 66 runs, 870 min a 10 min => 87 runs)
+#     => (66 + 87) x 75 = 11 475 requetes/jour
+#   - Week-end / jour sans distinction de pointe (~1200 min de service a 10 min
+#     => 120 runs) => 120 x 75 = 9 000 requetes/jour
+# Marge confortable sous les 20 000/jour dans tous les cas.
 
 on:
-  # Quota officiel de l'API "Prochains passages - requête unitaire" : 20 000
-  # requêtes / jour. Avec 75 gares interrogées à chaque run, 1 run toutes les
-  # 10 min = 144 runs/jour x 75 = 10 800 requêtes/jour (confortable, laisse de
-  # la marge pour des déclenchements manuels). Vous pouvez descendre à 5 min
-  # (288 x 75 = 21 600/jour) mais c'est déjà au-dessus du quota — à ne faire
-  # que si vous avez vérifié que votre quota réel est plus élevé.
   schedule:
-    - cron: '*/10 * * * *'
-  workflow_dispatch: {}     # permet aussi un déclenchement manuel depuis l'onglet Actions
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}     # permet aussi un declenchement manuel depuis l'onglet Actions
 
 permissions:
   contents: write
@@ -26,16 +40,58 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Determine if this run should call PRIM (service hours + peak optimisation)
+        id: window
+        run: |
+          export TZ='Europe/Paris'
+          hour=$(date +%H)
+          minute=$(date +%M)
+          hour10=$((10#$hour))
+          minute10=$((10#$minute))
+          now_min=$((hour10 * 60 + minute10))
+
+          # Hors service RER C (01h00 a 04h59) : on ne fait rien
+          if [ "$hour10" -ge 1 ] && [ "$hour10" -le 4 ]; then
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Hors service (${hour}h${minute}) - run ignore"
+            exit 0
+          fi
+
+          # Heures de pointe : 7h00-9h30 et 16h30-19h30 -> cadence 5 min (= chaque declenchement)
+          peak_am_start=$((7 * 60))
+          peak_am_end=$((9 * 60 + 30))
+          peak_pm_start=$((16 * 60 + 30))
+          peak_pm_end=$((19 * 60 + 30))
+
+          if { [ "$now_min" -ge "$peak_am_start" ] && [ "$now_min" -lt "$peak_am_end" ]; } || \
+             { [ "$now_min" -ge "$peak_pm_start" ] && [ "$now_min" -lt "$peak_pm_end" ]; }; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "Heure de pointe (${hour}h${minute}) - run retenu (cadence 5 min)"
+            exit 0
+          fi
+
+          # Reste du service : cadence 10 min (un declenchement sur deux)
+          if [ $((minute10 % 10)) -eq 0 ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "Heure creuse en service (${hour}h${minute}) - run retenu (cadence 10 min)"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "Heure creuse en service (${hour}h${minute}) - run ignore (cadence 10 min)"
+          fi
+
       - uses: actions/setup-python@v5
+        if: steps.window.outputs.should_run == 'true'
         with:
           python-version: '3.12'
 
       - name: Fetch PRIM StopMonitoring for all stations
+        if: steps.window.outputs.should_run == 'true'
         env:
           PRIM_API_KEY: ${{ secrets.PRIM_API_KEY }}
         run: python3 tools/fetch_prim_departures.py
 
       - name: Commit updated data if changed
+        if: steps.window.outputs.should_run == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
