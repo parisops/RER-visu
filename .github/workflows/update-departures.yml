@@ -10,31 +10,27 @@ name: Update live departures (RER C)
 # Prerequis : un secret de repo PRIM_API_KEY (Settings > Secrets and variables
 # > Actions > New repository secret). Ne jamais mettre la cle ailleurs.
 #
+# DECLENCHEMENT : le declencheur "schedule" natif de GitHub Actions s'est
+# revele peu fiable sur ce repo (aucun declenchement autonome observe sur
+# plusieurs heures, malgre un cron decale sur des minutes non-rondes). Il est
+# donc remplace par un cron EXTERNE (cron-job.org, gratuit) qui appelle
+# l'API GitHub toutes les 5 min pour declencher ce workflow via
+# workflow_dispatch :
+#   POST https://api.github.com/repos/<owner>/<repo>/actions/workflows/update-departures.yml/dispatches
+#   Headers: Authorization: Bearer <PAT scope Actions:write>, Accept: application/vnd.github+json, Content-Type: application/json
+#   Body: {"ref":"main"}
+# Le PAT utilise est un fine-grained token limite a ce seul repo, permission
+# "Actions: Read and write" uniquement.
+#
 # Cadence adaptee au service RER C (heure de Paris, gere automatiquement les
-# changements d'heure ete/hiver car calculee via TZ=Europe/Paris dans le job,
-# et non via le cron GitHub qui lui est toujours en UTC) :
+# changements d'heure ete/hiver car calculee via TZ=Europe/Paris dans le job) :
 #   - Hors service (1h-5h du matin)            : aucun appel API
 #   - Heures de pointe 7h-9h30 et 16h30-19h30   : 1 appel toutes les 5 min
 #   - Reste du service (5h-7h, 9h30-16h30,
 #     19h30-1h)                                 : 1 appel toutes les 10 min
-#
-# Le workflow se declenche toutes les 5 min (cron GitHub, cout minime car le
-# job s'arrete immediatement hors fenetre), mais n'appelle l'API PRIM que
-# lorsque la fenetre de service/pointe le justifie.
-#
-# Le cron est decale sur des minutes non-rondes (:02, :07, :12...) plutot que
-# */5 pile (:00, :05, :10...). GitHub documente explicitement que le
-# declencheur schedule peut etre retarde pendant les periodes de forte charge,
-# notamment en debut d'heure et sur les minutes rondes ou des millions de
-# workflows dans le monde se declenchent simultanement. Ce decalage reduit la
-# contention sans changer le nombre de runs/jour ni le budget quota.
-#
-# IMPORTANT : les schedules GitHub Actions restent "best effort" (aucune
-# garantie de precision a la minute, des retards ponctuels meme apres ce
-# decalage restent possibles). Cote front-end, js/trains.js interpole la
-# position des trains en continu a partir des heures PRIM reelles sur TOUTE
-# la mission connue (pas seulement le prochain arret), donc un run legerement
-# retarde n'immobilise pas les trains a l'ecran.
+# Le cron externe declenche systematiquement toutes les 5 min, 24h/24 ; c'est
+# l'etape "Determine if this run should call PRIM" ci-dessous qui decide si
+# l'appel PRIM doit effectivement avoir lieu, selon l'heure de Paris.
 #
 # Budget quotidien estime (quota officiel "Prochains passages - requete
 # unitaire" : 20 000 requetes/jour, 75 gares interrogees par run) :
@@ -48,9 +44,7 @@ name: Update live departures (RER C)
 # budget.
 
 on:
-  schedule:
-    - cron: '2-59/5 * * * *'
-  workflow_dispatch: {}     # permet aussi un declenchement manuel depuis l'onglet Actions
+  workflow_dispatch: {}     # declenche par le cron externe (cron-job.org) toutes les 5 min, et manuellement depuis l'onglet Actions
 
 permissions:
   contents: write
@@ -91,7 +85,7 @@ jobs:
             exit 0
           fi
 
-          # Reste du service : cadence ~10 min (un declenchement sur deux, arrondi a la minute du cron)
+          # Reste du service : cadence ~10 min (un declenchement sur deux, arrondi a la minute du cron externe)
           if [ $((minute10 % 10)) -le 2 ]; then
             echo "should_run=true" >> "$GITHUB_OUTPUT"
             echo "Heure creuse en service (${hour}h${minute}) - run retenu (cadence ~10 min)"
