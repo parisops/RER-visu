@@ -221,10 +221,19 @@
   <div id="sheet-list"></div>
 </div>
 
+<!--
+  Pour passer de la simulation aux vraies données temps réel (une fois que
+  .github/workflows/update-departures.yml a tourné au moins une fois et que
+  data/live-departures.json existe) : remplacer la ligne mock-schedule.js par
+  real-schedule.js ci-dessous. Nécessite d'être servi en http(s) — ne
+  fonctionnera plus en ouvrant index.html directement en double-clic
+  (fetch() d'un fichier local est bloqué par le navigateur en file://).
+-->
 <script src="js/data.js"></script>
 <script src="js/stations-idfm.js"></script>
 <script src="js/destinations-observed.js"></script>
 <script src="js/mock-schedule.js"></script>
+<!-- <script src="js/real-schedule.js"></script> -->
 <script src="js/panel.js"></script>
 <script src="js/trains.js"></script>
 

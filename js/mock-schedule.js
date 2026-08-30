@@ -18,6 +18,8 @@
  * Dépend de : data.js (SEG, TERM, CODES), destinations-observed.js (OBSERVED_DESTINATIONS)
  */
 
+const IS_LIVE = false;
+
 // Repli si une gare n'a pas (ou plus) de données observées pour un sens donné —
 // ne devrait normalement jamais servir (couverture 100% sur les 75 gares).
 function getDirectionsFallback(seg, idx){

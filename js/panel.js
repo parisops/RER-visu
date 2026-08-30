@@ -27,12 +27,14 @@ let selectedTrain = null;
 let followActive = false;
 let expectedScrollY = null;
 let suppressScrollCheck = 0;
+let renderSheetToken = 0;
 
 function renderList(){
   sheetList.innerHTML = '';
   const filtered = activeFilter ? currentTrains.filter(t => t.dir === activeFilter) : currentTrains;
   if(filtered.length === 0){
-    sheetList.innerHTML = '<div class="dep-empty">Aucun départ simulé dans cette direction pour le moment.</div>';
+    const word = (typeof IS_LIVE !== 'undefined' && IS_LIVE) ? 'trouvé' : 'simulé';
+    sheetList.innerHTML = '<div class="dep-empty">Aucun départ ' + word + ' dans cette direction pour le moment.</div>';
     return;
   }
   filtered.forEach(t => {
@@ -62,13 +64,29 @@ function setFilter(dir){
 }
 
 function renderSheet(seg, idx, name){
-  currentTrains = buildDepartures(seg, idx);
+  sheetTitle.textContent = name;
+  sheetEyebrow.textContent = (typeof IS_LIVE !== 'undefined' && IS_LIVE) ? 'Prochains départs' : 'Prochains départs (simulation)';
+  sheetUpdated.textContent = 'Chargement…';
+  currentTrains = [];
   activeFilter = null;
   document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('active'));
-  renderList();
-  sheetEyebrow.textContent = 'Prochains départs (simulation)';
-  sheetTitle.textContent = name;
-  sheetUpdated.textContent = 'Simulation actualisée à ' + fmtTime(new Date());
+  sheetList.innerHTML = '<div class="dep-empty">Chargement des départs…</div>';
+
+  // buildDepartures() peut renvoyer un tableau (mock, synchrone) ou une Promise
+  // (real-schedule.js, qui doit d'abord fetcher/parser le JSON temps réel) —
+  // Promise.resolve() gère les deux cas de façon transparente.
+  const requestSeg = seg, requestIdx = idx, requestToken = ++renderSheetToken;
+  Promise.resolve(buildDepartures(seg, idx)).then(trains => {
+    if(requestToken !== renderSheetToken) return; // une autre gare a été cliquée entre temps
+    currentTrains = trains;
+    renderList();
+    const label = (typeof IS_LIVE !== 'undefined' && IS_LIVE) ? 'Temps réel — actualisé à ' : 'Simulation actualisée à ';
+    sheetUpdated.textContent = label + fmtTime(new Date());
+  }).catch(err => {
+    if(requestToken !== renderSheetToken) return;
+    sheetList.innerHTML = '<div class="dep-empty">Impossible de charger les départs (' + err.message + ').</div>';
+    sheetUpdated.textContent = '';
+  });
 }
 
 function scrollElIntoView(el, smooth){
