@@ -1,7 +1,9 @@
 name: Update live departures (RER C)
 
-# Interroge l'API PRIM (SIRI Lite StopMonitoring) pour les 75 gares et commit
-# data/live-departures.json, consomme par js/real-schedule.js dans le navigateur.
+# Interroge l'API PRIM (SIRI Lite StopMonitoring) pour les 75 gares, ecrit
+# data/live-departures.json (consomme par js/real-schedule.js), puis derive
+# data/live-trains.json (positions interpolees des trains en circulation,
+# consomme par js/trains.js pour le suivi des trains).
 #
 # Prerequis : un secret de repo PRIM_API_KEY (Settings > Secrets and variables
 # > Actions > New repository secret). Ne jamais mettre la cle ailleurs.
@@ -25,6 +27,8 @@ name: Update live departures (RER C)
 #   - Week-end / jour sans distinction de pointe (~1200 min de service a 10 min
 #     => 120 runs) => 120 x 75 = 9 000 requetes/jour
 # Marge confortable sous les 20 000/jour dans tous les cas.
+# build_live_trains.py ne fait aucun appel reseau (il derive uniquement
+# live-departures.json) : il n'a aucun impact sur ce budget.
 
 on:
   schedule:
@@ -90,11 +94,15 @@ jobs:
           PRIM_API_KEY: ${{ secrets.PRIM_API_KEY }}
         run: python3 tools/fetch_prim_departures.py
 
+      - name: Build live train positions (suivi des trains)
+        if: steps.window.outputs.should_run == 'true'
+        run: python3 tools/build_live_trains.py
+
       - name: Commit updated data if changed
         if: steps.window.outputs.should_run == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/live-departures.json
-          git diff --staged --quiet || git commit -m "chore: update live departures [skip ci]"
+          git add data/live-departures.json data/live-trains.json
+          git diff --staged --quiet || git commit -m "chore: update live departures and train positions [skip ci]"
           git push
