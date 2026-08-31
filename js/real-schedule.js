@@ -79,6 +79,68 @@ function platformPosition(platform){
   return {text: "Voie " + platform, unknown: false};
 }
 
+// --- Position réelle en circulation, via data/live-trains.json --------------
+//
+// IMPORTANT : le rattachement se fait par (gare, horaire programmé), PAS par
+// le seul code mission ("code"). Un même code à 4 lettres est réutilisé par
+// PLUSIEURS trains différents au même moment sur toute la ligne (voir
+// tools/build_live_trains.py) — matcher uniquement sur le code aurait pour
+// effet de faire pointer plusieurs gares différentes vers le MÊME train
+// (bug observé : tous les départs partageant un code se retrouvaient avec
+// la position du premier train trouvé pour ce code, quelle que soit la
+// gare réelle). (station, scheduled) est la clé de dédoublonnage exacte déjà
+// utilisée côté backend (merge_stops), donc sans ambiguïté ici.
+const LIVE_TRAINS_URL = 'data/live-trains.json';
+let liveTrainsIndexPromise = null;
+
+function stationKeyToName(stationKey){
+  if(!stationKey) return null;
+  const sepIdx = stationKey.lastIndexOf(':');
+  if(sepIdx === -1) return null;
+  const seg = stationKey.slice(0, sepIdx);
+  const idx = Number(stationKey.slice(sepIdx + 1));
+  const arr = SEG[seg];
+  return (arr && arr[idx]) || null;
+}
+
+function loadLiveTrainsIndex(){
+  if(!liveTrainsIndexPromise){
+    liveTrainsIndexPromise = fetch(LIVE_TRAINS_URL, {cache: 'no-store'})
+      .then(r => {
+        if(!r.ok) throw new Error('HTTP ' + r.status + ' sur ' + LIVE_TRAINS_URL);
+        return r.json();
+      })
+      .then(payload => {
+        const index = new Map();
+        (payload.trains || []).forEach(t => {
+          (t.stops || []).forEach(s => {
+            index.set(s.station + '|' + s.scheduled, t);
+          });
+        });
+        return index;
+      })
+      .catch(err => {
+        liveTrainsIndexPromise = null; // permet de réessayer au prochain appel
+        console.warn('live-trains.json indisponible pour le calcul de position :', err);
+        return new Map(); // non bloquant : repli sur la position de quai
+      });
+  }
+  return liveTrainsIndexPromise;
+}
+
+// Construit un texte de position "en circulation" à partir d'un train résolu
+// (data/live-trains.json), ou null si non exploitable (repli sur le quai).
+function runningPositionText(train){
+  if(!train) return null;
+  if(train.cancelled) return null; // pas de position pertinente pour un train supprimé
+  const fromName = train.from ? stationKeyToName(train.from.station) : null;
+  const toName = train.to ? stationKeyToName(train.to.station) : null;
+  if(train.state === 'enRoute' && fromName && toName) return 'Entre ' + fromName + ' et ' + toName;
+  if(train.state === 'arrived' && fromName) return 'En gare de ' + fromName;
+  if(train.state === 'notStarted' && toName) return 'Pas encore parti (vers ' + toName + ')';
+  return null;
+}
+
 // Reconstruit un pool de destinations pondéré {A,B} à partir des départs déjà
 // récupérés pour cette gare (utile pour les boutons de filtre Nord/Sud, qui
 // n'ont besoin que de savoir si A et/ou B existent réellement pour cette gare).
@@ -105,18 +167,22 @@ function mapStatus(d){
 }
 
 function buildDepartures(seg, idx){
-  return loadLiveData().then(data => {
-    const entry = data.stations[seg + ':' + idx];
+  const stationKey = seg + ':' + idx;
+  return Promise.all([loadLiveData(), loadLiveTrainsIndex()]).then(([data, trainsIndex]) => {
+    const entry = data.stations[stationKey];
     if(!entry || !entry.departures.length) return [];
     return entry.departures.map(d => {
       const {status, delay} = mapStatus(d);
+      const matchedTrain = trainsIndex.get(stationKey + '|' + d.scheduled);
+      const runningText = runningPositionText(matchedTrain);
       return {
         code: d.code,
         dest: d.dest,
         dir: d.dir,
         scheduled: new Date(d.scheduled),
         status, delay,
-        position: platformPosition(d.platform),
+        position: runningText ? {text: runningText, unknown: false} : platformPosition(d.platform),
+        platform: d.platform || null,
       };
     });
   });
