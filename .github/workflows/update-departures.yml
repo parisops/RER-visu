@@ -22,6 +22,16 @@ name: Update live departures (RER C)
 # Le PAT utilise est un fine-grained token limite a ce seul repo, permission
 # "Actions: Read and write" uniquement.
 #
+# CONCURRENCE : le cron externe declenche ce workflow toutes les 5 min, 24h/24,
+# sans jamais attendre la fin du run precedent. Si un run venait a durer plus
+# de 5 min (API PRIM lente, 75 gares interrogees), deux executions pourraient
+# se chevaucher et lire/ecrire data/*.json en meme temps, avec un risque de
+# push en conflit ou d'historique (data/train-tracks.json) incoherent. Le bloc
+# "concurrency" ci-dessous met les declenchements en FILE D'ATTENTE (execution
+# strictement sequentielle) au lieu de les laisser se chevaucher ou d'en
+# annuler un (cancel-in-progress: false, car annuler un run en cours de
+# commit pourrait laisser data/train-tracks.json dans un etat intermediaire).
+#
 # Cadence adaptee au service RER C (heure de Paris, gere automatiquement les
 # changements d'heure ete/hiver car calculee via TZ=Europe/Paris dans le job) :
 #   - Hors service (1h-5h du matin)            : aucun appel API
@@ -48,6 +58,10 @@ on:
 
 permissions:
   contents: write
+
+concurrency:
+  group: update-departures
+  cancel-in-progress: false   # file d'attente plutot qu'annulation : voir commentaire "CONCURRENCE" ci-dessus
 
 jobs:
   update:
