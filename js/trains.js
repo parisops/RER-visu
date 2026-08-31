@@ -71,12 +71,10 @@ if (!IS_LIVE) {
 
 // --- Suivi des trains réels : résolution de la route à partir des gares connues --
 
-// Normalise un nom de gare pour une comparaison robuste (accents, casse, ponctuation).
 function normName(s) {
   return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-// Table nom-normalisé -> index le long du tracé, mise en cache par route.
 const _routeNameIndexCache = {};
 function routeNameIndex(routeKey) {
   if (_routeNameIndexCache[routeKey]) return _routeNameIndexCache[routeKey];
@@ -89,8 +87,6 @@ function routeNameIndex(routeKey) {
   return map;
 }
 
-// Résout une clé de gare "seg:idx" (format PRIM / live-trains.json, identique
-// à stations-idfm.js) en nom de gare réel, via SEG (data.js).
 function stationKeyToName(stationKey) {
   if (!stationKey) return null;
   const sepIdx = stationKey.lastIndexOf(':');
@@ -101,10 +97,6 @@ function stationKeyToName(stationKey) {
   return (arr && arr[idx]) || null;
 }
 
-// Trouve, parmi ROUTES (R1..R6), celle qui contient TOUTES les gares connues
-// du train (mission.stops) dans le bon ordre. Retourne {routeKey, indices}
-// (indices aligné terme à terme avec stops) ou null si aucune route ne
-// correspond — le train est alors ignoré plutôt que dessiné hors tracé.
 function resolveRoute(stops) {
   const names = stops.map(s => stationKeyToName(s.station)).filter(Boolean);
   if (names.length === 0) return null;
@@ -114,13 +106,13 @@ function resolveRoute(stops) {
   for (const routeKey of Object.keys(ROUTES)) {
     const nameIndex = routeNameIndex(routeKey);
     const indices = normed.map(n => nameIndex[n]);
-    if (indices.some(ix => ix === undefined)) continue; // gare absente de cette route
+    if (indices.some(ix => ix === undefined)) continue;
     let increasing = true, decreasing = true;
     for (let i = 1; i < indices.length; i++) {
       if (indices[i] <= indices[i - 1]) increasing = false;
       if (indices[i] >= indices[i - 1]) decreasing = false;
     }
-    if (!increasing && !decreasing) continue; // ordre incohérent : pas la bonne route
+    if (!increasing && !decreasing) continue;
     if (!best || indices.length > best.indices.length) {
       best = { routeKey, indices };
     }
@@ -130,7 +122,7 @@ function resolveRoute(stops) {
 
 // --- Rafraîchissement périodique depuis data/live-trains.json ---------------
 
-const liveTrainsById = {}; // code mission -> objet train (mise à jour en place)
+const liveTrainsById = {};
 
 async function refreshLiveTrains() {
   if (!IS_LIVE) return;
@@ -143,7 +135,12 @@ async function refreshLiveTrains() {
     return;
   }
 
-  const seenCodes = new Set();
+  // rt.id est un identifiant interne UNIQUE (jamais affiché), qui peut
+  // porter un suffixe "·N" quand rt.code (le vrai code mission PRIM,
+  // TOUJOURS affiché tel quel côté client) est partagé par plusieurs trains
+  // simultanés. On indexe donc liveTrainsById par rt.id, jamais par
+  // rt.code, pour ne jamais fusionner par erreur deux trains distincts.
+  const seenIds = new Set();
 
   (payload.trains || []).forEach(rt => {
     const stops = rt.stops || [];
@@ -152,8 +149,6 @@ async function refreshLiveTrains() {
 
     const route = ROUTES[resolved.routeKey];
 
-    // Construit la liste complète des points d'ancrage (ci, heure attendue)
-    // à partir de TOUS les arrêts connus de la mission, pas seulement from/to.
     const waypoints = stops
       .map((s, i) => ({ ci: resolved.indices[i], time: new Date(s.expected).getTime() }))
       .filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time))
@@ -165,11 +160,12 @@ async function refreshLiveTrains() {
     const dir = lastCi < firstCi ? -1 : 1;
     const status = rt.cancelled ? 'cancelled' : (rt.delay >= 10 ? 'verylate' : (rt.delay >= 2 ? 'late' : 'ontime'));
 
-    seenCodes.add(rt.code);
-    let t = liveTrainsById[rt.code];
+    const trainId = rt.id || rt.code; // repli si un ancien live-trains.json (sans "id") est encore servi
+    seenIds.add(trainId);
+    let t = liveTrainsById[trainId];
     if (!t) {
       t = {
-        id: rt.code,
+        id: trainId,
         code: rt.code,
         route: resolved.routeKey,
         points: route.points,
@@ -187,9 +183,10 @@ async function refreshLiveTrains() {
         waypoints: waypoints,
         el: null
       };
-      liveTrainsById[rt.code] = t;
+      liveTrainsById[trainId] = t;
       liveTrains.push(t);
     } else {
+      t.code = rt.code;
       t.route = resolved.routeKey;
       t.points = route.points;
       t.milestones = route.milestones;
@@ -203,15 +200,14 @@ async function refreshLiveTrains() {
     }
   });
 
-  // Retire les trains qui ne sont plus dans le flux PRIM (arrivés, disparus).
   for (let i = liveTrains.length - 1; i >= 0; i--) {
     const t = liveTrains[i];
-    if (!seenCodes.has(t.code)) {
+    if (!seenIds.has(t.id)) {
       if (t.el && t.el.parentNode) t.el.parentNode.removeChild(t.el);
       if (typeof selectedTrain !== 'undefined' && selectedTrain === t && typeof closeSheet === 'function') {
         closeSheet();
       }
-      delete liveTrainsById[t.code];
+      delete liveTrainsById[t.id];
       liveTrains.splice(i, 1);
     }
   }
@@ -219,12 +215,9 @@ async function refreshLiveTrains() {
 
 if (IS_LIVE) {
   refreshLiveTrains();
-  setInterval(refreshLiveTrains, 15000); // 15 s : recale les waypoints, ne fait pas avancer la position elle-même (voir animate)
+  setInterval(refreshLiveTrains, 15000);
 }
 
-// Trouve la position (ci) correspondant à l'heure "now" en interpolant entre
-// les deux waypoints consécutifs qui l'encadrent. Reste sur le premier/dernier
-// point connu si "now" est hors de la plage couverte par les waypoints.
 function ciFromWaypoints(waypoints, now) {
   if (!waypoints || waypoints.length === 0) return null;
   if (now <= waypoints[0].time) return waypoints[0].ci;
@@ -236,8 +229,6 @@ function ciFromWaypoints(waypoints, now) {
   const frac = span > 0 ? Math.max(0, Math.min(1, (now - a.time) / span)) : 1;
   return a.ci + (b.ci - a.ci) * frac;
 }
-
-// --- Rendu du marqueur SVG (inchangé) ---------------------------------------
 
 function createTrainMarker(t) {
   const g = document.createElementNS(NS, 'g');
@@ -384,8 +375,6 @@ followBtn.addEventListener('click', () => {
   else activateFollowing();
 });
 
-// --- Boucle d'animation -------------------------------------------------------
-
 let lastTs = null;
 function animate(ts) {
   if (lastTs === null) lastTs = ts;
@@ -396,8 +385,6 @@ function animate(ts) {
     const n = t.points.length;
 
     if (IS_LIVE) {
-      // Parcourt en continu TOUS les arrêts connus de la mission (pas
-      // seulement le prochain), en interpolant à partir de l'heure réelle.
       const ci = ciFromWaypoints(t.waypoints, Date.now());
       if (ci !== null) t.ci = ci;
     } else {
