@@ -41,7 +41,7 @@
  * remplacer, dans index.html, le <script src="js/mock-schedule.js"> par
  * <script src="js/real-schedule.js">.
  *
- * Dépend de : data.js (SEG), stations-idfm.js (pour le nom de repli des gares)
+ * Dépend de : data.js (SEG, ROUTES), stations-idfm.js (pour le nom de repli des gares)
  */
 
 const IS_LIVE = true;
@@ -81,17 +81,20 @@ function platformPosition(platform){
 
 // --- Position réelle en circulation, via data/live-trains.json --------------
 //
-// IMPORTANT : le rattachement se fait par (gare, horaire programmé), PAS par
-// le seul code mission ("code"). Un même code à 4 lettres est réutilisé par
-// PLUSIEURS trains différents au même moment sur toute la ligne (voir
-// tools/build_live_trains.py) — matcher uniquement sur le code aurait pour
-// effet de faire pointer plusieurs gares différentes vers le MÊME train
-// (bug observé : tous les départs partageant un code se retrouvaient avec
-// la position du premier train trouvé pour ce code, quelle que soit la
-// gare réelle). (station, scheduled) est la clé de dédoublonnage exacte déjà
-// utilisée côté backend (merge_stops), donc sans ambiguïté ici.
+// Réutilise EXACTEMENT la même logique que trains.js (resolveRoute,
+// ciFromWaypoints, positionText) plutôt qu'un simple "entre from et to" basé
+// sur les arrêts bruts observés par PRIM. Nécessaire car PRIM ne voit chaque
+// gare que sur une fenêtre de 30-60 min : les arrêts observés pour UN train
+// donné ont souvent des trous (ex. Grésillons observé, puis directement
+// Saint-Michel Notre-Dame 10 gares plus loin, sans que les gares
+// intermédiaires n'aient été captées). Utiliser from/to bruts affichait donc
+// des paires de gares très éloignées au lieu de gares réellement adjacentes.
+// En passant par le tracé complet (ROUTES[Rx].milestones) et en interpolant
+// l'heure courante entre TOUS les waypoints connus, on retrouve toujours les
+// deux gares immédiatement adjacentes sur la ligne, comme le fait déjà le
+// marqueur animé sur le schéma.
 const LIVE_TRAINS_URL = 'data/live-trains.json';
-let liveTrainsIndexPromise = null;
+let liveTrainsRawPromise = null;
 
 function stationKeyToName(stationKey){
   if(!stationKey) return null;
@@ -103,9 +106,84 @@ function stationKeyToName(stationKey){
   return (arr && arr[idx]) || null;
 }
 
-function loadLiveTrainsIndex(){
-  if(!liveTrainsIndexPromise){
-    liveTrainsIndexPromise = fetch(LIVE_TRAINS_URL, {cache: 'no-store'})
+function normName(s) {
+  return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+const _routeNameIndexCache = {};
+function routeNameIndex(routeKey) {
+  if (_routeNameIndexCache[routeKey]) return _routeNameIndexCache[routeKey];
+  const route = ROUTES[routeKey];
+  const map = {};
+  Object.keys(route.milestones).forEach(idx => {
+    map[normName(route.milestones[idx])] = Number(idx);
+  });
+  _routeNameIndexCache[routeKey] = map;
+  return map;
+}
+
+// Identique à resolveRoute() de trains.js : trouve la route (R1..R6) qui
+// contient TOUTES les gares connues du train, dans le bon ordre.
+function resolveRouteForStops(stops) {
+  const names = stops.map(s => stationKeyToName(s.station)).filter(Boolean);
+  if (names.length === 0) return null;
+  const normed = names.map(normName);
+
+  let best = null;
+  for (const routeKey of Object.keys(ROUTES)) {
+    const nameIndex = routeNameIndex(routeKey);
+    const indices = normed.map(n => nameIndex[n]);
+    if (indices.some(ix => ix === undefined)) continue;
+    let increasing = true, decreasing = true;
+    for (let i = 1; i < indices.length; i++) {
+      if (indices[i] <= indices[i - 1]) increasing = false;
+      if (indices[i] >= indices[i - 1]) decreasing = false;
+    }
+    if (!increasing && !decreasing) continue;
+    if (!best || indices.length > best.indices.length) {
+      best = { routeKey, indices };
+    }
+  }
+  return best;
+}
+
+// Identique à ciFromWaypoints() de trains.js.
+function ciFromWaypoints(waypoints, now) {
+  if (!waypoints || waypoints.length === 0) return null;
+  if (now <= waypoints[0].time) return waypoints[0].ci;
+  let i = 0;
+  while (i < waypoints.length - 1 && waypoints[i + 1].time <= now) i++;
+  if (i >= waypoints.length - 1) return waypoints[waypoints.length - 1].ci;
+  const a = waypoints[i], b = waypoints[i + 1];
+  const span = b.time - a.time;
+  const frac = span > 0 ? Math.max(0, Math.min(1, (now - a.time) / span)) : 1;
+  return a.ci + (b.ci - a.ci) * frac;
+}
+
+// Identique à positionText() de trains.js : donne "En gare de X" ou
+// "Entre X et Y" (toujours deux gares adjacentes sur le tracé).
+function positionTextFromCi(milestones, ci) {
+  const keys = Object.keys(milestones).map(Number).sort((a, b) => a - b);
+  if (keys.length === 0) return null;
+  let below = null, above = null;
+  for (const k of keys) {
+    if (k <= ci) below = k;
+    if (k >= ci && above === null) above = k;
+  }
+  const EPS = 0.6;
+  if (below !== null && Math.abs(ci - below) < EPS) return 'En gare de ' + milestones[below];
+  if (above !== null && Math.abs(above - ci) < EPS) return 'En gare de ' + milestones[above];
+  if (below !== null && above !== null && below !== above) {
+    return 'Entre ' + milestones[below] + ' et ' + milestones[above];
+  }
+  if (below !== null) return 'Après ' + milestones[below];
+  if (above !== null) return 'Avant ' + milestones[above];
+  return null;
+}
+
+function loadLiveTrainsRaw(){
+  if(!liveTrainsRawPromise){
+    liveTrainsRawPromise = fetch(LIVE_TRAINS_URL, {cache: 'no-store'})
       .then(r => {
         if(!r.ok) throw new Error('HTTP ' + r.status + ' sur ' + LIVE_TRAINS_URL);
         return r.json();
@@ -120,25 +198,28 @@ function loadLiveTrainsIndex(){
         return index;
       })
       .catch(err => {
-        liveTrainsIndexPromise = null; // permet de réessayer au prochain appel
+        liveTrainsRawPromise = null;
         console.warn('live-trains.json indisponible pour le calcul de position :', err);
-        return new Map(); // non bloquant : repli sur la position de quai
+        return new Map();
       });
   }
-  return liveTrainsIndexPromise;
+  return liveTrainsRawPromise;
 }
 
-// Construit un texte de position "en circulation" à partir d'un train résolu
-// (data/live-trains.json), ou null si non exploitable (repli sur le quai).
 function runningPositionText(train){
-  if(!train) return null;
-  if(train.cancelled) return null; // pas de position pertinente pour un train supprimé
-  const fromName = train.from ? stationKeyToName(train.from.station) : null;
-  const toName = train.to ? stationKeyToName(train.to.station) : null;
-  if(train.state === 'enRoute' && fromName && toName) return 'Entre ' + fromName + ' et ' + toName;
-  if(train.state === 'arrived' && fromName) return 'En gare de ' + fromName;
-  if(train.state === 'notStarted' && toName) return 'Pas encore parti (vers ' + toName + ')';
-  return null;
+  if(!train || train.cancelled) return null;
+  const stops = train.stops || [];
+  const resolved = resolveRouteForStops(stops);
+  if(!resolved) return null;
+  const route = ROUTES[resolved.routeKey];
+  const waypoints = stops
+    .map((s, i) => ({ ci: resolved.indices[i], time: new Date(s.expected).getTime() }))
+    .filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time))
+    .sort((a, b) => a.time - b.time);
+  if(waypoints.length === 0) return null;
+  const ci = ciFromWaypoints(waypoints, Date.now());
+  if(ci === null) return null;
+  return positionTextFromCi(route.milestones, ci);
 }
 
 // Reconstruit un pool de destinations pondéré {A,B} à partir des départs déjà
@@ -168,7 +249,7 @@ function mapStatus(d){
 
 function buildDepartures(seg, idx){
   const stationKey = seg + ':' + idx;
-  return Promise.all([loadLiveData(), loadLiveTrainsIndex()]).then(([data, trainsIndex]) => {
+  return Promise.all([loadLiveData(), loadLiveTrainsRaw()]).then(([data, trainsIndex]) => {
     const entry = data.stations[stationKey];
     if(!entry || !entry.departures.length) return [];
     return entry.departures.map(d => {
