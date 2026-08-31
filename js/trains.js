@@ -3,8 +3,8 @@
  * suivi ("Suivre ce train en direct"), fiche train, surlignage du trajet.
  *
  * Dépend de : data.js (ROUTES, TRAIN_DEFS, SOUTH_TERMINI, SPEED_SCALE, SEG),
- *   mock-schedule.js ou real-schedule.js (pick, IS_LIVE),
- *   panel.js (sheet, sheetList, scrollElIntoView, showRouteHighlight, etc.)
+ * mock-schedule.js ou real-schedule.js (pick, IS_LIVE),
+ * panel.js (sheet, sheetList, scrollElIntoView, showRouteHighlight, etc.)
  *
  * Suivi des trains réels (actif quand IS_LIVE === true, positionné par
  * real-schedule.js) :
@@ -29,11 +29,12 @@
  *   pour les prochaines frames sans téléportation brutale (sauf incohérence
  *   majeure, ex. arrêt manqué entre deux refresh).
  */
-
 const trainsLayer = document.getElementById('trains-layer');
 const NS = 'http://www.w3.org/2000/svg';
 
-function southDir(name){ return SOUTH_TERMINI.includes(name) ? 'B' : 'A'; }
+function southDir(name){
+  return SOUTH_TERMINI.includes(name) ? 'B' : 'A';
+}
 
 // --- Construction initiale de liveTrains ------------------------------------
 
@@ -114,14 +115,12 @@ function resolveRoute(stops) {
     const nameIndex = routeNameIndex(routeKey);
     const indices = normed.map(n => nameIndex[n]);
     if (indices.some(ix => ix === undefined)) continue; // gare absente de cette route
-
     let increasing = true, decreasing = true;
     for (let i = 1; i < indices.length; i++) {
       if (indices[i] <= indices[i - 1]) increasing = false;
       if (indices[i] >= indices[i - 1]) decreasing = false;
     }
     if (!increasing && !decreasing) continue; // ordre incohérent : pas la bonne route
-
     if (!best || indices.length > best.indices.length) {
       best = { routeKey, indices };
     }
@@ -152,23 +151,21 @@ async function refreshLiveTrains() {
     if (!resolved) return; // impossible de rattacher ce train à une route connue : on l'ignore
 
     const route = ROUTES[resolved.routeKey];
+
     // Construit la liste complète des points d'ancrage (ci, heure attendue)
     // à partir de TOUS les arrêts connus de la mission, pas seulement from/to.
     const waypoints = stops
       .map((s, i) => ({ ci: resolved.indices[i], time: new Date(s.expected).getTime() }))
       .filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time))
       .sort((a, b) => a.time - b.time);
-
     if (waypoints.length === 0) return;
 
     const firstCi = waypoints[0].ci;
     const lastCi = waypoints[waypoints.length - 1].ci;
     const dir = lastCi < firstCi ? -1 : 1;
-
     const status = rt.cancelled ? 'cancelled' : (rt.delay >= 10 ? 'verylate' : (rt.delay >= 2 ? 'late' : 'ontime'));
 
     seenCodes.add(rt.code);
-
     let t = liveTrainsById[rt.code];
     if (!t) {
       t = {
@@ -247,48 +244,40 @@ function createTrainMarker(t) {
   g.setAttribute('class', 'train-marker dir' + southDir(currentDestination(t)));
   g.setAttribute('tabindex', '0');
   g.setAttribute('role', 'button');
-
   const pulse = document.createElementNS(NS, 'circle');
   pulse.setAttribute('class', 'train-pulse');
   pulse.setAttribute('r', '10');
   g.appendChild(pulse);
-
   const body = document.createElementNS(NS, 'path');
   body.setAttribute('class', 'train-body');
   body.setAttribute('d', 'M -8 5.5 L -8 -3 Q -8 -10 0 -10 Q 8 -10 8 -3 L 8 5.5 Q 8 9.5 4.5 9.5 L -4.5 9.5 Q -8 9.5 -8 5.5 Z');
   body.setAttribute('stroke', '#ffffff');
   body.setAttribute('stroke-width', '1.5');
   g.appendChild(body);
-
   const roofline = document.createElementNS(NS, 'path');
   roofline.setAttribute('class', 'train-roofline');
   roofline.setAttribute('d', 'M -6 -7.5 Q 0 -9.2 6 -7.5');
   g.appendChild(roofline);
-
   const windshield = document.createElementNS(NS, 'path');
   windshield.setAttribute('class', 'train-windshield');
   windshield.setAttribute('d', 'M -5.6 -5.8 Q 0 -8 5.6 -5.8 Q 5.6 -1.8 0 -0.6 Q -5.6 -1.8 -5.6 -5.8 Z');
   g.appendChild(windshield);
-
   const lightL = document.createElementNS(NS, 'circle');
   lightL.setAttribute('class', 'train-light');
   lightL.setAttribute('cx', '-4.4');
   lightL.setAttribute('cy', '4.6');
   lightL.setAttribute('r', '1.5');
   g.appendChild(lightL);
-
   const lightR = document.createElementNS(NS, 'circle');
   lightR.setAttribute('class', 'train-light');
   lightR.setAttribute('cx', '4.4');
   lightR.setAttribute('cy', '4.6');
   lightR.setAttribute('r', '1.5');
   g.appendChild(lightR);
-
   g.addEventListener('click', (e) => { e.stopPropagation(); openTrainSheet(t); });
   g.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openTrainSheet(t); }
   });
-
   trainsLayer.appendChild(g);
   return g;
 }
@@ -335,11 +324,9 @@ function renderTrainSheet(t) {
   const statusLabel = t.cancelled ? 'supprimé' : (t.status === 'ontime' ? "à l'heure" : ('+ ' + t.delay + ' min de retard'));
   const formationLabel = t.length === 'long' ? 'Train long' : 'Train court';
   const formationIcon = t.length === 'long' ? '🚃🚃' : '🚃';
-
   sheetEyebrow.textContent = IS_LIVE ? 'Train en circulation (temps réel PRIM)' : 'Train en circulation (simulation)';
   sheetTitle.textContent = t.code;
   sheetUpdated.textContent = dirText + ' — ' + origin + ' → ' + dest;
-
   sheetList.innerHTML = `
     <div class="train-info-card">
       <div class="train-info-head">
@@ -402,34 +389,48 @@ followBtn.addEventListener('click', () => {
 let lastTs = null;
 function animate(ts) {
   if (lastTs === null) lastTs = ts;
-  const dtMs = ts - lastTs;
+  const dt = Math.min((ts - lastTs) / 1000, 0.1);
   lastTs = ts;
-  const now = Date.now();
 
   liveTrains.forEach(t => {
+    const n = t.points.length;
+
     if (IS_LIVE) {
-      if (t.waypoints && t.waypoints.length) {
-        t.ci = ciFromWaypoints(t.waypoints, now);
-      }
+      // Parcourt en continu TOUS les arrêts connus de la mission (pas
+      // seulement le prochain), en interpolant à partir de l'heure réelle.
+      const ci = ciFromWaypoints(t.waypoints, Date.now());
+      if (ci !== null) t.ci = ci;
     } else {
-      const n = t.points.length;
-      const distPerMs = (t.speed * SPEED_SCALE) / 1000;
-      t.ci += t.dir * distPerMs * dtMs;
-      if (t.ci < 0) t.ci = 0;
-      if (t.ci > n - 1) t.ci = n - 1;
+      t.ci += t.dir * t.speed * dt * SPEED_SCALE;
+      if (t.ci >= n - 1) {
+        t.ci = n - 1; t.dir = -1;
+        t.status = pick(['ontime', 'ontime', 'ontime', 'late', 'verylate']);
+        t.delay = t.status === 'late' ? 2 + Math.floor(Math.random() * 8)
+          : (t.status === 'verylate' ? 10 + Math.floor(Math.random() * 16) : 0);
+      } else if (t.ci <= 0) {
+        t.ci = 0; t.dir = 1;
+        t.status = pick(['ontime', 'ontime', 'ontime', 'late', 'verylate']);
+        t.delay = t.status === 'late' ? 2 + Math.floor(Math.random() * 8)
+          : (t.status === 'verylate' ? 10 + Math.floor(Math.random() * 16) : 0);
+      }
     }
 
-    if (!t.el) t.el = createTrainMarker(t);
     const [x, y] = pointAt(t, t.ci);
-    t.el.setAttribute('transform', `translate(${x}, ${y}) rotate(${t.dir > 0 ? 90 : -90})`);
+    if (!t.el) t.el = createTrainMarker(t);
+    t.el.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`);
+    const dirLabel = southDir(currentDestination(t));
+    t.el.classList.remove('dirA', 'dirB');
+    t.el.classList.add('dir' + dirLabel);
     t.el.classList.toggle('cancelled', !!t.cancelled);
-
-    if (sheetMode === 'train' && selectedTrain === t) {
-      refreshTrainSheetLive(t);
+    if (followActive && selectedTrain === t) t.el.classList.add('following');
+    if (sheetMode === 'train' && selectedTrain === t) refreshTrainSheetLive(t);
+    if (selectedTrain === t && routeHighlight.classList.contains('visible')) {
+      routeHighlight.classList.remove('dirA', 'dirB');
+      routeHighlight.classList.add('dir' + dirLabel);
     }
+    if (followActive && selectedTrain) scrollElIntoView(selectedTrain.el, false);
   });
 
   requestAnimationFrame(animate);
 }
-
 requestAnimationFrame(animate);
