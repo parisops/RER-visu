@@ -67,6 +67,16 @@ ARRIVED_GRACE_MINUTES = 3
 # termine et est retire de l'historique persiste.
 TRACK_MAX_AGE_MINUTES = 90
 
+# Duree maximale (en minutes) d'historique de arrets conserves PAR TRACK,
+# relative au dernier arret connu de ce track. Les trajets RER C les plus
+# longs (traversee de branches) ne depassent pas ~100-110 min ; on garde une
+# marge confortable. Sans cette purge, un track dont le "dernier arret" est
+# regulierement rafraichi par des rattachements peu fiables (ex. gares
+# partagees par plusieurs missions comme Austerlitz) peut accumuler des
+# arrets tres anciens indefiniment et faire grossir data/live-trains.json et
+# data/train-tracks.json sans limite au fil des jours.
+MAX_STOP_HISTORY_MINUTES = 180
+
 # Vitesse au-dela de laquelle deux arrets consecutifs (au sein d'un meme
 # instantane OU entre un track existant et un nouveau passage) sont
 # consideres comme appartenant a deux trains differents plutot qu'au meme
@@ -184,16 +194,26 @@ def load_tracks():
 
 
 def save_tracks(tracks):
+    # Format compact (pas d'indentation) : ces fichiers ne sont jamais lus a la
+    # main, seulement par le script lui-meme et par le navigateur. L'indentation
+    # gonflait inutilement la taille (~30-40%) d'un fichier deja volumineux et
+    # commite toutes les quelques minutes, 24h/24.
     with open(TRACKS_PATH, "w", encoding="utf-8") as f:
-        json.dump({"tracks": tracks}, f, ensure_ascii=False, indent=2)
+        json.dump({"tracks": tracks}, f, ensure_ascii=False, separators=(",", ":"))
 
 
 def merge_stops(existing_stops, new_stops):
-    """Fusionne deux listes de stops, dedupliquees par (station, scheduled), triees."""
+    """Fusionne deux listes de stops, dedupliquees par (station, scheduled), triees,
+    puis tronquees a MAX_STOP_HISTORY_MINUTES relatif au dernier arret connu
+    (voir MAX_STOP_HISTORY_MINUTES pour la justification)."""
     seen = {(s["station"], s["scheduled"]): s for s in existing_stops}
     for s in new_stops:
         seen[(s["station"], s["scheduled"])] = s  # la version la plus recente gagne (retard a jour)
-    return sorted(seen.values(), key=lambda s: s["scheduled"])
+    merged = sorted(seen.values(), key=lambda s: s["scheduled"])
+    if not merged:
+        return merged
+    cutoff = parse_iso(merged[-1]["expected"]).timestamp() - MAX_STOP_HISTORY_MINUTES * 60
+    return [s for s in merged if parse_iso(s["expected"]).timestamp() >= cutoff]
 
 
 def attach_runs_to_tracks(tracks, runs, coords):
@@ -341,8 +361,9 @@ def build_live_trains():
 def main():
     out = build_live_trains()
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
+    # Format compact : voir commentaire de save_tracks() pour la justification.
     with open(OUT_PATH, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
+        json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     n_active = sum(1 for t in out["trains"] if t["state"] == "enRoute")
     n_waiting = sum(1 for t in out["trains"] if t["state"] == "notStarted")
     n_total = len(out["trains"])
