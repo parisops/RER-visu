@@ -14,9 +14,7 @@ Principe :
 
   1. Un code mission n'est PAS unique a un instant donne : PRIM/SNCF reutilise
      le meme code a 4 lettres pour PLUSIEURS trains differents circulant
-     simultanement sur des portions distinctes de la ligne (observe : "GOTA"
-     attache a la fois a un passage vers Epinay-sur-Seine et vers Champ de
-     Mars a 1 minute d'intervalle, ~650 km/h implicite). On scinde donc les
+     simultanement sur des portions distinctes de la ligne. On scinde donc les
      passages d'un code en sous-sequences physiquement plausibles avant toute
      autre chose (split_into_runs, via les coordonnees GPS de
      stations-idfm.js).
@@ -34,10 +32,8 @@ Principe :
      s'applique pas, coordonnees identiques) doit imperativement exiger un
      ecart de temps court (SAME_STATION_TOLERANCE_S) entre le dernier arret du
      track et le nouveau passage. Sans cette limite, des gares partagees par
-     plusieurs missions (ex. Gare d'Austerlitz, desservie par les 6 routes)
-     finissent par fusionner des trains totalement sans rapport au fil des
-     runs, corrompant l'historique (observe : 209 trains connus cote backend,
-     4 seulement resolubles sur une route reelle cote navigateur).
+     plusieurs missions finissent par fusionner des trains totalement sans
+     rapport au fil des runs, corrompant l'historique.
 
 USAGE (local, apres avoir lance fetch_prim_departures.py) :
   python3 tools/build_live_trains.py
@@ -59,33 +55,14 @@ OUT_PATH = os.path.join(ROOT, "data", "live-trains.json")
 TRACKS_PATH = os.path.join(ROOT, "data", "train-tracks.json")
 STATIONS_JS_PATH = os.path.join(ROOT, "js", "stations-idfm.js")
 
-# Duree pendant laquelle un train reste affiche "a quai" apres son dernier
-# arret connu quand aucun arret suivant n'est encore visible dans PRIM.
 ARRIVED_GRACE_MINUTES = 3
-
-# Un track dont le dernier arret connu est plus ancien que ca est considere
-# termine et est retire de l'historique persiste.
 TRACK_MAX_AGE_MINUTES = 90
 
 # Duree maximale (en minutes) d'historique de arrets conserves PAR TRACK,
-# relative au dernier arret connu de ce track. Les trajets RER C les plus
-# longs (traversee de branches) ne depassent pas ~100-110 min ; on garde une
-# marge confortable. Sans cette purge, un track dont le "dernier arret" est
-# regulierement rafraichi par des rattachements peu fiables (ex. gares
-# partagees par plusieurs missions comme Austerlitz) peut accumuler des
-# arrets tres anciens indefiniment et faire grossir data/live-trains.json et
-# data/train-tracks.json sans limite au fil des jours.
+# relative au dernier arret connu de ce track.
 MAX_STOP_HISTORY_MINUTES = 180
 
-# Vitesse au-dela de laquelle deux arrets consecutifs (au sein d'un meme
-# instantane OU entre un track existant et un nouveau passage) sont
-# consideres comme appartenant a deux trains differents plutot qu'au meme
-# train (RER C ne depasse pas ~160 km/h en pointe ; grande marge de securite).
 MAX_PLAUSIBLE_KMH = 180
-
-# Tolerance pour considerer un passage a la MEME gare comme la reobservation
-# du meme arret (pas un train different) : ecart de temps maximal accepte.
-# Indispensable sur les gares partagees par plusieurs routes (voir docstring).
 SAME_STATION_TOLERANCE_S = 5 * 60  # 5 minutes
 
 
@@ -124,8 +101,6 @@ def haversine_km(a, b):
 
 
 def implied_speed_kmh(coords, stop_a, stop_b):
-    """Vitesse implicite (km/h) entre deux arrets, ou None si non calculable
-    (coordonnees manquantes ou meme gare)."""
     c_a = coords.get(stop_a["station"])
     c_b = coords.get(stop_b["station"])
     if not c_a or not c_b or c_a == c_b:
@@ -137,13 +112,12 @@ def implied_speed_kmh(coords, stop_a, stop_b):
 
 
 def build_missions(data):
-    """Regroupe tous les passages du DERNIER instantane par code mission."""
     missions = {}
     for station_key, station_data in data.get("stations", {}).items():
         for dep in station_data.get("departures", []):
             code = dep.get("code")
             if not code or code == "----":
-                continue  # code mission manquant : train non identifiable, on l'ignore
+                continue
             stop = {
                 "station": station_key,
                 "scheduled": dep["scheduled"],
@@ -165,9 +139,6 @@ def build_missions(data):
 
 
 def split_into_runs(mission, coords):
-    """Scinde les arrets d'un code mission (dans UN instantane) en
-    sous-sequences physiquement plausibles. Retourne une liste de mini-
-    "mission" (memes cles que l'entree)."""
     stops = mission["stops"]
     if len(stops) <= 1:
         return [dict(mission, stops=list(stops))] if stops else []
@@ -194,21 +165,14 @@ def load_tracks():
 
 
 def save_tracks(tracks):
-    # Format compact (pas d'indentation) : ces fichiers ne sont jamais lus a la
-    # main, seulement par le script lui-meme et par le navigateur. L'indentation
-    # gonflait inutilement la taille (~30-40%) d'un fichier deja volumineux et
-    # commite toutes les quelques minutes, 24h/24.
     with open(TRACKS_PATH, "w", encoding="utf-8") as f:
         json.dump({"tracks": tracks}, f, ensure_ascii=False, separators=(",", ":"))
 
 
 def merge_stops(existing_stops, new_stops):
-    """Fusionne deux listes de stops, dedupliquees par (station, scheduled), triees,
-    puis tronquees a MAX_STOP_HISTORY_MINUTES relatif au dernier arret connu
-    (voir MAX_STOP_HISTORY_MINUTES pour la justification)."""
     seen = {(s["station"], s["scheduled"]): s for s in existing_stops}
     for s in new_stops:
-        seen[(s["station"], s["scheduled"])] = s  # la version la plus recente gagne (retard a jour)
+        seen[(s["station"], s["scheduled"])] = s
     merged = sorted(seen.values(), key=lambda s: s["scheduled"])
     if not merged:
         return merged
@@ -217,9 +181,6 @@ def merge_stops(existing_stops, new_stops):
 
 
 def attach_runs_to_tracks(tracks, runs, coords):
-    """Tente de rattacher chaque nouvelle sequence (run, issue de l'instantane
-    courant) a un track existant (meme code + continuite physique plausible).
-    Sinon cree un nouveau track. Modifie `tracks` en place et le retourne."""
     by_code = {}
     for i, track in enumerate(tracks):
         by_code.setdefault(track["code"], []).append(i)
@@ -235,13 +196,6 @@ def attach_runs_to_tracks(tracks, runs, coords):
             t_last = parse_iso(last_stop["expected"])
             t_new = parse_iso(first_new["expected"])
             gap_s = (t_new - t_last).total_seconds()
-            # Meme gare acceptee seulement si l'ecart de temps est court et
-            # dans le bon sens : reobservation du meme arret entre deux runs
-            # proches, jamais un train totalement different repasse par la
-            # meme gare (frequent sur les gares partagees par plusieurs
-            # routes, ex. Gare d'Austerlitz). Sans cette restriction, des
-            # trains sans rapport se retrouvaient fusionnes dans un meme
-            # track, corrompant l'historique.
             plausible = (speed is not None and speed <= MAX_PLAUSIBLE_KMH and gap_s >= 0) \
                 or (last_stop["station"] == first_new["station"] and 0 <= gap_s <= SAME_STATION_TOLERANCE_S)
             if plausible:
@@ -279,8 +233,6 @@ def prune_tracks(tracks, now):
 
 
 def locate_train(track, now):
-    """Determine la derniere gare deja desservie (from) et la prochaine (to),
-    et la fraction de trajet parcourue entre les deux."""
     stops = track["stops"]
     past = [s for s in stops if parse_iso(s["expected"]) <= now]
     future = [s for s in stops if parse_iso(s["expected"]) > now]
@@ -336,13 +288,22 @@ def build_live_trains():
         cancelled = any(s["status"] == "cancelled" for s in track["stops"])
         reference_stop = to_stop or from_stop
         code = track["code"]
+        # "code" reste TOUJOURS le code mission brut PRIM, sans jamais de
+        # suffixe visible cote client. "id" est un identifiant interne,
+        # distinct, utilise UNIQUEMENT par js/trains.js pour indexer les
+        # trains de facon unique meme en cas de collision de code (plusieurs
+        # trains simultanes partageant le meme code PRIM) : sans cette
+        # separation, deux trains distincts partageant le meme "code" se
+        # retrouveraient sous la meme cle cote client, et l'un des deux
+        # marqueurs disparaitrait purement et simplement de l'ecran.
         if counts[code] > 1:
             seen_per_code[code] = seen_per_code.get(code, 0) + 1
-            display_code = f"{code}\u00b7{seen_per_code[code]}"
+            train_id = f"{code}\u00b7{seen_per_code[code]}"
         else:
-            display_code = code
+            train_id = code
         trains.append({
-            "code": display_code,
+            "id": train_id,
+            "code": code,
             "dest": track["dest"],
             "dir": track["dir"],
             "state": state,
@@ -361,7 +322,6 @@ def build_live_trains():
 def main():
     out = build_live_trains()
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
-    # Format compact : voir commentaire de save_tracks() pour la justification.
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, separators=(",", ":"))
     n_active = sum(1 for t in out["trains"] if t["state"] == "enRoute")
