@@ -7,13 +7,13 @@
  * index.html (#sheet, #sheet-list, .stop, .dir-btn, ...).
  * Référencé par : trains.js (openTrainSheet réutilise sheet/sheetList/scrollElIntoView, etc.)
  *
- * Dépendance additionnelle (chargement différé, voir resolveLivePosition) :
- * trains.js (liveTrainsById, positionText) — script chargé APRÈS panel.js dans
- * index.html, mais renderList() n'est appelé qu'au clic sur une gare, donc
- * bien après que trains.js ait fini de s'exécuter au chargement de la page.
- * Sert à afficher, pour chaque départ de la vue gare, la position RÉELLE du
- * train en circulation (ex. "Entre X et Y") au lieu du seul numéro de voie,
- * quand ce train est déjà suivi côté data/live-trains.json.
+ * La position réelle en circulation (ex. "Entre X et Y") est calculée en
+ * amont, côté real-schedule.js (buildDepartures -> t.position), par
+ * rattachement (gare, horaire programmé) — PAS par code mission, qui peut
+ * être partagé par plusieurs trains simultanés (voir real-schedule.js pour
+ * le détail). panel.js n'a donc plus besoin de recouper avec trains.js ici.
+ * La voie (t.platform) est en revanche TOUJOURS affichée séparément, quelle
+ * que soit la position, via une puce dédiée (voir .dep-voie dans style.css).
  */
 
 const sheet = document.getElementById('sheet');
@@ -37,23 +37,6 @@ let expectedScrollY = null;
 let suppressScrollCheck = 0;
 let renderSheetToken = 0;
 
-// Cherche le train "en circulation" (trains.js/liveTrains, alimenté par
-// data/live-trains.json) correspondant à un départ de la vue gare, pour en
-// afficher la position réelle sur le schéma au lieu du seul numéro de voie.
-// Rattachement par code mission ; gère le suffixe "·N" que build_live_trains.py
-// ajoute côté backend quand un même code est réutilisé par plusieurs trains
-// simultanés (voir tools/build_live_trains.py) — dans ce cas rare, on prend le
-// premier train correspondant faute de pouvoir désambiguïser côté gare.
-function resolveLivePosition(t){
-  if (typeof liveTrainsById === 'undefined' || typeof positionText !== 'function') return null;
-  let lt = liveTrainsById[t.code];
-  if (!lt){
-    const match = Object.keys(liveTrainsById).find(k => k.split('·')[0] === t.code);
-    lt = match ? liveTrainsById[match] : null;
-  }
-  return lt ? positionText(lt) : null;
-}
-
 function renderList(){
   sheetList.innerHTML = '';
   const filtered = activeFilter ? currentTrains.filter(t => t.dir === activeFilter) : currentTrains;
@@ -66,14 +49,15 @@ function renderList(){
     const row = document.createElement('div');
     row.className = 'dep-row' + (t.status === 'cancelled' ? ' cancelled' : '');
     const delayLabel = t.status === 'ontime' ? "à l'heure" : t.status === 'cancelled' ? 'Supprimé' : ('+ ' + t.delay + ' min');
-    const livePos = resolveLivePosition(t);
-    const posText = livePos || t.position.text;
-    const posUnknown = !livePos && t.position.unknown;
+    const voieChip = t.platform ? `<span class="dep-voie">Voie ${t.platform}</span>` : '';
     row.innerHTML = `
       <div class="dep-code dir${t.dir}">${t.code}</div>
       <div class="dep-main">
         <div class="dep-dest">${t.dest}</div>
-        <div class="dep-pos ${posUnknown ? 'unknown' : ''}">${posText}</div>
+        <div class="dep-pos-row">
+          <span class="dep-pos ${t.position.unknown ? 'unknown' : ''}">${t.position.text}</span>
+          ${voieChip}
+        </div>
       </div>
       <div class="dep-time">
         <div class="dep-hhmm">${fmtTime(t.scheduled)}</div>
