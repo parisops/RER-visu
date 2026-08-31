@@ -79,6 +79,13 @@ function platformPosition(platform){
   return {text: "Voie " + platform, unknown: false};
 }
 
+// Texte de repli pour la ligne "position en circulation" quand elle n'est pas
+// calculable. Distinct de "Voie X" (affichée séparément par la puce dédiée
+// dans panel.js) pour éviter de dupliquer l'info sur la même ligne.
+function fallbackRunningText(){
+  return {text: "Position en circulation indisponible", unknown: true};
+}
+
 // --- Position réelle en circulation, via data/live-trains.json --------------
 //
 // Réutilise EXACTEMENT la même logique que trains.js (resolveRoute,
@@ -89,14 +96,31 @@ function platformPosition(platform){
 // Saint-Michel Notre-Dame 10 gares plus loin, sans que les gares
 // intermédiaires n'aient été captées). Utiliser from/to bruts affichait donc
 // des paires de gares très éloignées au lieu de gares réellement adjacentes.
-// En passant par le tracé complet (ROUTES[Rx].milestones) et en interpolant
-// l'heure courante entre TOUS les waypoints connus, on retrouve toujours les
-// deux gares immédiatement adjacentes sur la ligne, comme le fait déjà le
-// marqueur animé sur le schéma.
-const LIVE_TRAINS_URL = 'data/live-trains.json';
-let liveTrainsRawPromise = null;
+//
+// IMPORTANT : toutes les fonctions/variables ci-dessous sont préfixées "rs"
+// (real-schedule) même si elles dupliquent une logique déjà présente dans
+// trains.js. real-schedule.js et trains.js sont deux <script> classiques
+// chargés dans le même contexte global (pas de modules JS) : redéclarer une
+// même "const"/"function" dans les deux fichiers provoque une SyntaxError
+// fatale qui empêche TOUT le fichier fautif de s'exécuter (observé : plus
+// aucun train animé sur le schéma après un essai sans ce préfixe).
+const rsRouteNameIndexCache = {};
+function rsNormName(s) {
+  return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
 
-function stationKeyToName(stationKey){
+function rsRouteNameIndex(routeKey) {
+  if (rsRouteNameIndexCache[routeKey]) return rsRouteNameIndexCache[routeKey];
+  const route = ROUTES[routeKey];
+  const map = {};
+  Object.keys(route.milestones).forEach(idx => {
+    map[rsNormName(route.milestones[idx])] = Number(idx);
+  });
+  rsRouteNameIndexCache[routeKey] = map;
+  return map;
+}
+
+function rsStationKeyToName(stationKey){
   if(!stationKey) return null;
   const sepIdx = stationKey.lastIndexOf(':');
   if(sepIdx === -1) return null;
@@ -106,32 +130,16 @@ function stationKeyToName(stationKey){
   return (arr && arr[idx]) || null;
 }
 
-function normName(s) {
-  return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
-}
-
-const _routeNameIndexCache = {};
-function routeNameIndex(routeKey) {
-  if (_routeNameIndexCache[routeKey]) return _routeNameIndexCache[routeKey];
-  const route = ROUTES[routeKey];
-  const map = {};
-  Object.keys(route.milestones).forEach(idx => {
-    map[normName(route.milestones[idx])] = Number(idx);
-  });
-  _routeNameIndexCache[routeKey] = map;
-  return map;
-}
-
 // Identique à resolveRoute() de trains.js : trouve la route (R1..R6) qui
 // contient TOUTES les gares connues du train, dans le bon ordre.
-function resolveRouteForStops(stops) {
-  const names = stops.map(s => stationKeyToName(s.station)).filter(Boolean);
+function rsResolveRouteForStops(stops) {
+  const names = stops.map(s => rsStationKeyToName(s.station)).filter(Boolean);
   if (names.length === 0) return null;
-  const normed = names.map(normName);
+  const normed = names.map(rsNormName);
 
   let best = null;
   for (const routeKey of Object.keys(ROUTES)) {
-    const nameIndex = routeNameIndex(routeKey);
+    const nameIndex = rsRouteNameIndex(routeKey);
     const indices = normed.map(n => nameIndex[n]);
     if (indices.some(ix => ix === undefined)) continue;
     let increasing = true, decreasing = true;
@@ -148,7 +156,7 @@ function resolveRouteForStops(stops) {
 }
 
 // Identique à ciFromWaypoints() de trains.js.
-function ciFromWaypoints(waypoints, now) {
+function rsCiFromWaypoints(waypoints, now) {
   if (!waypoints || waypoints.length === 0) return null;
   if (now <= waypoints[0].time) return waypoints[0].ci;
   let i = 0;
@@ -162,7 +170,7 @@ function ciFromWaypoints(waypoints, now) {
 
 // Identique à positionText() de trains.js : donne "En gare de X" ou
 // "Entre X et Y" (toujours deux gares adjacentes sur le tracé).
-function positionTextFromCi(milestones, ci) {
+function rsPositionTextFromCi(milestones, ci) {
   const keys = Object.keys(milestones).map(Number).sort((a, b) => a - b);
   if (keys.length === 0) return null;
   let below = null, above = null;
@@ -180,6 +188,9 @@ function positionTextFromCi(milestones, ci) {
   if (above !== null) return 'Avant ' + milestones[above];
   return null;
 }
+
+const LIVE_TRAINS_URL = 'data/live-trains.json';
+let liveTrainsRawPromise = null;
 
 function loadLiveTrainsRaw(){
   if(!liveTrainsRawPromise){
@@ -209,7 +220,7 @@ function loadLiveTrainsRaw(){
 function runningPositionText(train){
   if(!train || train.cancelled) return null;
   const stops = train.stops || [];
-  const resolved = resolveRouteForStops(stops);
+  const resolved = rsResolveRouteForStops(stops);
   if(!resolved) return null;
   const route = ROUTES[resolved.routeKey];
   const waypoints = stops
@@ -217,9 +228,9 @@ function runningPositionText(train){
     .filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time))
     .sort((a, b) => a.time - b.time);
   if(waypoints.length === 0) return null;
-  const ci = ciFromWaypoints(waypoints, Date.now());
+  const ci = rsCiFromWaypoints(waypoints, Date.now());
   if(ci === null) return null;
-  return positionTextFromCi(route.milestones, ci);
+  return rsPositionTextFromCi(route.milestones, ci);
 }
 
 // Reconstruit un pool de destinations pondéré {A,B} à partir des départs déjà
@@ -262,7 +273,10 @@ function buildDepartures(seg, idx){
         dir: d.dir,
         scheduled: new Date(d.scheduled),
         status, delay,
-        position: runningText ? {text: runningText, unknown: false} : platformPosition(d.platform),
+        // position : texte de circulation quand calculable, sinon un texte
+        // DISTINCT de "Voie X" (déjà affichée séparément par la puce dédiée
+        // dans panel.js) pour ne jamais dupliquer l'info sur la même ligne.
+        position: runningText ? {text: runningText, unknown: false} : fallbackRunningText(),
         platform: d.platform || null,
       };
     });
