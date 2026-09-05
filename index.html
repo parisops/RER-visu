@@ -17,7 +17,7 @@
 <main>
   <div class="hint">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b7b4ac" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16" r="0.5" fill="#b7b4ac"/></svg>
-    Touchez une gare pour simuler ses prochains départs, ou un train pour voir son tracé et le suivre en direct.
+    Touchez une gare pour consulter ses prochains départs, ou un train pour voir son tracé et le suivre en direct.
   </div>
   <div class="card">
     <svg viewBox="0 0 620 2000" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Helvetica Neue, Arial, sans-serif">
@@ -194,17 +194,17 @@
     <span><i class="term"></i> Terminus</span>
     <span><i style="border-width:3px;width:13px;height:13px"></i> Correspondance / bifurcation</span>
     <span><i></i> Gare</span>
-    <span><i class="train-legend"></i> Train en circulation (simulation)</span>
+    <span><i class="train-legend"></i> Train en circulation (position estimée)</span>
   </div>
 </main>
-<footer>Maquette stylisée à but illustratif, dessinée d'après la topologie réelle de la ligne C du RER (75 gares, 6 branches). Les départs et la circulation des trains affichés sont entièrement simulés (codes mission, horaires, retards, formations et positions fictifs) et ne reflètent aucune donnée de trafic réelle — pour le trafic en temps réel, consultez transilien.com.</footer>
+<footer>Schéma stylisé de la ligne C du RER. Horaires et départs issus d’Île-de-France Mobilités / PRIM. Les positions des trains sont estimées et animées entre les horaires de passage connus, même entre deux mises à jour ; elles ne correspondent pas à une géolocalisation GPS.</footer>
 <div id="scroll-spacer"></div>
 
 <div id="sheet" aria-hidden="true">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
     <div>
-      <div class="sheet-eyebrow" id="sheet-eyebrow">Prochains départs (simulation)</div>
+      <div class="sheet-eyebrow" id="sheet-eyebrow">Prochains départs</div>
       <h2 id="sheet-station-name"></h2>
       <p class="sheet-updated" id="sheet-updated"></p>
     </div>

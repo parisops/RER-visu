@@ -1,24 +1,10 @@
 /*
-* trains.js — Trains "en circulation" : marqueurs animÃ©s sur le schÃ©ma,
-* suivi ("Suivre ce train en direct"), fiche train, surlignage du trajet.
-*
-* DÃ©pend de : data.js (ROUTES, TRAIN_DEFS, SOUTH_TERMINI, SPEED_SCALE, SEG),
-* mock-schedule.js ou real-schedule.js (pick, IS_LIVE),
-* panel.js (sheet, sheetList, scrollElIntoView, showRouteHighlight, etc.)
-*
-* Suivi des trains rÃ©els (actif quand IS_LIVE === true) :
-* - liveTrains est mis Ã  jour pÃ©riodiquement Ã  partir de data/live-trains.json
-*   (voir refreshLiveTrains), au lieu d'Ãªtre gÃ©nÃ©rÃ© une fois pour toutes
-*   depuis TRAIN_DEFS.
-* - Chaque train rÃ©el est identifiÃ© de faÃ§on unique et stable par son
-*   journeyRef (FramedVehicleJourneyRef.DatedVehicleJourneyRef, exposÃ© par
-*   l'API PRIM). liveTrainsById est dÃ©sormais indexÃ© par journeyRef, plus
-*   par code mission.
-* - La route (R1..R6) est dÃ©jÃ¡ attachÃ©e cÃ´tÃ© backend (t.route) : plus
-*   besoin de resolveRoute() cÃ´tÃ© client.
-* - La position est interpolÃ©e entre t.from et t.to via t.progress (dÃ©jÃ¡
-*   calculÃ© cÃ´tÃ© backend dans build_live_trains.py).
-*/
+ * Trains animés sur les tracés existants.
+ * En mode PRIM, chaque circulation est identifiée par journeyRef.
+ * Le navigateur interpole les horaires de passage à chaque image ;
+ * le téléchargement des horaires toutes les 60 s ne cadence pas le mouvement.
+ * Dépend de data.js, real-schedule.js (ou mock-schedule.js) et panel.js.
+ */
 const trainsLayer = document.getElementById('trains-layer');
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -59,106 +45,79 @@ if (!IS_LIVE) {
 
 const liveTrainsById = {};
 
+let liveTrainsGeneratedAt = null;
+let liveTrainsRefreshing = false;
+
 async function refreshLiveTrains() {
-  if (!IS_LIVE) return;
-  let payload;
+  if (!IS_LIVE || liveTrainsRefreshing) return;
+  liveTrainsRefreshing = true;
   try {
     const res = await fetch('data/live-trains.json', { cache: 'no-store' });
-    payload = await res.json();
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const payload = await res.json();
+    if (!Array.isArray(payload.trains) || !Number.isFinite(Date.parse(payload.generatedAt))) {
+      throw new Error('Données trains invalides');
+    }
+    if (liveTrainsGeneratedAt && Date.parse(payload.generatedAt) <= Date.parse(liveTrainsGeneratedAt)) return;
+    const seenJrefs = new Set();
+    payload.trains.forEach(rt => {
+      const route = ROUTES[rt.route];
+      if (!rt.journeyRef || !route || route.points.length < 2 || rt.cancelled) return;
+      let waypoints = (rt.stops || []).map(s => ({
+        ci: resolveStationCi(s.station, rt.route),
+        time: Date.parse(s.expected)
+      })).filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time))
+        .sort((a, b) => a.time - b.time);
+      let t = liveTrainsById[rt.journeyRef];
+      // Conserver les passages déjà connus, car PRIM ne renvoie plus les gares quittées.
+      if (t && t.route === rt.route) {
+        const currentCis = new Set(waypoints.map(w => w.ci));
+        waypoints = [...t.waypoints.filter(w => !currentCis.has(w.ci)), ...waypoints]
+          .sort((a, b) => a.time - b.time);
+      }
+      if (waypoints.length < 2) return;
+      const dir = Math.sign(waypoints[1].ci - waypoints[0].ci);
+      if (!dir || waypoints.some((w, i) => i && (
+        w.time <= waypoints[i - 1].time || Math.sign(w.ci - waypoints[i - 1].ci) !== dir))) return;
+      seenJrefs.add(rt.journeyRef);
+      if (!t) {
+        t = {id: rt.journeyRef, el: null, speed: 0, length: 'long', cars: 8};
+        liveTrainsById[t.id] = t;
+        liveTrains.push(t);
+      }
+      Object.assign(t, {
+        journeyRef: rt.journeyRef, code: rt.code, trainNumber: rt.trainNumber,
+        route: rt.route, points: route.points, milestones: route.milestones,
+        termini: route.termini, dir, dest: rt.dest, cancelled: false,
+        delay: rt.delay || 0,
+        status: rt.delay >= 10 ? 'verylate' : rt.delay >= 2 ? 'late' : 'ontime',
+        waypoints, ci: ciFromWaypoints(waypoints, Date.now())
+      });
+    });
+    for (let i = liveTrains.length - 1; i >= 0; i--) {
+      const t = liveTrains[i];
+      if (!seenJrefs.has(t.id)) {
+        if (t.el) t.el.remove();
+        if (selectedTrain === t) closeSheet();
+        delete liveTrainsById[t.id];
+        liveTrains.splice(i, 1);
+      }
+    }
+    liveTrainsGeneratedAt = payload.generatedAt;
   } catch (e) {
     console.warn('live-trains.json indisponible :', e);
-    return;
-  }
-
-  const seenJrefs = new Set();
-
-  (payload.trains || []).forEach(rt => {
-    const jref = rt.journeyRef || (rt.code + '|' + ((rt.from || rt.to || {}).scheduled));
-    seenJrefs.add(jref);
-
-    let ci = null;
-    if (rt.progress !== null && rt.progress !== undefined && rt.route) {
-      const fromCi = rt.from ? resolveStationCi(rt.from.station, rt.route) : null;
-      const toCi = rt.to ? resolveStationCi(rt.to.station, rt.route) : null;
-      if (fromCi !== null && toCi !== null) {
-        ci = fromCi + (toCi - fromCi) * rt.progress;
-      } else if (fromCi !== null) {
-        ci = fromCi;
-      } else if (toCi !== null) {
-        ci = toCi;
-      }
-    }
-
-    const status = rt.cancelled ? 'cancelled' : (rt.delay >= 10 ? 'verylate' : (rt.delay >= 2 ? 'late' : 'ontime'));
-
-    let t = liveTrainsById[jref];
-    if (!t) {
-      t = {
-        id: jref,
-        journeyRef: jref,
-        code: rt.code,
-        trainNumber: rt.trainNumber,
-        route: rt.route,
-        points: rt.route ? ROUTES[rt.route].points : [],
-        milestones: rt.route ? ROUTES[rt.route].milestones : {},
-        termini: rt.route ? ROUTES[rt.route].termini : [null, null],
-        ci: ci !== null ? ci : 0,
-        dir: rt.dir === 'A' ? -1 : 1,
-        speed: 0,
-        length: 'long',
-        cars: 8,
-        status: status,
-        delay: rt.delay || 0,
-        dest: rt.dest,
-        cancelled: !!rt.cancelled,
-        waypoints: (rt.stops || []).map(s => ({
-          ci: resolveStationCi(s.station, rt.route),
-          time: new Date(s.expected).getTime()
-        })).filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time)),
-        el: null
-      };
-      liveTrainsById[jref] = t;
-      liveTrains.push(t);
-    } else {
-      t.code = rt.code;
-      t.trainNumber = rt.trainNumber;
-      t.route = rt.route;
-      t.points = rt.route ? ROUTES[rt.route].points : [];
-      t.milestones = rt.route ? ROUTES[rt.route].milestones : {};
-      t.termini = rt.route ? ROUTES[rt.route].termini : [null, null];
-      if (ci !== null) t.ci = ci;
-      t.dir = rt.dir === 'A' ? -1 : 1;
-      t.dest = rt.dest;
-      t.cancelled = !!rt.cancelled;
-      t.delay = rt.delay || 0;
-      t.status = status;
-      t.waypoints = (rt.stops || []).map(s => ({
-        ci: resolveStationCi(s.station, rt.route),
-        time: new Date(s.expected).getTime()
-      })).filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time));
-    }
-  });
-
-  for (let i = liveTrains.length - 1; i >= 0; i--) {
-    const t = liveTrains[i];
-    if (!seenJrefs.has(t.id)) {
-      if (t.el && t.el.parentNode) t.el.parentNode.removeChild(t.el);
-      if (typeof selectedTrain !== 'undefined' && selectedTrain === t && typeof closeSheet === 'function') {
-        closeSheet();
-      }
-      delete liveTrainsById[t.id];
-      liveTrains.splice(i, 1);
-    }
+  } finally {
+    liveTrainsRefreshing = false;
   }
 }
 
 if (IS_LIVE) {
   refreshLiveTrains();
-  setInterval(refreshLiveTrains, 15000);
+  setInterval(refreshLiveTrains, 60000);
 }
 
 function resolveStationCi(stationKey, routeKey) {
-  if (!stationKey || !routeKey) return null;
+  if (!stationKey || !ROUTES[routeKey]) return null;
   const name = stationKeyToName(stationKey);
   if (!name) return null;
   const ms = ROUTES[routeKey].milestones;
@@ -183,7 +142,7 @@ function normName(s) {
   return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
-function currentDestination(t) { return t.dir > 0 ? t.termini[1] : t.termini[0]; }
+function currentDestination(t) { if (IS_LIVE && t.dest) return t.dest; return t.dir > 0 ? t.termini[1] : t.termini[0]; }
 function currentOrigin(t) { return t.dir > 0 ? t.termini[0] : t.termini[1]; }
 
 function positionText(t) {
@@ -225,7 +184,7 @@ function renderTrainSheet(t) {
   const statusLabel = t.cancelled ? 'supprimÃ©' : (t.status === 'ontime' ? "Ã¢ l'heure" : ('+ ' + t.delay + ' min de retard'));
   const formationLabel = t.length === 'long' ? 'Train long' : 'Train court';
   const formationIcon = t.length === 'long' ? 'ðŁŁŁðŁŁŁ' : 'ðŁŁŁ';
-  sheetEyebrow.textContent = IS_LIVE ? 'Train en circulation (temps rÃ©el PRIM)' : 'Train en circulation (simulation)';
+  sheetEyebrow.textContent = IS_LIVE ? 'Position estimée — horaires PRIM' : 'Train en circulation (simulation)';
   sheetTitle.textContent = t.code;
   sheetUpdated.textContent = dirText + ' â€" ' + origin + ' â†' + dest;
   sheetList.innerHTML = `
@@ -293,6 +252,16 @@ function animate(ts) {
 
   liveTrains.forEach(t => {
     const n = t.points.length;
+    if (n < 2) return;
+    // L'horloge locale anime chaque segment, indépendamment du polling.
+    // Au-delà du dernier passage connu, masquer après trois minutes.
+    if (IS_LIVE && (!t.waypoints || t.waypoints.length < 2 ||
+        Date.now() > t.waypoints[t.waypoints.length - 1].time + 180000)) {
+      if (t.el) t.el.style.display = 'none';
+      if (selectedTrain === t) closeSheet();
+      return;
+    }
+    if (t.el) t.el.style.display = '';
 
     if (IS_LIVE && t.waypoints && t.waypoints.length > 0) {
       const ci = ciFromWaypoints(t.waypoints, Date.now());

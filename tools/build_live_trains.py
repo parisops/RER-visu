@@ -95,11 +95,14 @@ def station_key_to_name(seg, station_key):
     return None
 
 
-def resolve_route_for_stops(seg, routes, stops):
+def resolve_route_for_stops(seg, routes, stops, destination=None):
     names = [station_key_to_name(seg, s["station"]) for s in stops]
-    normed = [norm_name(n) for n in names if n]
+    if any(n is None for n in names):
+        return None
+    normed = [norm_name(n) for n in names]
     if len(normed) <= 1:
         return None
+    candidates = []
     for route_key, name_index in routes.items():
         indices = [name_index.get(n) for n in normed]
         if any(i is None for i in indices):
@@ -107,8 +110,15 @@ def resolve_route_for_stops(seg, routes, stops):
         increasing = all(indices[i] > indices[i - 1] for i in range(1, len(indices)))
         decreasing = all(indices[i] < indices[i - 1] for i in range(1, len(indices)))
         if increasing or decreasing:
-            return (route_key, indices)
-    return None
+            dest_index = name_index.get(norm_name(destination))
+            toward_dest = dest_index is not None and (
+                (increasing and dest_index >= indices[-1]) or
+                (decreasing and dest_index <= indices[-1]))
+            candidates.append((toward_dest, route_key, indices))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda c: not c[0])
+    return candidates[0][1:]
 
 
 def build_live_trains():
@@ -121,7 +131,7 @@ def build_live_trains():
         for dep in station_data.get("departures", []):
             jref = dep.get("journeyRef")
             if not jref:
-                jref = (dep.get("code"), dep["scheduled"])
+                continue  # Un code mission ne permet pas d’identifier une circulation.
             stop = {
                 "station": station_key,
                 "scheduled": dep["scheduled"],
@@ -142,11 +152,14 @@ def build_live_trains():
 
     trains = []
     for jref, entry in by_journey.items():
-        entry["stops"].sort(key=lambda s: s["expected"])
+        entry["stops"] = list({s["station"]: s for s in entry["stops"]}.values())
+        entry["stops"].sort(key=lambda s: parse_iso(s["expected"]))
         if not entry["stops"]:
             continue
-        resolved = resolve_route_for_stops(seg, routes, entry["stops"])
-        route_key = resolved[0] if resolved else None
+        resolved = resolve_route_for_stops(seg, routes, entry["stops"], entry["dest"])
+        if not resolved:
+            continue
+        route_key = resolved[0]
 
         past = [s for s in entry["stops"] if parse_iso(s["expected"]) <= now]
         future = [s for s in entry["stops"] if parse_iso(s["expected"]) > now]
@@ -193,6 +206,10 @@ def build_live_trains():
             "route": route_key,
         })
 
+    departures = [d for station in data.get("stations", {}).values()
+                  for d in station.get("departures", [])]
+    if departures and not any(d.get("journeyRef") for d in departures):
+        raise RuntimeError("Aucun journeyRef : génération interrompue, vérifier le collecteur PRIM.")
     trains.sort(key=lambda t: (t["code"], t["dest"], t["dir"]))
     return {"generatedAt": data["generatedAt"], "trains": trains}
 
