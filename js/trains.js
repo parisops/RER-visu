@@ -1,42 +1,30 @@
 /*
- * trains.js — Trains "en circulation" : marqueurs animés sur le schéma,
- * suivi ("Suivre ce train en direct"), fiche train, surlignage du trajet.
- *
- * Dépend de : data.js (ROUTES, TRAIN_DEFS, SOUTH_TERMINI, SPEED_SCALE, SEG),
- * mock-schedule.js ou real-schedule.js (pick, IS_LIVE),
- * panel.js (sheet, sheetList, scrollElIntoView, showRouteHighlight, etc.)
- *
- * Suivi des trains réels (actif quand IS_LIVE === true, positionné par
- * real-schedule.js) :
- * - liveTrains est mis à jour périodiquement à partir de data/live-trains.json
- *   (voir refreshLiveTrains), au lieu d'être généré une fois pour toutes
- *   depuis TRAIN_DEFS.
- * - Chaque train réel est rattaché à la route ROUTES[Rx] qui correspond
- *   effectivement à sa mission (cf. resolveRoute) : il suit donc TOUJOURS le
- *   tracé réel de la ligne (jamais de trajectoire à vol d'oiseau).
- * - t.waypoints contient TOUS les arrêts connus de la mission (pas
- *   seulement le prochain), chacun avec sa position sur le tracé (ci) et son
- *   heure attendue (time, epoch ms). animate() recalcule à CHAQUE FRAME, via
- *   Date.now(), entre quels deux waypoints consécutifs on se trouve et
- *   interpole entre les deux — le train traverse donc en continu tous les
- *   tronçons connus, pas seulement le premier, même si le backend PRIM ne
- *   tourne que toutes les 5-15 min. Au-delà du dernier waypoint connu, il
- *   reste sur ce point (en attente de données plus fraîches) plutôt que de
- *   disparaître ou dévier du tracé.
- * - Chaque rafraîchissement de data/live-trains.json (15 s) recalcule les
- *   waypoints à partir des données les plus récentes : si un retard a changé
- *   ou que de nouveaux arrêts futurs sont connus, la trajectoire se corrige
- *   pour les prochaines frames sans téléportation brutale (sauf incohérence
- *   majeure, ex. arrêt manqué entre deux refresh).
- */
+* trains.js — Trains "en circulation" : marqueurs animÃ©s sur le schÃ©ma,
+* suivi ("Suivre ce train en direct"), fiche train, surlignage du trajet.
+*
+* DÃ©pend de : data.js (ROUTES, TRAIN_DEFS, SOUTH_TERMINI, SPEED_SCALE, SEG),
+* mock-schedule.js ou real-schedule.js (pick, IS_LIVE),
+* panel.js (sheet, sheetList, scrollElIntoView, showRouteHighlight, etc.)
+*
+* Suivi des trains rÃ©els (actif quand IS_LIVE === true) :
+* - liveTrains est mis Ã  jour pÃ©riodiquement Ã  partir de data/live-trains.json
+*   (voir refreshLiveTrains), au lieu d'Ãªtre gÃ©nÃ©rÃ© une fois pour toutes
+*   depuis TRAIN_DEFS.
+* - Chaque train rÃ©el est identifiÃ© de faÃ§on unique et stable par son
+*   journeyRef (FramedVehicleJourneyRef.DatedVehicleJourneyRef, exposÃ© par
+*   l'API PRIM). liveTrainsById est dÃ©sormais indexÃ© par journeyRef, plus
+*   par code mission.
+* - La route (R1..R6) est dÃ©jÃ¡ attachÃ©e cÃ´tÃ© backend (t.route) : plus
+*   besoin de resolveRoute() cÃ´tÃ© client.
+* - La position est interpolÃ©e entre t.from et t.to via t.progress (dÃ©jÃ¡
+*   calculÃ© cÃ´tÃ© backend dans build_live_trains.py).
+*/
 const trainsLayer = document.getElementById('trains-layer');
 const NS = 'http://www.w3.org/2000/svg';
 
 function southDir(name){
   return SOUTH_TERMINI.includes(name) ? 'B' : 'A';
 }
-
-// --- Construction initiale de liveTrains ------------------------------------
 
 const liveTrains = IS_LIVE ? [] : TRAIN_DEFS.map((def, i) => {
   const route = ROUTES[def.route];
@@ -57,7 +45,7 @@ const liveTrains = IS_LIVE ? [] : TRAIN_DEFS.map((def, i) => {
     delay: 0,
     dest: null,
     cancelled: false,
-    waypoints: null, // mode live uniquement
+    waypoints: null,
     el: null
   };
 });
@@ -68,59 +56,6 @@ if (!IS_LIVE) {
     if (t.status === 'verylate') t.delay = 10 + Math.floor(Math.random() * 16);
   });
 }
-
-// --- Suivi des trains réels : résolution de la route à partir des gares connues --
-
-function normName(s) {
-  return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
-}
-
-const _routeNameIndexCache = {};
-function routeNameIndex(routeKey) {
-  if (_routeNameIndexCache[routeKey]) return _routeNameIndexCache[routeKey];
-  const route = ROUTES[routeKey];
-  const map = {};
-  Object.keys(route.milestones).forEach(idx => {
-    map[normName(route.milestones[idx])] = Number(idx);
-  });
-  _routeNameIndexCache[routeKey] = map;
-  return map;
-}
-
-function stationKeyToName(stationKey) {
-  if (!stationKey) return null;
-  const sepIdx = stationKey.lastIndexOf(':');
-  if (sepIdx === -1) return null;
-  const seg = stationKey.slice(0, sepIdx);
-  const idx = Number(stationKey.slice(sepIdx + 1));
-  const arr = SEG[seg];
-  return (arr && arr[idx]) || null;
-}
-
-function resolveRoute(stops) {
-  const names = stops.map(s => stationKeyToName(s.station)).filter(Boolean);
-  if (names.length === 0) return null;
-  const normed = names.map(normName);
-
-  let best = null;
-  for (const routeKey of Object.keys(ROUTES)) {
-    const nameIndex = routeNameIndex(routeKey);
-    const indices = normed.map(n => nameIndex[n]);
-    if (indices.some(ix => ix === undefined)) continue;
-    let increasing = true, decreasing = true;
-    for (let i = 1; i < indices.length; i++) {
-      if (indices[i] <= indices[i - 1]) increasing = false;
-      if (indices[i] >= indices[i - 1]) decreasing = false;
-    }
-    if (!increasing && !decreasing) continue;
-    if (!best || indices.length > best.indices.length) {
-      best = { routeKey, indices };
-    }
-  }
-  return best;
-}
-
-// --- Rafraîchissement périodique depuis data/live-trains.json ---------------
 
 const liveTrainsById = {};
 
@@ -135,44 +70,40 @@ async function refreshLiveTrains() {
     return;
   }
 
-  // rt.id est un identifiant interne UNIQUE (jamais affiché), qui peut
-  // porter un suffixe "·N" quand rt.code (le vrai code mission PRIM,
-  // TOUJOURS affiché tel quel côté client) est partagé par plusieurs trains
-  // simultanés. On indexe donc liveTrainsById par rt.id, jamais par
-  // rt.code, pour ne jamais fusionner par erreur deux trains distincts.
-  const seenIds = new Set();
+  const seenJrefs = new Set();
 
   (payload.trains || []).forEach(rt => {
-    const stops = rt.stops || [];
-    const resolved = resolveRoute(stops);
-    if (!resolved) return; // impossible de rattacher ce train à une route connue : on l'ignore
+    const jref = rt.journeyRef || (rt.code + '|' + ((rt.from || rt.to || {}).scheduled));
+    seenJrefs.add(jref);
 
-    const route = ROUTES[resolved.routeKey];
+    let ci = null;
+    if (rt.progress !== null && rt.progress !== undefined && rt.route) {
+      const fromCi = rt.from ? resolveStationCi(rt.from.station, rt.route) : null;
+      const toCi = rt.to ? resolveStationCi(rt.to.station, rt.route) : null;
+      if (fromCi !== null && toCi !== null) {
+        ci = fromCi + (toCi - fromCi) * rt.progress;
+      } else if (fromCi !== null) {
+        ci = fromCi;
+      } else if (toCi !== null) {
+        ci = toCi;
+      }
+    }
 
-    const waypoints = stops
-      .map((s, i) => ({ ci: resolved.indices[i], time: new Date(s.expected).getTime() }))
-      .filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time))
-      .sort((a, b) => a.time - b.time);
-    if (waypoints.length === 0) return;
-
-    const firstCi = waypoints[0].ci;
-    const lastCi = waypoints[waypoints.length - 1].ci;
-    const dir = lastCi < firstCi ? -1 : 1;
     const status = rt.cancelled ? 'cancelled' : (rt.delay >= 10 ? 'verylate' : (rt.delay >= 2 ? 'late' : 'ontime'));
 
-    const trainId = rt.id || rt.code; // repli si un ancien live-trains.json (sans "id") est encore servi
-    seenIds.add(trainId);
-    let t = liveTrainsById[trainId];
+    let t = liveTrainsById[jref];
     if (!t) {
       t = {
-        id: trainId,
+        id: jref,
+        journeyRef: jref,
         code: rt.code,
-        route: resolved.routeKey,
-        points: route.points,
-        milestones: route.milestones,
-        termini: route.termini,
-        ci: waypoints[0].ci,
-        dir: dir,
+        trainNumber: rt.trainNumber,
+        route: rt.route,
+        points: rt.route ? ROUTES[rt.route].points : [],
+        milestones: rt.route ? ROUTES[rt.route].milestones : {},
+        termini: rt.route ? ROUTES[rt.route].termini : [null, null],
+        ci: ci !== null ? ci : 0,
+        dir: rt.dir === 'A' ? -1 : 1,
         speed: 0,
         length: 'long',
         cars: 8,
@@ -180,29 +111,37 @@ async function refreshLiveTrains() {
         delay: rt.delay || 0,
         dest: rt.dest,
         cancelled: !!rt.cancelled,
-        waypoints: waypoints,
+        waypoints: (rt.stops || []).map(s => ({
+          ci: resolveStationCi(s.station, rt.route),
+          time: new Date(s.expected).getTime()
+        })).filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time)),
         el: null
       };
-      liveTrainsById[trainId] = t;
+      liveTrainsById[jref] = t;
       liveTrains.push(t);
     } else {
       t.code = rt.code;
-      t.route = resolved.routeKey;
-      t.points = route.points;
-      t.milestones = route.milestones;
-      t.termini = route.termini;
-      t.dir = dir;
+      t.trainNumber = rt.trainNumber;
+      t.route = rt.route;
+      t.points = rt.route ? ROUTES[rt.route].points : [];
+      t.milestones = rt.route ? ROUTES[rt.route].milestones : {};
+      t.termini = rt.route ? ROUTES[rt.route].termini : [null, null];
+      if (ci !== null) t.ci = ci;
+      t.dir = rt.dir === 'A' ? -1 : 1;
       t.dest = rt.dest;
       t.cancelled = !!rt.cancelled;
       t.delay = rt.delay || 0;
       t.status = status;
-      t.waypoints = waypoints;
+      t.waypoints = (rt.stops || []).map(s => ({
+        ci: resolveStationCi(s.station, rt.route),
+        time: new Date(s.expected).getTime()
+      })).filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time));
     }
   });
 
   for (let i = liveTrains.length - 1; i >= 0; i--) {
     const t = liveTrains[i];
-    if (!seenIds.has(t.id)) {
+    if (!seenJrefs.has(t.id)) {
       if (t.el && t.el.parentNode) t.el.parentNode.removeChild(t.el);
       if (typeof selectedTrain !== 'undefined' && selectedTrain === t && typeof closeSheet === 'function') {
         closeSheet();
@@ -218,17 +157,180 @@ if (IS_LIVE) {
   setInterval(refreshLiveTrains, 15000);
 }
 
-function ciFromWaypoints(waypoints, now) {
-  if (!waypoints || waypoints.length === 0) return null;
-  if (now <= waypoints[0].time) return waypoints[0].ci;
-  let i = 0;
-  while (i < waypoints.length - 1 && waypoints[i + 1].time <= now) i++;
-  if (i >= waypoints.length - 1) return waypoints[waypoints.length - 1].ci;
-  const a = waypoints[i], b = waypoints[i + 1];
-  const span = b.time - a.time;
-  const frac = span > 0 ? Math.max(0, Math.min(1, (now - a.time) / span)) : 1;
-  return a.ci + (b.ci - a.ci) * frac;
+function resolveStationCi(stationKey, routeKey) {
+  if (!stationKey || !routeKey) return null;
+  const name = stationKeyToName(stationKey);
+  if (!name) return null;
+  const ms = ROUTES[routeKey].milestones;
+  const normed = normName(name);
+  for (const idxStr of Object.keys(ms)) {
+    if (normName(ms[idxStr]) === normed) return Number(idxStr);
+  }
+  return null;
 }
+
+function stationKeyToName(stationKey) {
+  if (!stationKey) return null;
+  const sepIdx = stationKey.lastIndexOf(':');
+  if (sepIdx === -1) return null;
+  const seg = stationKey.slice(0, sepIdx);
+  const idx = Number(stationKey.slice(sepIdx + 1));
+  const arr = SEG[seg];
+  return (arr && arr[idx]) || null;
+}
+
+function normName(s) {
+  return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function currentDestination(t) { return t.dir > 0 ? t.termini[1] : t.termini[0]; }
+function currentOrigin(t) { return t.dir > 0 ? t.termini[0] : t.termini[1]; }
+
+function positionText(t) {
+  const keys = Object.keys(t.milestones).map(Number).sort((a, b) => a - b);
+  if (keys.length === 0) return 'Entre deux gares';
+  let below = null, above = null;
+  for (const k of keys) {
+    if (k <= t.ci) below = k;
+    if (k >= t.ci && above === null) above = k;
+  }
+  const EPS = 0.6;
+  if (below !== null && Math.abs(t.ci - below) < EPS) return 'En gare de ' + t.milestones[below];
+  if (above !== null && Math.abs(above - t.ci) < EPS) return 'En gare de ' + t.milestones[above];
+  if (below !== null && above !== null && below !== above) {
+    return 'Entre ' + t.milestones[below] + ' et ' + t.milestones[above];
+  }
+  if (below !== null) return 'AprÃ¨s ' + t.milestones[below];
+  if (above !== null) return 'Avant ' + t.milestones[above];
+  return 'Entre deux gares';
+}
+
+function pointAt(t, ci) {
+  const pts = t.points, n = pts.length;
+  const clamped = Math.max(0, Math.min(n - 1, ci));
+  const i0 = Math.floor(clamped);
+  const i1 = Math.min(n - 1, i0 + 1);
+  const frac = clamped - i0;
+  return [
+    pts[i0][0] + (pts[i1][0] - pts[i0][0]) * frac,
+    pts[i0][1] + (pts[i1][1] - pts[i0][1]) * frac
+  ];
+}
+
+function renderTrainSheet(t) {
+  const dest = currentDestination(t);
+  const origin = currentOrigin(t);
+  const dirLabel = southDir(dest);
+  const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
+  const statusLabel = t.cancelled ? 'supprimÃ©' : (t.status === 'ontime' ? "Ã¢ l'heure" : ('+ ' + t.delay + ' min de retard'));
+  const formationLabel = t.length === 'long' ? 'Train long' : 'Train court';
+  const formationIcon = t.length === 'long' ? 'ðŁŁŁðŁŁŁ' : 'ðŁŁŁ';
+  sheetEyebrow.textContent = IS_LIVE ? 'Train en circulation (temps rÃ©el PRIM)' : 'Train en circulation (simulation)';
+  sheetTitle.textContent = t.code;
+  sheetUpdated.textContent = dirText + ' â€" ' + origin + ' â†' + dest;
+  sheetList.innerHTML = `
+    <div class="train-info-card">
+      <div class="train-info-head">
+        <div class="train-info-code dir${dirLabel}">${t.code}</div>
+        <div>
+          <div class="train-info-dest">Vers ${dest}</div>
+          <div class="train-info-sub">${dirText} en provenance de ${origin}</div>
+        </div>
+      </div>
+      <div class="train-info-meta">
+        <span class="train-info-chip formation-${t.length}">${formationIcon} ${formationLabel} â€" ${t.cars} voitures</span>
+      </div>
+      <div class="train-info-pos"><span id="train-info-pos-text">${positionText(t)}</span></div>
+      <div class="train-info-status ${t.status}" id="train-info-status">${statusLabel}</div>
+    </div>
+  `;
+}
+
+function refreshTrainSheetLive(t) {
+  if (sheetMode !== 'train' || selectedTrain !== t) return;
+  const posEl = document.getElementById('train-info-pos-text');
+  if (posEl) posEl.textContent = positionText(t);
+  const dest = currentDestination(t);
+  const dirLabel = southDir(dest);
+  const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
+  sheetUpdated.textContent = dirText + ' â€" ' + currentOrigin(t) + ' â†' + dest;
+}
+
+function openTrainSheet(t) {
+  if (selectedEl) { selectedEl.classList.remove('selected'); selectedEl = null; }
+  if (sheetMode === 'train' && selectedTrain === t && sheet.classList.contains('open')) { closeSheet(); return; }
+  stopFollowing();
+  selectedTrain = t;
+  sheetMode = 'train';
+  sheetFilters.style.display = 'none';
+  sheetTrainControls.style.display = 'block';
+  renderTrainSheet(t);
+  showRouteHighlight(t);
+  sheet.classList.add('open');
+  sheet.setAttribute('aria-hidden', 'false');
+  updateScrollSpacer();
+}
+
+function activateFollowing() {
+  followActive = true;
+  followBtn.classList.add('active');
+  followBtn.querySelector('.follow-label').textContent = 'Suivi en direct actif';
+  if (selectedTrain && selectedTrain.el) selectedTrain.el.classList.add('following');
+  if (selectedTrain && selectedTrain.el) scrollElIntoView(selectedTrain.el, true);
+}
+
+followBtn.addEventListener('click', () => {
+  if (!selectedTrain) return;
+  if (followActive) stopFollowing();
+  else activateFollowing();
+});
+
+let lastTs = null;
+function animate(ts) {
+  if (lastTs === null) lastTs = ts;
+  const dt = Math.min((ts - lastTs) / 1000, 0.1);
+  lastTs = ts;
+
+  liveTrains.forEach(t => {
+    const n = t.points.length;
+
+    if (IS_LIVE && t.waypoints && t.waypoints.length > 0) {
+      const ci = ciFromWaypoints(t.waypoints, Date.now());
+      if (ci !== null) t.ci = ci;
+    } else {
+      t.ci += t.dir * t.speed * dt * SPEED_SCALE;
+      if (t.ci >= n - 1) {
+        t.ci = n - 1; t.dir = -1;
+        t.status = pick(['ontime', 'ontime', 'ontime', 'late', 'verylate']);
+        t.delay = t.status === 'late' ? 2 + Math.floor(Math.random() * 8)
+          : (t.status === 'verylate' ? 10 + Math.floor(Math.random() * 16) : 0);
+      } else if (t.ci <= 0) {
+        t.ci = 0; t.dir = 1;
+        t.status = pick(['ontime', 'ontime', 'ontime', 'late', 'verylate']);
+        t.delay = t.status === 'late' ? 2 + Math.floor(Math.random() * 8)
+          : (t.status === 'verylate' ? 10 + Math.floor(Math.random() * 16) : 0);
+      }
+    }
+
+    const [x, y] = pointAt(t, t.ci);
+    if (!t.el) t.el = createTrainMarker(t);
+    t.el.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`);
+    const dirLabel = southDir(currentDestination(t));
+    t.el.classList.remove('dirA', 'dirB');
+    t.el.classList.add('dir' + dirLabel);
+    t.el.classList.toggle('cancelled', !!t.cancelled);
+    if (followActive && selectedTrain === t) t.el.classList.add('following');
+    if (sheetMode === 'train' && selectedTrain === t) refreshTrainSheetLive(t);
+    if (selectedTrain === t && routeHighlight.classList.contains('visible')) {
+      routeHighlight.classList.remove('dirA', 'dirB');
+      routeHighlight.classList.add('dir' + dirLabel);
+    }
+    if (followActive && selectedTrain) scrollElIntoView(selectedTrain.el, false);
+  });
+
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
 
 function createTrainMarker(t) {
   const g = document.createElementNS(NS, 'g');
@@ -273,151 +375,14 @@ function createTrainMarker(t) {
   return g;
 }
 
-function currentDestination(t) { return t.dir > 0 ? t.termini[1] : t.termini[0]; }
-function currentOrigin(t) { return t.dir > 0 ? t.termini[0] : t.termini[1]; }
-
-function positionText(t) {
-  const keys = Object.keys(t.milestones).map(Number).sort((a, b) => a - b);
-  if (keys.length === 0) return 'Entre deux gares';
-  let below = null, above = null;
-  for (const k of keys) {
-    if (k <= t.ci) below = k;
-    if (k >= t.ci && above === null) above = k;
-  }
-  const EPS = 0.6;
-  if (below !== null && Math.abs(t.ci - below) < EPS) return 'En gare de ' + t.milestones[below];
-  if (above !== null && Math.abs(above - t.ci) < EPS) return 'En gare de ' + t.milestones[above];
-  if (below !== null && above !== null && below !== above) {
-    return 'Entre ' + t.milestones[below] + ' et ' + t.milestones[above];
-  }
-  if (below !== null) return 'Après ' + t.milestones[below];
-  if (above !== null) return 'Avant ' + t.milestones[above];
-  return 'Entre deux gares';
+function ciFromWaypoints(waypoints, now) {
+  if (!waypoints || waypoints.length === 0) return null;
+  if (now <= waypoints[0].time) return waypoints[0].ci;
+  let i = 0;
+  while (i < waypoints.length - 1 && waypoints[i + 1].time <= now) i++;
+  if (i >= waypoints.length - 1) return waypoints[waypoints.length - 1].ci;
+  const a = waypoints[i], b = waypoints[i + 1];
+  const span = b.time - a.time;
+  const frac = span > 0 ? Math.max(0, Math.min(1, (now - a.time) / span)) : 1;
+  return a.ci + (b.ci - a.ci) * frac;
 }
-
-function pointAt(t, ci) {
-  const pts = t.points, n = pts.length;
-  const clamped = Math.max(0, Math.min(n - 1, ci));
-  const i0 = Math.floor(clamped);
-  const i1 = Math.min(n - 1, i0 + 1);
-  const frac = clamped - i0;
-  return [
-    pts[i0][0] + (pts[i1][0] - pts[i0][0]) * frac,
-    pts[i0][1] + (pts[i1][1] - pts[i0][1]) * frac
-  ];
-}
-
-function renderTrainSheet(t) {
-  const dest = currentDestination(t);
-  const origin = currentOrigin(t);
-  const dirLabel = southDir(dest);
-  const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
-  const statusLabel = t.cancelled ? 'supprimé' : (t.status === 'ontime' ? "à l'heure" : ('+ ' + t.delay + ' min de retard'));
-  const formationLabel = t.length === 'long' ? 'Train long' : 'Train court';
-  const formationIcon = t.length === 'long' ? '🚃🚃' : '🚃';
-  sheetEyebrow.textContent = IS_LIVE ? 'Train en circulation (temps réel PRIM)' : 'Train en circulation (simulation)';
-  sheetTitle.textContent = t.code;
-  sheetUpdated.textContent = dirText + ' — ' + origin + ' → ' + dest;
-  sheetList.innerHTML = `
-    <div class="train-info-card">
-      <div class="train-info-head">
-        <div class="train-info-code dir${dirLabel}">${t.code}</div>
-        <div>
-          <div class="train-info-dest">Vers ${dest}</div>
-          <div class="train-info-sub">${dirText} en provenance de ${origin}</div>
-        </div>
-      </div>
-      <div class="train-info-meta">
-        <span class="train-info-chip formation-${t.length}">${formationIcon} ${formationLabel} — ${t.cars} voitures</span>
-      </div>
-      <div class="train-info-pos"><span id="train-info-pos-text">${positionText(t)}</span></div>
-      <div class="train-info-status ${t.status}" id="train-info-status">${statusLabel}</div>
-    </div>
-  `;
-}
-
-function refreshTrainSheetLive(t) {
-  if (sheetMode !== 'train' || selectedTrain !== t) return;
-  const posEl = document.getElementById('train-info-pos-text');
-  if (posEl) posEl.textContent = positionText(t);
-  const dest = currentDestination(t);
-  const dirLabel = southDir(dest);
-  const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
-  sheetUpdated.textContent = dirText + ' — ' + currentOrigin(t) + ' → ' + dest;
-}
-
-function openTrainSheet(t) {
-  if (selectedEl) { selectedEl.classList.remove('selected'); selectedEl = null; }
-  if (sheetMode === 'train' && selectedTrain === t && sheet.classList.contains('open')) { closeSheet(); return; }
-  stopFollowing();
-  selectedTrain = t;
-  sheetMode = 'train';
-  sheetFilters.style.display = 'none';
-  sheetTrainControls.style.display = 'block';
-  renderTrainSheet(t);
-  showRouteHighlight(t);
-  sheet.classList.add('open');
-  sheet.setAttribute('aria-hidden', 'false');
-  updateScrollSpacer();
-}
-
-function activateFollowing() {
-  followActive = true;
-  followBtn.classList.add('active');
-  followBtn.querySelector('.follow-label').textContent = 'Suivi en direct actif';
-  if (selectedTrain && selectedTrain.el) selectedTrain.el.classList.add('following');
-  if (selectedTrain && selectedTrain.el) scrollElIntoView(selectedTrain.el, true);
-}
-
-followBtn.addEventListener('click', () => {
-  if (!selectedTrain) return;
-  if (followActive) stopFollowing();
-  else activateFollowing();
-});
-
-let lastTs = null;
-function animate(ts) {
-  if (lastTs === null) lastTs = ts;
-  const dt = Math.min((ts - lastTs) / 1000, 0.1);
-  lastTs = ts;
-
-  liveTrains.forEach(t => {
-    const n = t.points.length;
-
-    if (IS_LIVE) {
-      const ci = ciFromWaypoints(t.waypoints, Date.now());
-      if (ci !== null) t.ci = ci;
-    } else {
-      t.ci += t.dir * t.speed * dt * SPEED_SCALE;
-      if (t.ci >= n - 1) {
-        t.ci = n - 1; t.dir = -1;
-        t.status = pick(['ontime', 'ontime', 'ontime', 'late', 'verylate']);
-        t.delay = t.status === 'late' ? 2 + Math.floor(Math.random() * 8)
-          : (t.status === 'verylate' ? 10 + Math.floor(Math.random() * 16) : 0);
-      } else if (t.ci <= 0) {
-        t.ci = 0; t.dir = 1;
-        t.status = pick(['ontime', 'ontime', 'ontime', 'late', 'verylate']);
-        t.delay = t.status === 'late' ? 2 + Math.floor(Math.random() * 8)
-          : (t.status === 'verylate' ? 10 + Math.floor(Math.random() * 16) : 0);
-      }
-    }
-
-    const [x, y] = pointAt(t, t.ci);
-    if (!t.el) t.el = createTrainMarker(t);
-    t.el.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`);
-    const dirLabel = southDir(currentDestination(t));
-    t.el.classList.remove('dirA', 'dirB');
-    t.el.classList.add('dir' + dirLabel);
-    t.el.classList.toggle('cancelled', !!t.cancelled);
-    if (followActive && selectedTrain === t) t.el.classList.add('following');
-    if (sheetMode === 'train' && selectedTrain === t) refreshTrainSheetLive(t);
-    if (selectedTrain === t && routeHighlight.classList.contains('visible')) {
-      routeHighlight.classList.remove('dirA', 'dirB');
-      routeHighlight.classList.add('dir' + dirLabel);
-    }
-    if (followActive && selectedTrain) scrollElIntoView(selectedTrain.el, false);
-  });
-
-  requestAnimationFrame(animate);
-}
-requestAnimationFrame(animate);
