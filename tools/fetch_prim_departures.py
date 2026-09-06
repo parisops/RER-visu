@@ -104,7 +104,14 @@ def parse_departures(payload):
             platform = mc.get("DeparturePlatformName", {}).get("value") or mc.get("ArrivalPlatformName", {}).get("value")
             direction = DIRECTION_MAP.get(mvj.get("DirectionRef", {}).get("value"))
 
+            journey_ref = (mvj.get("FramedVehicleJourneyRef") or {}).get("DatedVehicleJourneyRef")
+            if isinstance(journey_ref, dict):
+                journey_ref = journey_ref.get("value")
+            train_numbers = (mvj.get("TrainNumbers") or {}).get("TrainNumberRef") or []
+
             departures.append({
+                "journeyRef": journey_ref,
+                "trainNumber": train_numbers[0].get("value") if train_numbers else None,
                 "code": journey_note[0].get("value", "----") if journey_note else "----",
                 "dest": dest_name[0].get("value", "?") if dest_name else "?",
                 "dir": direction or "B",

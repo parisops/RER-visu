@@ -48,14 +48,27 @@ const IS_LIVE = true;
 
 const LIVE_DATA_URL = 'data/live-departures.json';
 let liveDataPromise = null;
+let liveDataLoadedAt = 0;
+let liveDataGeneratedAt = null;
+const LIVE_CACHE_TTL = 60000;
+
+function liveFreshnessText() {
+  const time = Date.parse(liveDataGeneratedAt);
+  if (!Number.isFinite(time)) return 'Date des données indisponible';
+  const age = Math.max(0, Math.floor((Date.now() - time) / 60000));
+  return 'Données mises à jour à ' + fmtTime(new Date(time)) +
+    (age >= 15 ? ' — données anciennes (' + age + ' min)' : '');
+}
 
 function loadLiveData(){
-  if(!liveDataPromise){
+  if(!liveDataPromise || Date.now() - liveDataLoadedAt >= LIVE_CACHE_TTL){
+    liveDataLoadedAt = Date.now();
     liveDataPromise = fetch(LIVE_DATA_URL, {cache: 'no-store'})
       .then(r => {
         if(!r.ok) throw new Error('HTTP ' + r.status + ' sur ' + LIVE_DATA_URL);
         return r.json();
       })
+      .then(data => { liveDataGeneratedAt = data.generatedAt; return data; })
       .catch(err => {
         liveDataPromise = null; // permet de réessayer au prochain appel
         throw err;
@@ -191,9 +204,11 @@ function rsPositionTextFromCi(milestones, ci) {
 
 const LIVE_TRAINS_URL = 'data/live-trains.json';
 let liveTrainsRawPromise = null;
+let liveTrainsRawLoadedAt = 0;
 
 function loadLiveTrainsRaw(){
-  if(!liveTrainsRawPromise){
+  if(!liveTrainsRawPromise || Date.now() - liveTrainsRawLoadedAt >= LIVE_CACHE_TTL){
+    liveTrainsRawLoadedAt = Date.now();
     liveTrainsRawPromise = fetch(LIVE_TRAINS_URL, {cache: 'no-store'})
       .then(r => {
         if(!r.ok) throw new Error('HTTP ' + r.status + ' sur ' + LIVE_TRAINS_URL);
@@ -220,14 +235,17 @@ function loadLiveTrainsRaw(){
 function runningPositionText(train){
   if(!train || train.cancelled) return null;
   const stops = train.stops || [];
-  const resolved = rsResolveRouteForStops(stops);
+  if (!ROUTES[train.route]) return null;
+  const nameIndex = rsRouteNameIndex(train.route);
+  const resolved = {routeKey: train.route,
+    indices: stops.map(s => nameIndex[rsNormName(rsStationKeyToName(s.station))])};
   if(!resolved) return null;
   const route = ROUTES[resolved.routeKey];
   const waypoints = stops
     .map((s, i) => ({ ci: resolved.indices[i], time: new Date(s.expected).getTime() }))
     .filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time))
     .sort((a, b) => a.time - b.time);
-  if(waypoints.length === 0) return null;
+  if(waypoints.length < 2 || Date.now() > waypoints[waypoints.length - 1].time + 180000) return null;
   const ci = rsCiFromWaypoints(waypoints, Date.now());
   if(ci === null) return null;
   return rsPositionTextFromCi(route.milestones, ci);
@@ -263,7 +281,7 @@ function buildDepartures(seg, idx){
   return Promise.all([loadLiveData(), loadLiveTrainsRaw()]).then(([data, trainsIndex]) => {
     const entry = data.stations[stationKey];
     if(!entry || !entry.departures.length) return [];
-    return entry.departures.map(d => {
+    return entry.departures.filter(d => Date.parse(d.expected || d.scheduled) >= Date.now()).map(d => {
       const {status, delay} = mapStatus(d);
       const matchedTrain = trainsIndex.get(stationKey + '|' + d.scheduled);
       const runningText = runningPositionText(matchedTrain);

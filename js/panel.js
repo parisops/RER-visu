@@ -89,13 +89,13 @@ function renderSheet(seg, idx, name){
   // Promise.resolve() gère les deux cas de façon transparente.
   const requestSeg = seg, requestIdx = idx, requestToken = ++renderSheetToken;
   Promise.resolve(buildDepartures(seg, idx)).then(trains => {
-    if(requestToken !== renderSheetToken) return; // une autre gare a été cliquée entre temps
+    if(requestToken !== renderSheetToken || sheetMode !== 'station') return; // une autre gare a été cliquée entre temps
     currentTrains = trains;
     renderList();
     const label = (typeof IS_LIVE !== 'undefined' && IS_LIVE) ? 'Temps réel — actualisé à ' : 'Simulation actualisée à ';
-    sheetUpdated.textContent = label + fmtTime(new Date());
+    sheetUpdated.textContent = IS_LIVE ? liveFreshnessText() : label + fmtTime(new Date());
   }).catch(err => {
-    if(requestToken !== renderSheetToken) return;
+    if(requestToken !== renderSheetToken || sheetMode !== 'station') return;
     sheetList.innerHTML = '<div class="dep-empty">Impossible de charger les départs (' + err.message + ').</div>';
     sheetUpdated.textContent = '';
   });
@@ -181,6 +181,7 @@ function openSheetFor(el){
 }
 
 function closeSheet(){
+  renderSheetToken++;
   sheet.classList.remove('open');
   sheet.setAttribute('aria-hidden','true');
   if(selectedEl) selectedEl.classList.remove('selected');
@@ -202,3 +203,19 @@ document.getElementById('sheet-close').addEventListener('click', closeSheet);
 document.querySelectorAll('.dir-btn').forEach(b => {
   b.addEventListener('click', () => setFilter(b.dataset.dir));
 });
+
+
+// Actualiser également une fiche gare laissée ouverte.
+setInterval(() => {
+  if (!IS_LIVE || sheetMode !== 'station' || !selectedEl) return;
+  const token = ++renderSheetToken;
+  buildDepartures(selectedEl.dataset.seg, Number(selectedEl.dataset.idx)).then(trains => {
+    if (token !== renderSheetToken || sheetMode !== 'station') return;
+    currentTrains = trains;
+    renderList();
+    sheetUpdated.textContent = liveFreshnessText();
+  }).catch(() => {
+    if (token === renderSheetToken && sheetMode === 'station')
+      sheetUpdated.textContent = liveFreshnessText() + ' — actualisation indisponible';
+  });
+}, 60000);
