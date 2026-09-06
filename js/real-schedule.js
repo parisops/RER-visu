@@ -217,6 +217,7 @@ function loadLiveTrainsRaw(){
       .then(payload => {
         const index = new Map();
         (payload.trains || []).forEach(t => {
+          if (t.journeyRef) index.set('journey:' + t.journeyRef, t);
           (t.stops || []).forEach(s => {
             index.set(s.station + '|' + s.scheduled, t);
           });
@@ -283,7 +284,8 @@ function buildDepartures(seg, idx){
     if(!entry || !entry.departures.length) return [];
     return entry.departures.filter(d => Date.parse(d.expected || d.scheduled) >= Date.now()).map(d => {
       const {status, delay} = mapStatus(d);
-      const matchedTrain = trainsIndex.get(stationKey + '|' + d.scheduled);
+      const matchedTrain = d.journeyRef ? trainsIndex.get('journey:' + d.journeyRef)
+        : trainsIndex.get(stationKey + '|' + d.scheduled);
       const runningText = runningPositionText(matchedTrain);
       return {
         code: d.code,

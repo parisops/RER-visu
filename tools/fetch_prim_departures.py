@@ -108,9 +108,13 @@ def parse_departures(payload):
             if isinstance(journey_ref, dict):
                 journey_ref = journey_ref.get("value")
             train_numbers = (mvj.get("TrainNumbers") or {}).get("TrainNumberRef") or []
+            features = mvj.get("VehicleFeatureRef") or []
+            features = [f.get("value") if isinstance(f, dict) else f for f in features]
+            length = "long" if "longTrain" in features else "court" if "shortTrain" in features else None
 
             departures.append({
                 "journeyRef": journey_ref,
+                "length": length,
                 "trainNumber": train_numbers[0].get("value") if train_numbers else None,
                 "code": journey_note[0].get("value", "----") if journey_note else "----",
                 "dest": dest_name[0].get("value", "?") if dest_name else "?",

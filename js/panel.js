@@ -207,6 +207,35 @@ document.querySelectorAll('.stop').forEach(el => {
   });
 });
 document.getElementById('sheet-close').addEventListener('click', closeSheet);
+sheetList.addEventListener('click', e => {
+  const button = e.target.closest('.station-link');
+  if (!button) return;
+  const stop = Array.from(document.querySelectorAll('.stop')).find(el =>
+    el.dataset.seg + ':' + el.dataset.idx === button.dataset.station);
+  if (stop) { openSheetFor(stop); stop.focus({preventScroll:true}); }
+});
+
+// Associer les libellés du plan aux points existants, sans déplacer le dessin.
+document.querySelectorAll('.card > svg > text').forEach(label => {
+  if (label.getAttribute('font-style') === 'italic') return;
+  const x = Number(label.getAttribute('x')), y = Number(label.getAttribute('y'));
+  const stop = Array.from(document.querySelectorAll('.stop')).find(el => {
+    const circle = el.querySelector('circle.main');
+    if (!circle) return false;
+    const dx = Math.abs(Number(circle.getAttribute('cx')) - x);
+    const dy = Math.abs(Number(circle.getAttribute('cy')) - y);
+    return dx <= 20 && dy <= (dx === 0 ? 24 : 15);
+  });
+  if (!stop) return;
+  label.classList.add('station-map-link');
+  label.setAttribute('role', 'button');
+  label.setAttribute('tabindex', '0');
+  label.setAttribute('aria-label', stop.getAttribute('aria-label'));
+  label.addEventListener('click', () => openSheetFor(stop));
+  label.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSheetFor(stop); }
+  });
+});
 document.querySelectorAll('.dir-btn').forEach(b => {
   b.addEventListener('click', () => setFilter(b.dataset.dir));
 });

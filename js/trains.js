@@ -91,6 +91,7 @@ async function refreshLiveTrains() {
       }
       Object.assign(t, {
         journeyRef: rt.journeyRef, code: rt.code, trainNumber: rt.trainNumber,
+        length: ['long', 'court'].includes(rt.length) ? rt.length : null,
         route: rt.route, points: route.points, milestones: route.milestones,
         termini: route.termini, dir, dest: rt.dest, cancelled: false,
         delay: rt.delay || 0,
@@ -207,7 +208,7 @@ function renderTrainSheet(t) {
         </div>
       </div>
       <div class="train-info-meta">
-        <span class="train-info-chip">${t.cars ? formationLabel + ' — ' + escapeTrainText(t.cars) + ' voitures' : 'Composition non renseignée'}</span>
+        <span class="train-info-chip">${t.length ? formationLabel + (t.cars ? ' — ' + escapeTrainText(t.cars) + ' voitures' : '') : 'Composition non renseignée'}</span>
       </div>
       <div class="train-info-pos"><span id="train-info-pos-text">${escapeTrainText(positionText(t))}</span></div>
       <div class="train-info-status ${t.status}" id="train-info-status">${statusLabel}</div>
@@ -395,7 +396,7 @@ function nextStopsHtml(t, now) {
       : Number.isFinite(scheduled) ? Math.round((w.time - scheduled) / 60000) : null;
     const detail = delay === null ? 'Retard non renseigné'
       : delay > 0 ? '+' + delay + ' min' : delay < 0 ? Math.abs(delay) + ' min d’avance' : 'À l’heure';
-    return '<li><div><strong>' + escapeTrainText(stationKeyToName(w.station)) + '</strong>'
+    return '<li><div><button type="button" class="station-link" data-station="' + escapeTrainText(w.station) + '">' + escapeTrainText(stationKeyToName(w.station)) + '</button>'
       + (w.platform ? '<small>Voie ' + escapeTrainText(w.platform) + '</small>' : '')
       + '</div><div><strong>' + time(w.time) + '</strong><small>' + detail
       + (Number.isFinite(scheduled) && delay ? ' · prévu ' + time(scheduled) : '')
