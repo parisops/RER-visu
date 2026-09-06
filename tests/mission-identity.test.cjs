@@ -16,7 +16,7 @@ test('two trains with the same mission code retain separate browser identities',
     IS_LIVE:true, ROUTES:{R1:{points:[[0,0],[10,0]], milestones:{0:'A',1:'B'}, termini:['A','B']}},
     SEG:{s:['A','B']}, SOUTH_TERMINI:[], Date, console,
     document:{getElementById:()=>({})}, followBtn:{addEventListener(){}},
-    setInterval(){}, requestAnimationFrame(){},
+    selectedTrain:null, setInterval(){}, requestAnimationFrame(){},
     fetch:async()=>({ok:true,json:async()=>({generatedAt:'2026-09-05T12:05:00Z',trains})})
   });
   vm.runInContext(fs.readFileSync('js/trains.js','utf8'),c);

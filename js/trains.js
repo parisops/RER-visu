@@ -65,7 +65,8 @@ async function refreshLiveTrains() {
       if (!rt.journeyRef || !route || route.points.length < 2 || rt.cancelled) return;
       let waypoints = (rt.stops || []).map(s => ({
         ci: resolveStationCi(s.station, rt.route),
-        time: Date.parse(s.expected)
+        time: Date.parse(s.expected), station: s.station,
+        scheduled: s.scheduled, delay: s.delay, platform: s.platform
       })).filter(w => Number.isFinite(w.ci) && Number.isFinite(w.time))
         .sort((a, b) => a.time - b.time);
       let t = liveTrainsById[rt.journeyRef];
@@ -80,8 +81,11 @@ async function refreshLiveTrains() {
       if (!dir || waypoints.some((w, i) => i && (
         w.time <= waypoints[i - 1].time || Math.sign(w.ci - waypoints[i - 1].ci) !== dir))) return;
       seenJrefs.add(rt.journeyRef);
+      const now = Date.now();
+      const previousCi = t && t.route === rt.route ? displayedCi(t, now) : null;
+      const targetCi = ciFromWaypoints(waypoints, now);
       if (!t) {
-        t = {id: rt.journeyRef, el: null, speed: 0, length: 'long', cars: 8};
+        t = {id: rt.journeyRef, el: null, speed: 0};
         liveTrainsById[t.id] = t;
         liveTrains.push(t);
       }
@@ -91,8 +95,11 @@ async function refreshLiveTrains() {
         termini: route.termini, dir, dest: rt.dest, cancelled: false,
         delay: rt.delay || 0,
         status: rt.delay >= 10 ? 'verylate' : rt.delay >= 2 ? 'late' : 'ontime',
-        waypoints, ci: ciFromWaypoints(waypoints, Date.now())
+        waypoints, ci: previousCi ?? targetCi,
+        correction: previousCi === null ? 0 : previousCi - targetCi,
+        correctionAt: now
       });
+      if (selectedTrain === t) renderTrainSheet(t);
     });
     for (let i = liveTrains.length - 1; i >= 0; i--) {
       const t = liveTrains[i];
@@ -163,7 +170,7 @@ function positionText(t) {
   if (below !== null && above !== null && below !== above) {
     return 'Entre ' + t.milestones[below] + ' et ' + t.milestones[above];
   }
-  if (below !== null) return 'AprÃ¨s ' + t.milestones[below];
+  if (below !== null) return 'Après ' + t.milestones[below];
   if (above !== null) return 'Avant ' + t.milestones[above];
   return 'Entre deux gares';
 }
@@ -185,26 +192,26 @@ function renderTrainSheet(t) {
   const origin = currentOrigin(t);
   const dirLabel = trainDirection(t);
   const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
-  const statusLabel = t.cancelled ? 'supprimÃ©' : (t.status === 'ontime' ? "Ã¢ l'heure" : ('+ ' + t.delay + ' min de retard'));
+  const statusLabel = t.cancelled ? 'Supprimé' : (t.status === 'ontime' ? "À l'heure" : ('+ ' + t.delay + ' min de retard'));
   const formationLabel = t.length === 'long' ? 'Train long' : 'Train court';
-  const formationIcon = t.length === 'long' ? 'ðŁŁŁðŁŁŁ' : 'ðŁŁŁ';
   sheetEyebrow.textContent = IS_LIVE ? 'Position estimée — horaires PRIM' : 'Train en circulation (simulation)';
   sheetTitle.textContent = t.code;
-  sheetUpdated.textContent = dirText + ' â€" ' + origin + ' â†' + dest;
+  sheetUpdated.textContent = dirText + ' — vers ' + dest;
   sheetList.innerHTML = `
     <div class="train-info-card">
       <div class="train-info-head">
-        <div class="train-info-code dir${dirLabel}">${t.code}</div>
+        <div class="train-info-code dir${dirLabel}">${escapeTrainText(t.code)}</div>
         <div>
-          <div class="train-info-dest">Vers ${dest}</div>
-          <div class="train-info-sub">${dirText} en provenance de ${origin}</div>
+          <div class="train-info-dest">Vers ${escapeTrainText(dest)}</div>
+          <div class="train-info-sub">${dirText}${IS_LIVE ? '' : ' en provenance de ' + escapeTrainText(origin)}</div>
         </div>
       </div>
       <div class="train-info-meta">
-        <span class="train-info-chip formation-${t.length}">${formationIcon} ${formationLabel} â€" ${t.cars} voitures</span>
+        <span class="train-info-chip">${t.cars ? formationLabel + ' — ' + escapeTrainText(t.cars) + ' voitures' : 'Composition non renseignée'}</span>
       </div>
-      <div class="train-info-pos"><span id="train-info-pos-text">${positionText(t)}</span></div>
+      <div class="train-info-pos"><span id="train-info-pos-text">${escapeTrainText(positionText(t))}</span></div>
       <div class="train-info-status ${t.status}" id="train-info-status">${statusLabel}</div>
+      ${IS_LIVE ? '<h3>Prochains passages connus</h3><div id="train-next-stops">' + nextStopsHtml(t, Date.now()) + '</div>' : ''}
     </div>
   `;
 }
@@ -216,7 +223,13 @@ function refreshTrainSheetLive(t) {
   const dest = currentDestination(t);
   const dirLabel = trainDirection(t);
   const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
-  sheetUpdated.textContent = dirText + ' â€" ' + currentOrigin(t) + ' â†' + dest;
+  sheetUpdated.textContent = dirText + ' — vers ' + dest;
+  const second = Math.floor(Date.now() / 1000);
+  if (t.sheetSecond !== second) {
+    t.sheetSecond = second;
+    const stopsEl = document.getElementById('train-next-stops');
+    if (stopsEl) stopsEl.innerHTML = nextStopsHtml(t, Date.now());
+  }
 }
 
 function openTrainSheet(t) {
@@ -268,7 +281,7 @@ function animate(ts) {
     if (t.el) t.el.style.display = '';
 
     if (IS_LIVE && t.waypoints && t.waypoints.length > 0) {
-      const ci = ciFromWaypoints(t.waypoints, Date.now());
+      const ci = displayedCi(t, Date.now());
       if (ci !== null) t.ci = ci;
     } else {
       t.ci += t.dir * t.speed * dt * SPEED_SCALE;
@@ -350,6 +363,42 @@ function createTrainMarker(t) {
   });
   trainsLayer.appendChild(g);
   return g;
+}
+
+// Résorber une correction d'horaires en 15 secondes, sur le tracé existant.
+// Une nouvelle actualisation repart de la position affichée, même pendant ce raccord.
+function displayedCi(t, now) {
+  const target = ciFromWaypoints(t.waypoints, now);
+  if (target === null) return null;
+  const progress = Math.max(0, Math.min(1, (now - (t.correctionAt ?? now)) / 15000));
+  const weight = 1 - progress * progress * (3 - 2 * progress);
+  return Math.max(0, Math.min(t.points.length - 1, target + (t.correction || 0) * weight));
+}
+
+function escapeTrainText(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  })[char]);
+}
+
+function nextStopsHtml(t, now) {
+  const stops = (t.waypoints || []).filter(w => w.time >= now).slice(0, 5);
+  if (!stops.length) return '<p>Aucun autre passage connu pour ce train.</p>';
+  const time = value => new Date(value).toLocaleTimeString('fr-FR', {
+    timeZone: 'Europe/Paris', hour:'2-digit', minute:'2-digit'
+  });
+  return '<ol class="train-next-stops">' + stops.map(w => {
+    const scheduled = Date.parse(w.scheduled);
+    const delay = Number.isFinite(w.delay) ? w.delay
+      : Number.isFinite(scheduled) ? Math.round((w.time - scheduled) / 60000) : null;
+    const detail = delay === null ? 'Retard non renseigné'
+      : delay > 0 ? '+' + delay + ' min' : delay < 0 ? Math.abs(delay) + ' min d’avance' : 'À l’heure';
+    return '<li><div><strong>' + escapeTrainText(stationKeyToName(w.station)) + '</strong>'
+      + (w.platform ? '<small>Voie ' + escapeTrainText(w.platform) + '</small>' : '')
+      + '</div><div><strong>' + time(w.time) + '</strong><small>' + detail
+      + (Number.isFinite(scheduled) && delay ? ' · prévu ' + time(scheduled) : '')
+      + '</small></div></li>';
+  }).join('') + '</ol>';
 }
 
 function ciFromWaypoints(waypoints, now) {

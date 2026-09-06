@@ -20,6 +20,33 @@ const train = {journeyRef:'j1',route:'R1',dest:'B',code:'TEST',dir:'A',stops:[
   {station:'s:0',expected:'2026-09-05T12:00:00Z'},
   {station:'s:2',expected:'2026-09-05T12:10:00Z'}
 ]};
+test('schedule corrections start at the displayed position and converge in both directions', () => {
+  const c = setup();
+  for (const correction of [-0.5, 0.5]) {
+    c.run('globalThis.t = ' + JSON.stringify({points:[[0,0],[1,0],[2,0]],
+      waypoints:[{ci:0,time:0},{ci:2,time:60000}],correction,correctionAt:30000}));
+    assert.equal(c.run('displayedCi(t,30000)'), 1 + correction);
+    assert.equal(c.run('displayedCi(t,45000)'), 1.5);
+    assert.ok(Math.abs(c.run('displayedCi(t,30001)') - (1 + correction)) < 0.001);
+  }
+});
+test('next passages use Paris time, delay and escaped platform data; omit departed stops', () => {
+  const c = setup();
+  const html = c.run('nextStopsHtml(' + JSON.stringify({waypoints:[
+    {station:'s:0',time:Date.parse('2026-09-05T11:59:00Z')},
+    {station:'s:1',time:Date.parse('2026-09-05T12:05:00Z'),scheduled:'2026-09-05T12:02:00Z',platform:'<2>'}
+  ]}) + ',Date.parse("2026-09-05T12:00:00Z"))');
+  assert.match(html, /14:05/);
+  assert.match(html, /\+3 min/);
+  assert.match(html, /Voie &lt;2&gt;/);
+  assert.doesNotMatch(html, /<strong>A<\/strong>/);
+  assert.match(c.run('nextStopsHtml({waypoints:[]},0)'), /Aucun autre passage connu/);
+});
+test('interface sources contain no known broken encoding sequences', () => {
+  for (const file of fs.readdirSync('js').filter(f => f.endsWith('.js'))) {
+    assert.doesNotMatch(fs.readFileSync('js/' + file, 'utf8'), /Ã|â€|ðŁ|�/, file);
+  }
+});
 test('continuous interpolation in both directions between network updates',()=>{
   const c=setup();
   assert.equal(c.run('ciFromWaypoints([{ci:0,time:0},{ci:10,time:600000}],150000)'),2.5);
