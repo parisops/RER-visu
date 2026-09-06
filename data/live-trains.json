@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06T06:12:17Z",
+  "generatedAt": "2026-09-06T06:15:27Z",
   "trains": [
     {
       "journeyRef": null,
@@ -1314,6 +1314,37 @@
       "delay": 0,
       "from": null,
       "to": {
+        "station": "spine:38",
+        "scheduled": "2026-09-06T09:15:00.000Z",
+        "expected": "2026-09-06T09:15:00.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "1B"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:38",
+          "scheduled": "2026-09-06T09:15:00.000Z",
+          "expected": "2026-09-06T09:15:00.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1B"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "DEBA",
+      "trainNumber": null,
+      "dest": "Dourdan",
+      "dir": "B",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
         "station": "spine:39",
         "scheduled": "2026-09-06T07:19:00.000Z",
         "expected": "2026-09-06T07:19:00.000Z",
@@ -1650,42 +1681,10 @@
       "trainNumber": null,
       "dest": "Dourdan la Forêt",
       "dir": "B",
-      "state": "notStarted",
+      "state": "arrived",
       "cancelled": false,
       "delay": 0,
-      "from": null,
-      "to": {
-        "station": "spine:37",
-        "scheduled": "2026-09-06T06:12:10.000Z",
-        "expected": "2026-09-06T06:12:24.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "1b"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "spine:37",
-          "scheduled": "2026-09-06T06:12:10.000Z",
-          "expected": "2026-09-06T06:12:24.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1b"
-        }
-      ],
-      "route": null
-    },
-    {
-      "journeyRef": null,
-      "code": "DEBO",
-      "trainNumber": null,
-      "dest": "Dourdan la Forêt",
-      "dir": "B",
-      "state": "notStarted",
-      "cancelled": false,
-      "delay": 0,
-      "from": null,
-      "to": {
+      "from": {
         "station": "spine:38",
         "scheduled": "2026-09-06T06:15:00.000Z",
         "expected": "2026-09-06T06:15:14.000Z",
@@ -1693,7 +1692,8 @@
         "delay": 0,
         "platform": "1B"
       },
-      "progress": 0.0,
+      "to": null,
+      "progress": 1.0,
       "stops": [
         {
           "station": "spine:38",
@@ -2210,37 +2210,6 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 1,
-      "from": null,
-      "to": {
-        "station": "etampes:5",
-        "scheduled": "2026-09-06T06:13:40.000Z",
-        "expected": "2026-09-06T06:14:58.000Z",
-        "status": "onTime",
-        "delay": 1,
-        "platform": "3"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "etampes:5",
-          "scheduled": "2026-09-06T06:13:40.000Z",
-          "expected": "2026-09-06T06:14:58.000Z",
-          "status": "onTime",
-          "delay": 1,
-          "platform": "3"
-        }
-      ],
-      "route": null
-    },
-    {
-      "journeyRef": null,
-      "code": "ELBA",
-      "trainNumber": null,
-      "dest": "Saint-Martin d'Étampes",
-      "dir": "B",
-      "state": "notStarted",
-      "cancelled": false,
       "delay": 0,
       "from": null,
       "to": {
@@ -2303,12 +2272,43 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
+        "station": "etampes:5",
+        "scheduled": "2026-09-06T09:13:40.000Z",
+        "expected": "2026-09-06T09:13:40.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "3"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "etampes:5",
+          "scheduled": "2026-09-06T09:13:40.000Z",
+          "expected": "2026-09-06T09:13:40.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "3"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "ELBA",
+      "trainNumber": null,
+      "dest": "Saint-Martin d'Étampes",
+      "dir": "B",
+      "state": "notStarted",
+      "cancelled": false,
       "delay": 1,
       "from": null,
       "to": {
         "station": "etampes:6",
         "scheduled": "2026-09-06T06:15:50.000Z",
-        "expected": "2026-09-06T06:16:48.000Z",
+        "expected": "2026-09-06T06:17:02.000Z",
         "status": "onTime",
         "delay": 1,
         "platform": "SM"
@@ -2318,7 +2318,7 @@
         {
           "station": "etampes:6",
           "scheduled": "2026-09-06T06:15:50.000Z",
-          "expected": "2026-09-06T06:16:48.000Z",
+          "expected": "2026-09-06T06:17:02.000Z",
           "status": "onTime",
           "delay": 1,
           "platform": "SM"
@@ -2582,14 +2582,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 0,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "spine:25",
         "scheduled": "2026-09-06T06:15:40.000Z",
-        "expected": "2026-09-06T06:15:40.000Z",
+        "expected": "2026-09-06T06:16:24.000Z",
         "status": "onTime",
-        "delay": 0,
+        "delay": 1,
         "platform": "E"
       },
       "progress": 0.0,
@@ -2597,9 +2597,9 @@
         {
           "station": "spine:25",
           "scheduled": "2026-09-06T06:15:40.000Z",
-          "expected": "2026-09-06T06:15:40.000Z",
+          "expected": "2026-09-06T06:16:24.000Z",
           "status": "onTime",
-          "delay": 0,
+          "delay": 1,
           "platform": "E"
         }
       ],
@@ -2660,6 +2660,37 @@
           "station": "spine:25",
           "scheduled": "2026-09-06T08:15:40.000Z",
           "expected": "2026-09-06T08:15:40.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "E"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "ELBA",
+      "trainNumber": null,
+      "dest": "Saint-Martin d'Étampes",
+      "dir": "B",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
+        "station": "spine:25",
+        "scheduled": "2026-09-06T09:15:40.000Z",
+        "expected": "2026-09-06T09:15:40.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "E"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:25",
+          "scheduled": "2026-09-06T09:15:40.000Z",
+          "expected": "2026-09-06T09:15:40.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "E"
@@ -4312,6 +4343,37 @@
           "station": "spine:23",
           "scheduled": "2026-09-06T08:58:10.000Z",
           "expected": "2026-09-06T08:58:10.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "3"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "JUJU",
+      "trainNumber": null,
+      "dest": "Juvisy",
+      "dir": "B",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
+        "station": "spine:23",
+        "scheduled": "2026-09-06T09:13:10.000Z",
+        "expected": "2026-09-06T09:13:10.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "3"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:23",
+          "scheduled": "2026-09-06T09:13:10.000Z",
+          "expected": "2026-09-06T09:13:10.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "3"
@@ -6030,6 +6092,37 @@
       "delay": 0,
       "from": null,
       "to": {
+        "station": "spine:33",
+        "scheduled": "2026-09-06T09:14:40.000Z",
+        "expected": "2026-09-06T09:14:40.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "1B"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:33",
+          "scheduled": "2026-09-06T09:14:40.000Z",
+          "expected": "2026-09-06T09:14:40.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1B"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "JUJU",
+      "trainNumber": null,
+      "dest": "Juvisy",
+      "dir": "B",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
         "station": "spine:34",
         "scheduled": "2026-09-06T06:32:40.000Z",
         "expected": "2026-09-06T06:32:40.000Z",
@@ -6899,6 +6992,37 @@
       "delay": 0,
       "from": null,
       "to": {
+        "station": "west:3",
+        "scheduled": "2026-09-06T09:13:50.000Z",
+        "expected": "2026-09-06T09:13:50.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "1"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "west:3",
+          "scheduled": "2026-09-06T09:13:50.000Z",
+          "expected": "2026-09-06T09:13:50.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "JUJU",
+      "trainNumber": null,
+      "dest": "Juvisy",
+      "dir": "B",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
         "station": "west:4",
         "scheduled": "2026-09-06T07:32:00.000Z",
         "expected": "2026-09-06T07:32:00.000Z",
@@ -7489,37 +7613,6 @@
       "from": null,
       "to": {
         "station": "west:8",
-        "scheduled": "2026-09-06T06:13:40.000Z",
-        "expected": "2026-09-06T06:13:40.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "1"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "west:8",
-          "scheduled": "2026-09-06T06:13:40.000Z",
-          "expected": "2026-09-06T06:13:40.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1"
-        }
-      ],
-      "route": null
-    },
-    {
-      "journeyRef": null,
-      "code": "JUJU",
-      "trainNumber": null,
-      "dest": "Juvisy",
-      "dir": "B",
-      "state": "notStarted",
-      "cancelled": false,
-      "delay": 0,
-      "from": null,
-      "to": {
-        "station": "west:8",
         "scheduled": "2026-09-06T06:43:40.000Z",
         "expected": "2026-09-06T06:43:40.000Z",
         "status": "onTime",
@@ -7718,6 +7811,37 @@
           "station": "west:8",
           "scheduled": "2026-09-06T08:58:40.000Z",
           "expected": "2026-09-06T08:58:40.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "JUJU",
+      "trainNumber": null,
+      "dest": "Juvisy",
+      "dir": "B",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
+        "station": "west:8",
+        "scheduled": "2026-09-06T09:13:40.000Z",
+        "expected": "2026-09-06T09:13:40.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "1"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "west:8",
+          "scheduled": "2026-09-06T09:13:40.000Z",
+          "expected": "2026-09-06T09:13:40.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "1"
@@ -7975,20 +8099,51 @@
     },
     {
       "journeyRef": null,
+      "code": "JUJU",
+      "trainNumber": null,
+      "dest": "Juvisy",
+      "dir": "B",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
+        "station": "west:9",
+        "scheduled": "2026-09-06T09:15:50.000Z",
+        "expected": "2026-09-06T09:15:50.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "1"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "west:9",
+          "scheduled": "2026-09-06T09:15:50.000Z",
+          "expected": "2026-09-06T09:15:50.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
       "code": "LOLA",
       "trainNumber": null,
       "dest": "Invalides",
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "spine:20",
         "scheduled": "2026-09-06T06:47:40.000Z",
-        "expected": "2026-09-06T06:49:20.000Z",
+        "expected": "2026-09-06T06:48:26.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "1"
       },
       "progress": 0.0,
@@ -7996,9 +8151,9 @@
         {
           "station": "spine:20",
           "scheduled": "2026-09-06T06:47:40.000Z",
-          "expected": "2026-09-06T06:49:20.000Z",
+          "expected": "2026-09-06T06:48:26.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "1"
         }
       ],
@@ -8074,14 +8229,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "spine:21",
         "scheduled": "2026-09-06T06:50:50.000Z",
-        "expected": "2026-09-06T06:52:30.000Z",
+        "expected": "2026-09-06T06:51:36.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "1"
       },
       "progress": 0.0,
@@ -8089,9 +8244,9 @@
         {
           "station": "spine:21",
           "scheduled": "2026-09-06T06:50:50.000Z",
-          "expected": "2026-09-06T06:52:30.000Z",
+          "expected": "2026-09-06T06:51:36.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "1"
         }
       ],
@@ -8167,14 +8322,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "spine:22",
         "scheduled": "2026-09-06T06:52:30.000Z",
-        "expected": "2026-09-06T06:54:10.000Z",
+        "expected": "2026-09-06T06:53:16.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "2"
       },
       "progress": 0.0,
@@ -8182,9 +8337,9 @@
         {
           "station": "spine:22",
           "scheduled": "2026-09-06T06:52:30.000Z",
-          "expected": "2026-09-06T06:54:10.000Z",
+          "expected": "2026-09-06T06:53:16.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "2"
         }
       ],
@@ -8353,37 +8508,6 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
-      "from": null,
-      "to": {
-        "station": "west:1",
-        "scheduled": "2026-09-06T06:14:30.000Z",
-        "expected": "2026-09-06T06:16:10.000Z",
-        "status": "onTime",
-        "delay": 2,
-        "platform": "2B"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "west:1",
-          "scheduled": "2026-09-06T06:14:30.000Z",
-          "expected": "2026-09-06T06:16:10.000Z",
-          "status": "onTime",
-          "delay": 2,
-          "platform": "2B"
-        }
-      ],
-      "route": null
-    },
-    {
-      "journeyRef": null,
-      "code": "LOLA",
-      "trainNumber": null,
-      "dest": "Invalides",
-      "dir": "B",
-      "state": "notStarted",
-      "cancelled": false,
       "delay": 0,
       "from": null,
       "to": {
@@ -8446,14 +8570,45 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 0,
+      "from": null,
+      "to": {
+        "station": "west:1",
+        "scheduled": "2026-09-06T09:14:30.000Z",
+        "expected": "2026-09-06T09:14:30.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "2B"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "west:1",
+          "scheduled": "2026-09-06T09:14:30.000Z",
+          "expected": "2026-09-06T09:14:30.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2B"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "LOLA",
+      "trainNumber": null,
+      "dest": "Invalides",
+      "dir": "B",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "west:10",
         "scheduled": "2026-09-06T06:44:20.000Z",
-        "expected": "2026-09-06T06:46:00.000Z",
+        "expected": "2026-09-06T06:45:06.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "1"
       },
       "progress": 0.0,
@@ -8461,9 +8616,9 @@
         {
           "station": "west:10",
           "scheduled": "2026-09-06T06:44:20.000Z",
-          "expected": "2026-09-06T06:46:00.000Z",
+          "expected": "2026-09-06T06:45:06.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "1"
         }
       ],
@@ -8539,14 +8694,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "west:2",
         "scheduled": "2026-09-06T06:20:30.000Z",
-        "expected": "2026-09-06T06:22:10.000Z",
+        "expected": "2026-09-06T06:21:16.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "B"
       },
       "progress": 0.0,
@@ -8554,9 +8709,9 @@
         {
           "station": "west:2",
           "scheduled": "2026-09-06T06:20:30.000Z",
-          "expected": "2026-09-06T06:22:10.000Z",
+          "expected": "2026-09-06T06:21:16.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "B"
         }
       ],
@@ -8632,14 +8787,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "west:4",
         "scheduled": "2026-09-06T06:24:10.000Z",
-        "expected": "2026-09-06T06:25:50.000Z",
+        "expected": "2026-09-06T06:24:56.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "1I"
       },
       "progress": 0.0,
@@ -8647,9 +8802,9 @@
         {
           "station": "west:4",
           "scheduled": "2026-09-06T06:24:10.000Z",
-          "expected": "2026-09-06T06:25:50.000Z",
+          "expected": "2026-09-06T06:24:56.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "1I"
         }
       ],
@@ -8725,14 +8880,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "west:5",
         "scheduled": "2026-09-06T06:26:30.000Z",
-        "expected": "2026-09-06T06:28:10.000Z",
+        "expected": "2026-09-06T06:27:16.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "1"
       },
       "progress": 0.0,
@@ -8740,9 +8895,9 @@
         {
           "station": "west:5",
           "scheduled": "2026-09-06T06:26:30.000Z",
-          "expected": "2026-09-06T06:28:10.000Z",
+          "expected": "2026-09-06T06:27:16.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "1"
         }
       ],
@@ -8818,14 +8973,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "west:6",
         "scheduled": "2026-09-06T06:31:50.000Z",
-        "expected": "2026-09-06T06:33:30.000Z",
+        "expected": "2026-09-06T06:32:36.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "1"
       },
       "progress": 0.0,
@@ -8833,9 +8988,9 @@
         {
           "station": "west:6",
           "scheduled": "2026-09-06T06:31:50.000Z",
-          "expected": "2026-09-06T06:33:30.000Z",
+          "expected": "2026-09-06T06:32:36.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "1"
         }
       ],
@@ -8911,14 +9066,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "west:7",
         "scheduled": "2026-09-06T06:35:10.000Z",
-        "expected": "2026-09-06T06:36:50.000Z",
+        "expected": "2026-09-06T06:35:56.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "1"
       },
       "progress": 0.0,
@@ -8926,9 +9081,9 @@
         {
           "station": "west:7",
           "scheduled": "2026-09-06T06:35:10.000Z",
-          "expected": "2026-09-06T06:36:50.000Z",
+          "expected": "2026-09-06T06:35:56.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "1"
         }
       ],
@@ -9004,14 +9159,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "west:8",
         "scheduled": "2026-09-06T06:38:30.000Z",
-        "expected": "2026-09-06T06:40:10.000Z",
+        "expected": "2026-09-06T06:39:16.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "1"
       },
       "progress": 0.0,
@@ -9019,9 +9174,9 @@
         {
           "station": "west:8",
           "scheduled": "2026-09-06T06:38:30.000Z",
-          "expected": "2026-09-06T06:40:10.000Z",
+          "expected": "2026-09-06T06:39:16.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "1"
         }
       ],
@@ -9097,14 +9252,14 @@
       "dir": "B",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 2,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "west:9",
         "scheduled": "2026-09-06T06:41:10.000Z",
-        "expected": "2026-09-06T06:42:50.000Z",
+        "expected": "2026-09-06T06:41:56.000Z",
         "status": "onTime",
-        "delay": 2,
+        "delay": 1,
         "platform": "1"
       },
       "progress": 0.0,
@@ -9112,9 +9267,9 @@
         {
           "station": "west:9",
           "scheduled": "2026-09-06T06:41:10.000Z",
-          "expected": "2026-09-06T06:42:50.000Z",
+          "expected": "2026-09-06T06:41:56.000Z",
           "status": "onTime",
-          "delay": 2,
+          "delay": 1,
           "platform": "1"
         }
       ],
@@ -9844,6 +9999,37 @@
       "delay": 0,
       "from": null,
       "to": {
+        "station": "dourdan:6",
+        "scheduled": "2026-09-06T09:12:50.000Z",
+        "expected": "2026-09-06T09:12:50.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "2"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "dourdan:6",
+          "scheduled": "2026-09-06T09:12:50.000Z",
+          "expected": "2026-09-06T09:12:50.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "ORET",
+      "trainNumber": null,
+      "dest": "Musée d'Orsay",
+      "dir": "A",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
         "station": "dourdan:7",
         "scheduled": "2026-09-06T06:37:50.000Z",
         "expected": "2026-09-06T06:37:50.000Z",
@@ -10205,7 +10391,7 @@
         {
           "station": "spine:34",
           "scheduled": "2026-09-06T06:29:10.000Z",
-          "expected": "2026-09-06T06:29:10.000Z",
+          "expected": "2026-09-06T06:29:26.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "41"
@@ -10282,6 +10468,37 @@
         }
       ],
       "route": "R3"
+    },
+    {
+      "journeyRef": null,
+      "code": "ORET",
+      "trainNumber": null,
+      "dest": "Musée d'Orsay",
+      "dir": "A",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
+        "station": "etampes:2",
+        "scheduled": "2026-09-06T09:14:10.000Z",
+        "expected": "2026-09-06T09:14:10.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "2B"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "etampes:2",
+          "scheduled": "2026-09-06T09:14:10.000Z",
+          "expected": "2026-09-06T09:14:10.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2B"
+        }
+      ],
+      "route": null
     },
     {
       "journeyRef": null,
@@ -10661,37 +10878,6 @@
       "trainNumber": null,
       "dest": "Musée d'Orsay",
       "dir": "A",
-      "state": "arrived",
-      "cancelled": false,
-      "delay": 0,
-      "from": {
-        "station": "etampes:6",
-        "scheduled": "2026-09-06T06:11:50.000Z",
-        "expected": "2026-09-06T06:11:50.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "SM"
-      },
-      "to": null,
-      "progress": 1.0,
-      "stops": [
-        {
-          "station": "etampes:6",
-          "scheduled": "2026-09-06T06:11:50.000Z",
-          "expected": "2026-09-06T06:11:50.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "SM"
-        }
-      ],
-      "route": null
-    },
-    {
-      "journeyRef": null,
-      "code": "ORET",
-      "trainNumber": null,
-      "dest": "Musée d'Orsay",
-      "dir": "A",
       "state": "notStarted",
       "cancelled": false,
       "delay": 0,
@@ -10823,7 +11009,7 @@
       "to": {
         "station": "spine:23",
         "scheduled": "2026-09-06T06:51:10.000Z",
-        "expected": "2026-09-06T06:51:10.000Z",
+        "expected": "2026-09-06T06:51:26.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "1"
@@ -10833,7 +11019,7 @@
         {
           "station": "spine:23",
           "scheduled": "2026-09-06T06:51:10.000Z",
-          "expected": "2026-09-06T06:51:10.000Z",
+          "expected": "2026-09-06T06:51:26.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "1"
@@ -10996,7 +11182,7 @@
         {
           "station": "spine:37",
           "scheduled": "2026-09-06T06:18:00.000Z",
-          "expected": "2026-09-06T06:18:00.000Z",
+          "expected": "2026-09-06T06:18:16.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2b"
@@ -11015,23 +11201,15 @@
       "delay": 0,
       "from": null,
       "to": {
-        "station": "spine:24",
+        "station": "spine:37",
         "scheduled": "2026-09-06T06:48:00.000Z",
         "expected": "2026-09-06T06:48:00.000Z",
         "status": "onTime",
         "delay": 0,
-        "platform": "2"
+        "platform": "2b"
       },
       "progress": 0.0,
       "stops": [
-        {
-          "station": "spine:24",
-          "scheduled": "2026-09-06T06:48:00.000Z",
-          "expected": "2026-09-06T06:48:00.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
         {
           "station": "spine:37",
           "scheduled": "2026-09-06T06:48:00.000Z",
@@ -11039,6 +11217,14 @@
           "status": "onTime",
           "delay": 0,
           "platform": "2b"
+        },
+        {
+          "station": "spine:24",
+          "scheduled": "2026-09-06T06:48:00.000Z",
+          "expected": "2026-09-06T06:48:16.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2"
         }
       ],
       "route": "R2"
@@ -11197,11 +11383,10 @@
       "trainNumber": null,
       "dest": "Musée d'Orsay",
       "dir": "A",
-      "state": "notStarted",
+      "state": "arrived",
       "cancelled": false,
       "delay": 0,
-      "from": null,
-      "to": {
+      "from": {
         "station": "spine:25",
         "scheduled": "2026-09-06T06:14:00.000Z",
         "expected": "2026-09-06T06:14:00.000Z",
@@ -11209,7 +11394,8 @@
         "delay": 0,
         "platform": "B"
       },
-      "progress": 0.0,
+      "to": null,
+      "progress": 1.0,
       "stops": [
         {
           "station": "spine:25",
@@ -11388,9 +11574,40 @@
       "delay": 0,
       "from": null,
       "to": {
+        "station": "spine:25",
+        "scheduled": "2026-09-06T09:14:00.000Z",
+        "expected": "2026-09-06T09:14:00.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "B"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:25",
+          "scheduled": "2026-09-06T09:14:00.000Z",
+          "expected": "2026-09-06T09:14:00.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "B"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "ORET",
+      "trainNumber": null,
+      "dest": "Musée d'Orsay",
+      "dir": "A",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
         "station": "spine:26",
         "scheduled": "2026-09-06T06:41:00.000Z",
-        "expected": "2026-09-06T06:41:00.000Z",
+        "expected": "2026-09-06T06:41:16.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "A"
@@ -11400,7 +11617,7 @@
         {
           "station": "spine:26",
           "scheduled": "2026-09-06T06:41:00.000Z",
-          "expected": "2026-09-06T06:41:00.000Z",
+          "expected": "2026-09-06T06:41:16.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "A"
@@ -11695,14 +11912,14 @@
       "dir": "A",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 0,
+      "delay": 1,
       "from": null,
       "to": {
         "station": "spine:35",
         "scheduled": "2026-09-06T06:24:10.000Z",
-        "expected": "2026-09-06T06:24:10.000Z",
+        "expected": "2026-09-06T06:25:26.000Z",
         "status": "onTime",
-        "delay": 0,
+        "delay": 1,
         "platform": "2B"
       },
       "progress": 0.0,
@@ -11710,9 +11927,9 @@
         {
           "station": "spine:35",
           "scheduled": "2026-09-06T06:24:10.000Z",
-          "expected": "2026-09-06T06:24:10.000Z",
+          "expected": "2026-09-06T06:25:26.000Z",
           "status": "onTime",
-          "delay": 0,
+          "delay": 1,
           "platform": "2B"
         }
       ],
@@ -11886,7 +12103,7 @@
       "to": {
         "station": "spine:36",
         "scheduled": "2026-09-06T06:21:20.000Z",
-        "expected": "2026-09-06T06:21:20.000Z",
+        "expected": "2026-09-06T06:21:36.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2B"
@@ -11896,7 +12113,7 @@
         {
           "station": "spine:36",
           "scheduled": "2026-09-06T06:21:20.000Z",
-          "expected": "2026-09-06T06:21:20.000Z",
+          "expected": "2026-09-06T06:21:36.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2B"
@@ -12102,37 +12319,6 @@
       "from": null,
       "to": {
         "station": "spine:38",
-        "scheduled": "2026-09-06T06:15:10.000Z",
-        "expected": "2026-09-06T06:15:10.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "2B"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "spine:38",
-          "scheduled": "2026-09-06T06:15:10.000Z",
-          "expected": "2026-09-06T06:15:10.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2B"
-        }
-      ],
-      "route": null
-    },
-    {
-      "journeyRef": null,
-      "code": "ORET",
-      "trainNumber": null,
-      "dest": "Musée d'Orsay",
-      "dir": "A",
-      "state": "notStarted",
-      "cancelled": false,
-      "delay": 0,
-      "from": null,
-      "to": {
-        "station": "spine:38",
         "scheduled": "2026-09-06T06:45:10.000Z",
         "expected": "2026-09-06T06:45:10.000Z",
         "status": "onTime",
@@ -12282,27 +12468,27 @@
       "trainNumber": null,
       "dest": "Musée d'Orsay",
       "dir": "A",
-      "state": "arrived",
+      "state": "notStarted",
       "cancelled": false,
       "delay": 0,
-      "from": {
-        "station": "spine:39",
-        "scheduled": "2026-09-06T06:11:10.000Z",
-        "expected": "2026-09-06T06:11:10.000Z",
+      "from": null,
+      "to": {
+        "station": "spine:38",
+        "scheduled": "2026-09-06T09:15:20.000Z",
+        "expected": "2026-09-06T09:15:20.000Z",
         "status": "onTime",
         "delay": 0,
-        "platform": "4"
+        "platform": "2B"
       },
-      "to": null,
-      "progress": 1.0,
+      "progress": 0.0,
       "stops": [
         {
-          "station": "spine:39",
-          "scheduled": "2026-09-06T06:11:10.000Z",
-          "expected": "2026-09-06T06:11:10.000Z",
+          "station": "spine:38",
+          "scheduled": "2026-09-06T09:15:20.000Z",
+          "expected": "2026-09-06T09:15:20.000Z",
           "status": "onTime",
           "delay": 0,
-          "platform": "4"
+          "platform": "2B"
         }
       ],
       "route": null
@@ -12489,37 +12675,6 @@
           "status": "onTime",
           "delay": 0,
           "platform": "4"
-        }
-      ],
-      "route": null
-    },
-    {
-      "journeyRef": null,
-      "code": "SARA",
-      "trainNumber": null,
-      "dest": "Saint-Quentin en Yvelines - Montigny-le-Bretonneux",
-      "dir": "B",
-      "state": "notStarted",
-      "cancelled": false,
-      "delay": 0,
-      "from": null,
-      "to": {
-        "station": "spine:20",
-        "scheduled": "2026-09-06T06:12:30.000Z",
-        "expected": "2026-09-06T06:12:30.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "2"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "spine:20",
-          "scheduled": "2026-09-06T06:12:30.000Z",
-          "expected": "2026-09-06T06:12:30.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
         }
       ],
       "route": null
@@ -13746,7 +13901,7 @@
       "to": {
         "station": "spine:20",
         "scheduled": "2026-09-06T06:38:50.000Z",
-        "expected": "2026-09-06T06:38:50.000Z",
+        "expected": "2026-09-06T06:38:53.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -13756,7 +13911,7 @@
         {
           "station": "spine:20",
           "scheduled": "2026-09-06T06:38:50.000Z",
-          "expected": "2026-09-06T06:38:50.000Z",
+          "expected": "2026-09-06T06:38:53.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -14056,7 +14211,7 @@
       "to": {
         "station": "spine:21",
         "scheduled": "2026-09-06T06:36:40.000Z",
-        "expected": "2026-09-06T06:36:40.000Z",
+        "expected": "2026-09-06T06:36:43.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -14066,7 +14221,7 @@
         {
           "station": "spine:21",
           "scheduled": "2026-09-06T06:36:40.000Z",
-          "expected": "2026-09-06T06:36:40.000Z",
+          "expected": "2026-09-06T06:36:43.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -14366,7 +14521,7 @@
       "to": {
         "station": "spine:22",
         "scheduled": "2026-09-06T06:34:20.000Z",
-        "expected": "2026-09-06T06:34:20.000Z",
+        "expected": "2026-09-06T06:34:23.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "4"
@@ -14376,7 +14531,7 @@
         {
           "station": "spine:22",
           "scheduled": "2026-09-06T06:34:20.000Z",
-          "expected": "2026-09-06T06:34:20.000Z",
+          "expected": "2026-09-06T06:34:23.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "4"
@@ -14676,7 +14831,7 @@
       "to": {
         "station": "spine:23",
         "scheduled": "2026-09-06T06:32:00.000Z",
-        "expected": "2026-09-06T06:32:00.000Z",
+        "expected": "2026-09-06T06:32:03.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -14686,7 +14841,7 @@
         {
           "station": "spine:23",
           "scheduled": "2026-09-06T06:32:00.000Z",
-          "expected": "2026-09-06T06:32:00.000Z",
+          "expected": "2026-09-06T06:32:03.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -15050,7 +15205,7 @@
       "to": {
         "station": "spine:24",
         "scheduled": "2026-09-06T06:28:40.000Z",
-        "expected": "2026-09-06T06:28:40.000Z",
+        "expected": "2026-09-06T06:28:43.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -15060,7 +15215,7 @@
         {
           "station": "spine:24",
           "scheduled": "2026-09-06T06:28:40.000Z",
-          "expected": "2026-09-06T06:28:40.000Z",
+          "expected": "2026-09-06T06:28:43.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -15358,9 +15513,40 @@
       "delay": 0,
       "from": null,
       "to": {
+        "station": "spine:24",
+        "scheduled": "2026-09-06T09:13:40.000Z",
+        "expected": "2026-09-06T09:13:40.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "2"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:24",
+          "scheduled": "2026-09-06T09:13:40.000Z",
+          "expected": "2026-09-06T09:13:40.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "VACK",
+      "trainNumber": null,
+      "dest": "Versailles Château Rive Gauche",
+      "dir": "A",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
         "station": "spine:25",
         "scheduled": "2026-09-06T06:24:40.000Z",
-        "expected": "2026-09-06T06:24:40.000Z",
+        "expected": "2026-09-06T06:24:43.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "B"
@@ -15370,7 +15556,7 @@
         {
           "station": "spine:25",
           "scheduled": "2026-09-06T06:24:40.000Z",
-          "expected": "2026-09-06T06:24:40.000Z",
+          "expected": "2026-09-06T06:24:43.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "B"
@@ -15701,7 +15887,7 @@
       "to": {
         "station": "spine:26",
         "scheduled": "2026-09-06T06:21:50.000Z",
-        "expected": "2026-09-06T06:21:50.000Z",
+        "expected": "2026-09-06T06:21:53.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "A"
@@ -15711,7 +15897,7 @@
         {
           "station": "spine:26",
           "scheduled": "2026-09-06T06:21:50.000Z",
-          "expected": "2026-09-06T06:21:50.000Z",
+          "expected": "2026-09-06T06:21:53.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "A"
@@ -16042,7 +16228,7 @@
       "to": {
         "station": "spine:29",
         "scheduled": "2026-09-06T06:16:10.000Z",
-        "expected": "2026-09-06T06:16:10.000Z",
+        "expected": "2026-09-06T06:16:23.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2B"
@@ -16052,7 +16238,7 @@
         {
           "station": "spine:29",
           "scheduled": "2026-09-06T06:16:10.000Z",
-          "expected": "2026-09-06T06:16:10.000Z",
+          "expected": "2026-09-06T06:16:23.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2B"
@@ -16363,37 +16549,6 @@
           "station": "spine:29",
           "scheduled": "2026-09-06T09:01:10.000Z",
           "expected": "2026-09-06T09:01:10.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2B"
-        }
-      ],
-      "route": null
-    },
-    {
-      "journeyRef": null,
-      "code": "VACK",
-      "trainNumber": null,
-      "dest": "Versailles Château Rive Gauche",
-      "dir": "A",
-      "state": "notStarted",
-      "cancelled": false,
-      "delay": 0,
-      "from": null,
-      "to": {
-        "station": "spine:30",
-        "scheduled": "2026-09-06T06:13:20.000Z",
-        "expected": "2026-09-06T06:13:20.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "2B"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "spine:30",
-          "scheduled": "2026-09-06T06:13:20.000Z",
-          "expected": "2026-09-06T06:13:20.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2B"
@@ -17176,7 +17331,7 @@
         {
           "station": "spur:0",
           "scheduled": "2026-09-06T07:05:30.000Z",
-          "expected": "2026-09-06T07:05:30.000Z",
+          "expected": "2026-09-06T07:05:33.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "3"
@@ -17581,7 +17736,7 @@
         {
           "station": "west:3",
           "scheduled": "2026-09-06T07:02:20.000Z",
-          "expected": "2026-09-06T07:02:20.000Z",
+          "expected": "2026-09-06T07:02:23.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -18189,6 +18344,37 @@
       "delay": 0,
       "from": null,
       "to": {
+        "station": "spine:34",
+        "scheduled": "2026-09-06T09:13:00.000Z",
+        "expected": "2026-09-06T09:13:00.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "45"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:34",
+          "scheduled": "2026-09-06T09:13:00.000Z",
+          "expected": "2026-09-06T09:13:00.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "45"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "VACK",
+      "trainNumber": null,
+      "dest": "Versailles Château Rive Gauche",
+      "dir": "A",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
         "station": "spur:0",
         "scheduled": "2026-09-06T06:35:30.000Z",
         "expected": "2026-09-06T06:35:40.000Z",
@@ -18222,7 +18408,7 @@
       "to": {
         "station": "west:10",
         "scheduled": "2026-09-06T06:41:50.000Z",
-        "expected": "2026-09-06T06:41:50.000Z",
+        "expected": "2026-09-06T06:41:53.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -18232,7 +18418,7 @@
         {
           "station": "west:10",
           "scheduled": "2026-09-06T06:41:50.000Z",
-          "expected": "2026-09-06T06:41:50.000Z",
+          "expected": "2026-09-06T06:41:53.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -18811,7 +18997,7 @@
       "to": {
         "station": "west:4",
         "scheduled": "2026-09-06T06:59:40.000Z",
-        "expected": "2026-09-06T06:59:40.000Z",
+        "expected": "2026-09-06T06:59:43.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2I"
@@ -18821,7 +19007,7 @@
         {
           "station": "west:4",
           "scheduled": "2026-09-06T06:59:40.000Z",
-          "expected": "2026-09-06T06:59:40.000Z",
+          "expected": "2026-09-06T06:59:43.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2I"
@@ -19057,6 +19243,37 @@
       "delay": 0,
       "from": null,
       "to": {
+        "station": "west:4",
+        "scheduled": "2026-09-06T09:14:40.000Z",
+        "expected": "2026-09-06T09:14:40.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "2I"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "west:4",
+          "scheduled": "2026-09-06T09:14:40.000Z",
+          "expected": "2026-09-06T09:14:40.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2I"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "VACK",
+      "trainNumber": null,
+      "dest": "Versailles Château Rive Gauche",
+      "dir": "A",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
         "station": "west:5",
         "scheduled": "2026-09-06T06:27:30.000Z",
         "expected": "2026-09-06T06:27:40.000Z",
@@ -19090,7 +19307,7 @@
       "to": {
         "station": "west:5",
         "scheduled": "2026-09-06T06:57:30.000Z",
-        "expected": "2026-09-06T06:57:30.000Z",
+        "expected": "2026-09-06T06:57:33.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -19100,7 +19317,7 @@
         {
           "station": "west:5",
           "scheduled": "2026-09-06T06:57:30.000Z",
-          "expected": "2026-09-06T06:57:30.000Z",
+          "expected": "2026-09-06T06:57:33.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -19400,7 +19617,7 @@
       "to": {
         "station": "west:6",
         "scheduled": "2026-09-06T06:52:40.000Z",
-        "expected": "2026-09-06T06:52:40.000Z",
+        "expected": "2026-09-06T06:52:43.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -19410,7 +19627,7 @@
         {
           "station": "west:6",
           "scheduled": "2026-09-06T06:52:40.000Z",
-          "expected": "2026-09-06T06:52:40.000Z",
+          "expected": "2026-09-06T06:52:43.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -19710,7 +19927,7 @@
       "to": {
         "station": "west:7",
         "scheduled": "2026-09-06T06:49:40.000Z",
-        "expected": "2026-09-06T06:49:40.000Z",
+        "expected": "2026-09-06T06:49:43.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -19720,7 +19937,7 @@
         {
           "station": "west:7",
           "scheduled": "2026-09-06T06:49:40.000Z",
-          "expected": "2026-09-06T06:49:40.000Z",
+          "expected": "2026-09-06T06:49:43.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -20020,7 +20237,7 @@
       "to": {
         "station": "west:8",
         "scheduled": "2026-09-06T06:47:00.000Z",
-        "expected": "2026-09-06T06:47:00.000Z",
+        "expected": "2026-09-06T06:47:03.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -20030,38 +20247,7 @@
         {
           "station": "west:8",
           "scheduled": "2026-09-06T06:47:00.000Z",
-          "expected": "2026-09-06T06:47:00.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        }
-      ],
-      "route": null
-    },
-    {
-      "journeyRef": null,
-      "code": "VACK",
-      "trainNumber": null,
-      "dest": "Versailles Château Rive Gauche",
-      "dir": "A",
-      "state": "notStarted",
-      "cancelled": false,
-      "delay": 0,
-      "from": null,
-      "to": {
-        "station": "west:9",
-        "scheduled": "2026-09-06T06:14:20.000Z",
-        "expected": "2026-09-06T06:14:30.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "2"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "west:9",
-          "scheduled": "2026-09-06T06:14:20.000Z",
-          "expected": "2026-09-06T06:14:30.000Z",
+          "expected": "2026-09-06T06:47:03.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -20082,7 +20268,7 @@
       "to": {
         "station": "west:9",
         "scheduled": "2026-09-06T06:44:20.000Z",
-        "expected": "2026-09-06T06:44:20.000Z",
+        "expected": "2026-09-06T06:44:23.000Z",
         "status": "onTime",
         "delay": 0,
         "platform": "2"
@@ -20092,7 +20278,7 @@
         {
           "station": "west:9",
           "scheduled": "2026-09-06T06:44:20.000Z",
-          "expected": "2026-09-06T06:44:20.000Z",
+          "expected": "2026-09-06T06:44:23.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -20341,6 +20527,37 @@
           "station": "west:9",
           "scheduled": "2026-09-06T08:59:10.000Z",
           "expected": "2026-09-06T08:59:10.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2"
+        }
+      ],
+      "route": null
+    },
+    {
+      "journeyRef": null,
+      "code": "VACK",
+      "trainNumber": null,
+      "dest": "Versailles Château Rive Gauche",
+      "dir": "A",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
+        "station": "west:9",
+        "scheduled": "2026-09-06T09:14:10.000Z",
+        "expected": "2026-09-06T09:14:10.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "2"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "west:9",
+          "scheduled": "2026-09-06T09:14:10.000Z",
+          "expected": "2026-09-06T09:14:10.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
