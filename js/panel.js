@@ -153,7 +153,7 @@ function showRouteHighlight(t){
   const d = 'M ' + t.points.map(p => p[0] + ' ' + p[1]).join(' L ');
   routeHighlight.setAttribute('d', d);
   routeHighlight.classList.remove('dirA', 'dirB');
-  routeHighlight.classList.add('dir' + southDir(currentDestination(t)));
+  routeHighlight.classList.add('dir' + trainDirection(t));
   routeHighlight.classList.add('visible');
 }
 

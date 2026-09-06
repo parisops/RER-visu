@@ -59,3 +59,13 @@ test('departures cache expires and freshness uses the source timestamp',async()=
   await vm.runInContext('loadLiveData()',c);
   assert.equal(calls,2);
 });
+
+test('train colors follow route direction regardless of PRIM destination spelling', () => {
+  const c = setup();
+  for (const dest of ["Saint-Martin d'Étampes", 'Dourdan', 'Dourdan la Forêt', 'Juvisy', 'Musée d’Orsay']) {
+    const t = JSON.stringify({dir:1,dest,termini:['A','C']});
+    assert.equal(c.run('trainDirection(' + t + ')'), 'B');
+    assert.equal(c.run('currentDestination(' + t + ')'), dest);
+    assert.equal(c.run('trainDirection(' + JSON.stringify({dir:-1,dest}) + ')'), 'A');
+  }
+});

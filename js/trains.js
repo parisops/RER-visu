@@ -143,6 +143,10 @@ function normName(s) {
 }
 
 function currentDestination(t) { if (IS_LIVE && t.dest) return t.dest; return t.dir > 0 ? t.termini[1] : t.termini[0]; }
+// Les routes sont orientées du terminus nord/ouest vers le sud.
+// dir est déduit de l'ordre des passages, pas du libellé PRIM.
+function trainDirection(t) { return t.dir > 0 ? 'B' : 'A'; }
+
 function currentOrigin(t) { return t.dir > 0 ? t.termini[0] : t.termini[1]; }
 
 function positionText(t) {
@@ -179,7 +183,7 @@ function pointAt(t, ci) {
 function renderTrainSheet(t) {
   const dest = currentDestination(t);
   const origin = currentOrigin(t);
-  const dirLabel = southDir(dest);
+  const dirLabel = trainDirection(t);
   const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
   const statusLabel = t.cancelled ? 'supprimÃ©' : (t.status === 'ontime' ? "Ã¢ l'heure" : ('+ ' + t.delay + ' min de retard'));
   const formationLabel = t.length === 'long' ? 'Train long' : 'Train court';
@@ -210,7 +214,7 @@ function refreshTrainSheetLive(t) {
   const posEl = document.getElementById('train-info-pos-text');
   if (posEl) posEl.textContent = positionText(t);
   const dest = currentDestination(t);
-  const dirLabel = southDir(dest);
+  const dirLabel = trainDirection(t);
   const dirText = dirLabel === 'B' ? 'Direction Sud' : 'Direction Nord';
   sheetUpdated.textContent = dirText + ' â€" ' + currentOrigin(t) + ' â†' + dest;
 }
@@ -284,7 +288,7 @@ function animate(ts) {
     const [x, y] = pointAt(t, t.ci);
     if (!t.el) t.el = createTrainMarker(t);
     t.el.setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)})`);
-    const dirLabel = southDir(currentDestination(t));
+    const dirLabel = trainDirection(t);
     t.el.classList.remove('dirA', 'dirB');
     t.el.classList.add('dir' + dirLabel);
     t.el.classList.toggle('cancelled', !!t.cancelled);
@@ -303,7 +307,7 @@ requestAnimationFrame(animate);
 
 function createTrainMarker(t) {
   const g = document.createElementNS(NS, 'g');
-  g.setAttribute('class', 'train-marker dir' + southDir(currentDestination(t)));
+  g.setAttribute('class', 'train-marker dir' + trainDirection(t));
   g.setAttribute('tabindex', '0');
   g.setAttribute('role', 'button');
   const pulse = document.createElementNS(NS, 'circle');
