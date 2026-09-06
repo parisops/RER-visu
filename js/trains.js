@@ -245,6 +245,7 @@ function openTrainSheet(t) {
   sheet.classList.add('open');
   sheet.setAttribute('aria-hidden', 'false');
   updateScrollSpacer();
+  if (window.focusMapElement && t.el) window.focusMapElement(t.el);
 }
 
 function activateFollowing() {
@@ -315,6 +316,7 @@ function animate(ts) {
 
   // Un seul recentrage après avoir mis à jour tous les marqueurs.
   if (followActive && selectedTrain && selectedTrain.el) {
+    if (window.followMapTrain) window.followMapTrain(selectedTrain);
     scrollElIntoView(selectedTrain.el, false);
   }
 
