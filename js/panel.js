@@ -106,10 +106,12 @@ function scrollElIntoView(el, smooth){
   const headerH = headerEl ? headerEl.getBoundingClientRect().height : 0;
   const sheetH = sheet.getBoundingClientRect().height;
   const visibleH = Math.max(window.innerHeight - headerH - sheetH, 0);
-  const topPadding = Math.min(Math.max(visibleH * 0.32, 56), 140);
+  const topPadding = Math.min(visibleH / 2, 140);
   // L'origine du marqueur reste stable : son halo animé change sa bounding box.
   const matrix = el.classList.contains('train-marker') ? el.getScreenCTM() : null;
-  const anchorY = matrix ? matrix.f : el.getBoundingClientRect().top;
+  const station = el.querySelector ? el.querySelector('circle.main') : null;
+  const bounds = station ? station.getBoundingClientRect() : el.getBoundingClientRect();
+  const anchorY = matrix ? matrix.f : bounds.top + (bounds.height || 0) / 2;
   const targetY = window.scrollY + anchorY - headerH - topPadding;
   const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   const top = Math.min(maxScroll, Math.max(targetY, 0));
@@ -180,10 +182,12 @@ function openSheetFor(el){
   sheet.classList.add('open');
   sheet.setAttribute('aria-hidden','false');
   updateScrollSpacer();
-  scrollElIntoView(el, true);
+  if (window.focusMapElement) window.focusMapElement(el);
+  else scrollElIntoView(el, false);
 }
 
 function closeSheet(){
+  if (window.cancelMapFocus) window.cancelMapFocus();
   renderSheetToken++;
   sheet.classList.remove('open');
   sheet.setAttribute('aria-hidden','true');
