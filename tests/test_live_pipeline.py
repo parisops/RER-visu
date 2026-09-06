@@ -5,10 +5,11 @@ from tools.fetch_prim_departures import parse_departures, LINE_REF
 
 
 class PipelineTests(unittest.TestCase):
-    def departure(self, time, journey="journey-1"):
+    def departure(self, time, journey="journey-1", features=None):
         payload = {"Siri": {"ServiceDelivery": {"StopMonitoringDelivery": [{
             "MonitoredStopVisit": [{"MonitoredVehicleJourney": {
                 "LineRef": {"value": LINE_REF},
+                "VehicleFeatureRef": features or [],
                 "FramedVehicleJourneyRef": {"DatedVehicleJourneyRef": journey},
                 "JourneyNote": [{"value": "TEST"}],
                 "DestinationName": [{"value": "C"}],
@@ -17,6 +18,15 @@ class PipelineTests(unittest.TestCase):
             }}]
         }]}}}
         return parse_departures(payload)[0]
+
+    def test_train_length_is_preserved_without_inventing_car_count(self):
+        self.assertEqual(self.departure("2026-09-05T12:00:00Z", features=["longTrain"])["length"], "long")
+        self.assertEqual(self.departure("2026-09-05T12:00:00Z", features=[{"value":"shortTrain"}])["length"], "court")
+        self.assertIsNone(self.departure("2026-09-05T12:00:00Z")["length"])
+        trains = self.build({"s:0":{"departures":[self.departure("2026-09-05T12:00:00Z", features=["longTrain"])]},
+                             "s:1":{"departures":[self.departure("2026-09-05T12:02:00Z")]}})
+        self.assertEqual(trains[0]["length"], "long")
+        self.assertNotIn("cars", trains[0])
 
     def build(self, stations):
         data = {"generatedAt": "2026-09-05T12:01:00Z", "stations": stations}

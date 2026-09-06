@@ -146,9 +146,12 @@ def build_live_trains():
                 "trainNumber": dep.get("trainNumber"),
                 "dest": dep["dest"],
                 "dir": dep["dir"],
+                "length": dep.get("length"),
                 "stops": [],
             })
             entry["stops"].append(stop)
+            if dep.get("length"):
+                entry["length"] = dep["length"]
 
     trains = []
     for jref, entry in by_journey.items():
@@ -196,6 +199,7 @@ def build_live_trains():
             "trainNumber": entry["trainNumber"],
             "dest": entry["dest"],
             "dir": entry["dir"],
+            "length": entry["length"],
             "state": state,
             "cancelled": cancelled,
             "delay": reference_stop["delay"] if reference_stop else 0,
