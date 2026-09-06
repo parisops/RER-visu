@@ -49,12 +49,12 @@
     var x = clamp(cx - w / 2, BASE.x, BASE.x + BASE.w - w);
     var y = clamp(cy - h / 2, BASE.y, BASE.y + BASE.h - h);
     animateTo({ x: x, y: y, w: w, h: h });
-    setResetVisible(true);
   }
 
   function resetView() {
+    closeSheet();
     animateTo({ x: BASE.x, y: BASE.y, w: BASE.w, h: BASE.h });
-    setResetVisible(false);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
   var resetBtn = document.createElement('button');
@@ -63,21 +63,15 @@
   resetBtn.textContent = 'Vue d\'ensemble';
   resetBtn.setAttribute('aria-label', "Revenir a la vue d'ensemble de la ligne");
   resetBtn.style.cssText = [
-    'position:absolute', 'top:12px', 'right:12px', 'z-index:20',
-    'display:none', 'padding:8px 14px', 'border-radius:999px',
+    'margin-left:auto', 'flex-shrink:0',
+    'display:block', 'padding:8px 10px', 'border-radius:999px',
     'border:1px solid #d8d5cc', 'background:#ffffff', 'color:#20242b',
     'font-family:Inter, Helvetica Neue, Arial, sans-serif', 'font-size:13px',
     'font-weight:600', 'box-shadow:0 2px 8px rgba(0,0,0,0.12)', 'cursor:pointer'
   ].join(';');
-  if (getComputedStyle(card).position === 'static') {
-    card.style.position = 'relative';
-  }
-  card.appendChild(resetBtn);
+  document.querySelector('header').appendChild(resetBtn);
   resetBtn.addEventListener('click', resetView);
 
-  function setResetVisible(show) {
-    resetBtn.style.display = show ? 'block' : 'none';
-  }
 
   // Capture phase : se declenche avant les listeners existants sur .stop / .train-marker,
   // sans jamais appeler stopPropagation, donc le panneau (sheet) continue de s'ouvrir normalement.
