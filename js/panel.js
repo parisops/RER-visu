@@ -107,9 +107,12 @@ function scrollElIntoView(el, smooth){
   const sheetH = sheet.getBoundingClientRect().height;
   const visibleH = Math.max(window.innerHeight - headerH - sheetH, 0);
   const topPadding = Math.min(Math.max(visibleH * 0.32, 56), 140);
-  const rect = el.getBoundingClientRect();
-  const targetY = window.scrollY + rect.top - headerH - topPadding;
-  const top = Math.max(targetY, 0);
+  // L'origine du marqueur reste stable : son halo animé change sa bounding box.
+  const matrix = el.classList.contains('train-marker') ? el.getScreenCTM() : null;
+  const anchorY = matrix ? matrix.f : el.getBoundingClientRect().top;
+  const targetY = window.scrollY + anchorY - headerH - topPadding;
+  const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  const top = Math.min(maxScroll, Math.max(targetY, 0));
   suppressScrollCheck = 2;
   expectedScrollY = top;
   if(smooth){

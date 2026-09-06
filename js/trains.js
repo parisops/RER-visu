@@ -239,7 +239,7 @@ function activateFollowing() {
   followBtn.classList.add('active');
   followBtn.querySelector('.follow-label').textContent = 'Suivi en direct actif';
   if (selectedTrain && selectedTrain.el) selectedTrain.el.classList.add('following');
-  if (selectedTrain && selectedTrain.el) scrollElIntoView(selectedTrain.el, true);
+  if (selectedTrain && selectedTrain.el) scrollElIntoView(selectedTrain.el, false);
 }
 
 followBtn.addEventListener('click', () => {
@@ -298,8 +298,12 @@ function animate(ts) {
       routeHighlight.classList.remove('dirA', 'dirB');
       routeHighlight.classList.add('dir' + dirLabel);
     }
-    if (followActive && selectedTrain) scrollElIntoView(selectedTrain.el, false);
   });
+
+  // Un seul recentrage après avoir mis à jour tous les marqueurs.
+  if (followActive && selectedTrain && selectedTrain.el) {
+    scrollElIntoView(selectedTrain.el, false);
+  }
 
   requestAnimationFrame(animate);
 }
