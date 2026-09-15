@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15T17:18:19Z",
+  "generatedAt": "2026-09-15T17:21:15Z",
   "trains": [
     {
       "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::c737eb52-cfdb-42f3-8af2-fbafdad8fb07:LOC",
@@ -165,6 +165,14 @@
           "status": "onTime",
           "delay": 0,
           "platform": "D"
+        },
+        {
+          "station": "spine:26",
+          "scheduled": "2026-09-15T20:21:00.000Z",
+          "expected": "2026-09-15T20:21:00.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "E"
         }
       ],
       "route": "R2"
@@ -178,16 +186,8 @@
       "length": "long",
       "state": "enRoute",
       "cancelled": false,
-      "delay": 16,
+      "delay": 15,
       "from": {
-        "station": "spine:24",
-        "scheduled": "2026-09-15T16:58:50.000Z",
-        "expected": "2026-09-15T17:14:22.000Z",
-        "status": "delayed",
-        "delay": 16,
-        "platform": "1"
-      },
-      "to": {
         "station": "spine:25",
         "scheduled": "2026-09-15T17:03:20.000Z",
         "expected": "2026-09-15T17:18:52.000Z",
@@ -195,7 +195,15 @@
         "delay": 16,
         "platform": "D"
       },
-      "progress": 0.8777777777777778,
+      "to": {
+        "station": "spine:26",
+        "scheduled": "2026-09-15T17:06:40.000Z",
+        "expected": "2026-09-15T17:22:02.000Z",
+        "status": "delayed",
+        "delay": 15,
+        "platform": "E"
+      },
+      "progress": 0.7526315789473684,
       "stops": [
         {
           "station": "spine:16",
@@ -375,177 +383,154 @@
       "dest": "Brétigny",
       "dir": "B",
       "length": "long",
-      "state": "enRoute",
+      "state": "notStarted",
       "cancelled": false,
-      "delay": 21,
-      "from": {
-        "station": "spine:27",
-        "scheduled": "2026-09-15T16:54:50.000Z",
-        "expected": "2026-09-15T17:16:15.000Z",
-        "status": "onTime",
-        "delay": 21,
-        "platform": "1B"
-      },
+      "delay": 50,
+      "from": null,
       "to": {
-        "station": "spine:28",
-        "scheduled": "2026-09-15T16:57:20.000Z",
-        "expected": "2026-09-15T17:18:45.000Z",
+        "station": "spine:19",
+        "scheduled": "2026-09-15T16:31:10.000Z",
+        "expected": "2026-09-15T17:21:31.000Z",
         "status": "onTime",
-        "delay": 21,
-        "platform": "1B"
+        "delay": 50,
+        "platform": "1"
       },
-      "progress": 0.8266666666666667,
+      "progress": 0.0,
       "stops": [
-        {
-          "station": "spine:17",
-          "scheduled": "2026-09-15T16:26:50.000Z",
-          "expected": "2026-09-15T16:48:55.000Z",
-          "status": "onTime",
-          "delay": 22,
-          "platform": "1"
-        },
-        {
-          "station": "spine:18",
-          "scheduled": "2026-09-15T16:29:10.000Z",
-          "expected": "2026-09-15T16:50:45.000Z",
-          "status": "onTime",
-          "delay": 22,
-          "platform": "1"
-        },
         {
           "station": "spine:19",
           "scheduled": "2026-09-15T16:31:10.000Z",
-          "expected": "2026-09-15T16:52:45.000Z",
+          "expected": "2026-09-15T17:21:31.000Z",
           "status": "onTime",
-          "delay": 22,
+          "delay": 50,
           "platform": "1"
         },
         {
           "station": "spine:20",
           "scheduled": "2026-09-15T16:33:30.000Z",
-          "expected": "2026-09-15T16:55:05.000Z",
+          "expected": "2026-09-15T17:23:51.000Z",
           "status": "onTime",
-          "delay": 22,
+          "delay": 50,
           "platform": "1"
         },
         {
           "station": "spine:21",
           "scheduled": "2026-09-15T16:35:40.000Z",
-          "expected": "2026-09-15T16:57:15.000Z",
+          "expected": "2026-09-15T17:26:01.000Z",
           "status": "onTime",
-          "delay": 22,
+          "delay": 50,
           "platform": "1"
         },
         {
           "station": "spine:22",
           "scheduled": "2026-09-15T16:38:10.000Z",
-          "expected": "2026-09-15T16:59:45.000Z",
+          "expected": "2026-09-15T17:28:31.000Z",
           "status": "onTime",
-          "delay": 22,
+          "delay": 50,
           "platform": "3"
         },
         {
           "station": "spine:23",
           "scheduled": "2026-09-15T16:40:30.000Z",
-          "expected": "2026-09-15T17:02:05.000Z",
+          "expected": "2026-09-15T17:30:51.000Z",
           "status": "onTime",
-          "delay": 22,
+          "delay": 50,
           "platform": "3"
         },
         {
           "station": "spine:25",
           "scheduled": "2026-09-15T16:48:20.000Z",
-          "expected": "2026-09-15T17:09:55.000Z",
+          "expected": "2026-09-15T17:38:41.000Z",
           "status": "onTime",
-          "delay": 22,
+          "delay": 50,
           "platform": "D"
         },
         {
           "station": "spine:26",
           "scheduled": "2026-09-15T16:51:40.000Z",
-          "expected": "2026-09-15T17:13:05.000Z",
+          "expected": "2026-09-15T17:41:51.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "E"
         },
         {
           "station": "spine:27",
           "scheduled": "2026-09-15T16:54:50.000Z",
-          "expected": "2026-09-15T17:16:15.000Z",
+          "expected": "2026-09-15T17:45:01.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "1B"
         },
         {
           "station": "spine:28",
           "scheduled": "2026-09-15T16:57:20.000Z",
-          "expected": "2026-09-15T17:18:45.000Z",
+          "expected": "2026-09-15T17:47:31.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "1B"
         },
         {
           "station": "spine:29",
           "scheduled": "2026-09-15T17:00:10.000Z",
-          "expected": "2026-09-15T17:21:35.000Z",
+          "expected": "2026-09-15T17:50:21.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "1B"
         },
         {
           "station": "spine:30",
           "scheduled": "2026-09-15T17:03:20.000Z",
-          "expected": "2026-09-15T17:24:45.000Z",
+          "expected": "2026-09-15T17:53:31.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "1B"
         },
         {
           "station": "spine:34",
           "scheduled": "2026-09-15T17:11:10.000Z",
-          "expected": "2026-09-15T17:32:05.000Z",
+          "expected": "2026-09-15T18:00:51.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "45"
         },
         {
           "station": "spine:35",
           "scheduled": "2026-09-15T17:14:40.000Z",
-          "expected": "2026-09-15T17:35:35.000Z",
+          "expected": "2026-09-15T18:04:21.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "1B"
         },
         {
           "station": "spine:36",
           "scheduled": "2026-09-15T17:17:30.000Z",
-          "expected": "2026-09-15T17:38:25.000Z",
+          "expected": "2026-09-15T18:07:11.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "1B"
         },
         {
           "station": "spine:37",
           "scheduled": "2026-09-15T17:20:30.000Z",
-          "expected": "2026-09-15T17:41:25.000Z",
+          "expected": "2026-09-15T18:10:11.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "1b"
         },
         {
           "station": "spine:38",
           "scheduled": "2026-09-15T17:23:20.000Z",
-          "expected": "2026-09-15T17:44:15.000Z",
+          "expected": "2026-09-15T18:13:01.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "1B"
         },
         {
           "station": "spine:39",
           "scheduled": "2026-09-15T17:27:00.000Z",
-          "expected": "2026-09-15T17:47:55.000Z",
+          "expected": "2026-09-15T18:16:41.000Z",
           "status": "onTime",
-          "delay": 21,
+          "delay": 50,
           "platform": "5"
         }
       ],
@@ -558,137 +543,130 @@
       "dest": "Brétigny",
       "dir": "B",
       "length": "long",
-      "state": "enRoute",
+      "state": "notStarted",
       "cancelled": false,
-      "delay": 54,
-      "from": {
-        "station": "spine:22",
-        "scheduled": "2026-09-15T16:23:10.000Z",
-        "expected": "2026-09-15T17:17:39.000Z",
-        "status": "onTime",
-        "delay": 54,
-        "platform": "1"
-      },
+      "delay": 58,
+      "from": null,
       "to": {
         "station": "spine:23",
         "scheduled": "2026-09-15T16:25:30.000Z",
-        "expected": "2026-09-15T17:19:59.000Z",
+        "expected": "2026-09-15T17:23:08.000Z",
         "status": "onTime",
-        "delay": 54,
+        "delay": 58,
         "platform": "3"
       },
-      "progress": 0.2857142857142857,
+      "progress": 0.0,
       "stops": [
-        {
-          "station": "spine:22",
-          "scheduled": "2026-09-15T16:23:10.000Z",
-          "expected": "2026-09-15T17:17:39.000Z",
-          "status": "onTime",
-          "delay": 54,
-          "platform": "1"
-        },
         {
           "station": "spine:23",
           "scheduled": "2026-09-15T16:25:30.000Z",
-          "expected": "2026-09-15T17:19:59.000Z",
+          "expected": "2026-09-15T17:23:08.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 58,
           "platform": "3"
+        },
+        {
+          "station": "spine:24",
+          "scheduled": "2026-09-15T16:28:50.000Z",
+          "expected": "2026-09-15T17:26:08.000Z",
+          "status": "onTime",
+          "delay": 57,
+          "platform": "1"
         },
         {
           "station": "spine:25",
           "scheduled": "2026-09-15T16:33:20.000Z",
-          "expected": "2026-09-15T17:27:49.000Z",
+          "expected": "2026-09-15T17:30:58.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 58,
           "platform": "D"
         },
         {
           "station": "spine:26",
           "scheduled": "2026-09-15T16:36:40.000Z",
-          "expected": "2026-09-15T17:30:59.000Z",
+          "expected": "2026-09-15T17:34:08.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "E"
         },
         {
           "station": "spine:27",
           "scheduled": "2026-09-15T16:39:50.000Z",
-          "expected": "2026-09-15T17:34:09.000Z",
+          "expected": "2026-09-15T17:37:18.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "1B"
         },
         {
           "station": "spine:28",
           "scheduled": "2026-09-15T16:42:20.000Z",
-          "expected": "2026-09-15T17:36:39.000Z",
+          "expected": "2026-09-15T17:39:48.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "1B"
         },
         {
           "station": "spine:29",
           "scheduled": "2026-09-15T16:45:10.000Z",
-          "expected": "2026-09-15T17:39:29.000Z",
+          "expected": "2026-09-15T17:42:38.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "1B"
         },
         {
           "station": "spine:30",
           "scheduled": "2026-09-15T16:48:20.000Z",
-          "expected": "2026-09-15T17:42:39.000Z",
+          "expected": "2026-09-15T17:45:48.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "1B"
         },
         {
           "station": "spine:34",
           "scheduled": "2026-09-15T16:56:00.000Z",
-          "expected": "2026-09-15T17:49:49.000Z",
+          "expected": "2026-09-15T17:52:58.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "45"
         },
         {
           "station": "spine:35",
           "scheduled": "2026-09-15T16:59:40.000Z",
-          "expected": "2026-09-15T17:53:29.000Z",
+          "expected": "2026-09-15T17:56:38.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "1B"
         },
         {
           "station": "spine:36",
           "scheduled": "2026-09-15T17:02:30.000Z",
-          "expected": "2026-09-15T17:56:19.000Z",
+          "expected": "2026-09-15T17:59:28.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "1B"
         },
         {
           "station": "spine:37",
           "scheduled": "2026-09-15T17:05:30.000Z",
-          "expected": "2026-09-15T17:59:19.000Z",
+          "expected": "2026-09-15T18:02:28.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "1b"
         },
         {
           "station": "spine:38",
           "scheduled": "2026-09-15T17:08:20.000Z",
-          "expected": "2026-09-15T18:02:09.000Z",
+          "expected": "2026-09-15T18:05:18.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "1B"
         },
         {
           "station": "spine:39",
           "scheduled": "2026-09-15T17:12:00.000Z",
-          "expected": "2026-09-15T18:05:49.000Z",
+          "expected": "2026-09-15T18:08:58.000Z",
           "status": "onTime",
-          "delay": 54,
+          "delay": 57,
           "platform": "5"
         }
       ],
@@ -706,9 +684,9 @@
       "delay": 56,
       "from": null,
       "to": {
-        "station": "spine:27",
-        "scheduled": "2026-09-15T16:24:50.000Z",
-        "expected": "2026-09-15T17:20:30.000Z",
+        "station": "spine:28",
+        "scheduled": "2026-09-15T16:27:20.000Z",
+        "expected": "2026-09-15T17:23:02.000Z",
         "status": "onTime",
         "delay": 56,
         "platform": "1B"
@@ -716,17 +694,9 @@
       "progress": 0.0,
       "stops": [
         {
-          "station": "spine:27",
-          "scheduled": "2026-09-15T16:24:50.000Z",
-          "expected": "2026-09-15T17:20:30.000Z",
-          "status": "onTime",
-          "delay": 56,
-          "platform": "1B"
-        },
-        {
           "station": "spine:28",
           "scheduled": "2026-09-15T16:27:20.000Z",
-          "expected": "2026-09-15T17:23:00.000Z",
+          "expected": "2026-09-15T17:23:02.000Z",
           "status": "onTime",
           "delay": 56,
           "platform": "1B"
@@ -734,7 +704,7 @@
         {
           "station": "spine:29",
           "scheduled": "2026-09-15T16:30:10.000Z",
-          "expected": "2026-09-15T17:25:50.000Z",
+          "expected": "2026-09-15T17:25:52.000Z",
           "status": "onTime",
           "delay": 56,
           "platform": "1B"
@@ -742,7 +712,7 @@
         {
           "station": "spine:30",
           "scheduled": "2026-09-15T16:33:20.000Z",
-          "expected": "2026-09-15T17:29:00.000Z",
+          "expected": "2026-09-15T17:29:02.000Z",
           "status": "onTime",
           "delay": 56,
           "platform": "1B"
@@ -750,7 +720,7 @@
         {
           "station": "spine:34",
           "scheduled": "2026-09-15T16:41:00.000Z",
-          "expected": "2026-09-15T17:36:10.000Z",
+          "expected": "2026-09-15T17:36:12.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "45"
@@ -758,7 +728,7 @@
         {
           "station": "spine:35",
           "scheduled": "2026-09-15T16:44:40.000Z",
-          "expected": "2026-09-15T17:39:50.000Z",
+          "expected": "2026-09-15T17:39:52.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1B"
@@ -766,7 +736,7 @@
         {
           "station": "spine:36",
           "scheduled": "2026-09-15T16:47:30.000Z",
-          "expected": "2026-09-15T17:42:40.000Z",
+          "expected": "2026-09-15T17:42:42.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1B"
@@ -774,7 +744,7 @@
         {
           "station": "spine:37",
           "scheduled": "2026-09-15T16:50:30.000Z",
-          "expected": "2026-09-15T17:45:40.000Z",
+          "expected": "2026-09-15T17:45:42.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1b"
@@ -782,7 +752,7 @@
         {
           "station": "spine:38",
           "scheduled": "2026-09-15T16:53:20.000Z",
-          "expected": "2026-09-15T17:48:30.000Z",
+          "expected": "2026-09-15T17:48:32.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1B"
@@ -790,7 +760,7 @@
         {
           "station": "spine:39",
           "scheduled": "2026-09-15T16:57:00.000Z",
-          "expected": "2026-09-15T17:52:10.000Z",
+          "expected": "2026-09-15T17:52:12.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "5"
@@ -807,14 +777,14 @@
       "length": "long",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 13,
+      "delay": 14,
       "from": null,
       "to": {
         "station": "spine:39",
         "scheduled": "2026-09-15T17:09:50.000Z",
-        "expected": "2026-09-15T17:22:27.000Z",
+        "expected": "2026-09-15T17:23:37.000Z",
         "status": "onTime",
-        "delay": 13,
+        "delay": 14,
         "platform": "3"
       },
       "progress": 0.0,
@@ -822,73 +792,73 @@
         {
           "station": "spine:39",
           "scheduled": "2026-09-15T17:09:50.000Z",
-          "expected": "2026-09-15T17:22:27.000Z",
+          "expected": "2026-09-15T17:23:37.000Z",
           "status": "onTime",
-          "delay": 13,
+          "delay": 14,
           "platform": "3"
         },
         {
           "station": "dourdan:0",
           "scheduled": "2026-09-15T17:14:20.000Z",
-          "expected": "2026-09-15T17:25:35.000Z",
+          "expected": "2026-09-15T17:27:27.000Z",
           "status": "onTime",
-          "delay": 11,
+          "delay": 13,
           "platform": "1"
         },
         {
           "station": "dourdan:1",
           "scheduled": "2026-09-15T17:17:20.000Z",
-          "expected": "2026-09-15T17:28:35.000Z",
+          "expected": "2026-09-15T17:30:27.000Z",
           "status": "onTime",
-          "delay": 11,
+          "delay": 13,
           "platform": "1"
         },
         {
           "station": "dourdan:2",
           "scheduled": "2026-09-15T17:19:40.000Z",
-          "expected": "2026-09-15T17:30:55.000Z",
+          "expected": "2026-09-15T17:32:47.000Z",
           "status": "onTime",
-          "delay": 11,
+          "delay": 13,
           "platform": "1"
         },
         {
           "station": "dourdan:3",
           "scheduled": "2026-09-15T17:22:50.000Z",
-          "expected": "2026-09-15T17:34:05.000Z",
+          "expected": "2026-09-15T17:35:57.000Z",
           "status": "onTime",
-          "delay": 11,
+          "delay": 13,
           "platform": "1"
         },
         {
           "station": "dourdan:4",
           "scheduled": "2026-09-15T17:26:00.000Z",
-          "expected": "2026-09-15T17:37:15.000Z",
+          "expected": "2026-09-15T17:39:07.000Z",
           "status": "onTime",
-          "delay": 11,
+          "delay": 13,
           "platform": "1"
         },
         {
           "station": "dourdan:5",
           "scheduled": "2026-09-15T17:30:10.000Z",
-          "expected": "2026-09-15T17:41:25.000Z",
+          "expected": "2026-09-15T17:42:37.000Z",
           "status": "onTime",
-          "delay": 11,
+          "delay": 12,
           "platform": "1"
         },
         {
           "station": "dourdan:6",
           "scheduled": "2026-09-15T17:34:10.000Z",
-          "expected": "2026-09-15T17:45:25.000Z",
+          "expected": "2026-09-15T17:46:37.000Z",
           "status": "onTime",
-          "delay": 11,
+          "delay": 12,
           "platform": "1"
         },
         {
           "station": "dourdan:7",
           "scheduled": "2026-09-15T17:39:10.000Z",
-          "expected": "2026-09-15T17:50:25.000Z",
+          "expected": "2026-09-15T17:51:37.000Z",
           "status": "onTime",
-          "delay": 11,
+          "delay": 12,
           "platform": "2B"
         }
       ],
@@ -1423,6 +1393,142 @@
       "route": "R2"
     },
     {
+      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::63e028a6-2204-47d1-9494-a6dc1f52c8ca:LOC",
+      "code": "DELI",
+      "trainNumber": "147848",
+      "dest": "Dourdan",
+      "dir": "B",
+      "length": "long",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 60,
+      "from": null,
+      "to": {
+        "station": "spine:23",
+        "scheduled": "2026-09-15T16:22:20.000Z",
+        "expected": "2026-09-15T17:21:59.000Z",
+        "status": "onTime",
+        "delay": 60,
+        "platform": "3"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:23",
+          "scheduled": "2026-09-15T16:22:20.000Z",
+          "expected": "2026-09-15T17:21:59.000Z",
+          "status": "onTime",
+          "delay": 60,
+          "platform": "3"
+        },
+        {
+          "station": "spine:24",
+          "scheduled": "2026-09-15T16:25:50.000Z",
+          "expected": "2026-09-15T17:25:09.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "1"
+        },
+        {
+          "station": "spine:25",
+          "scheduled": "2026-09-15T16:30:20.000Z",
+          "expected": "2026-09-15T17:29:59.000Z",
+          "status": "onTime",
+          "delay": 60,
+          "platform": "E"
+        },
+        {
+          "station": "spine:26",
+          "scheduled": "2026-09-15T16:34:20.000Z",
+          "expected": "2026-09-15T17:33:39.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "F"
+        },
+        {
+          "station": "spine:34",
+          "scheduled": "2026-09-15T16:45:50.000Z",
+          "expected": "2026-09-15T17:45:09.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "44"
+        },
+        {
+          "station": "spine:39",
+          "scheduled": "2026-09-15T16:54:50.000Z",
+          "expected": "2026-09-15T17:54:09.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "3"
+        },
+        {
+          "station": "dourdan:0",
+          "scheduled": "2026-09-15T16:59:20.000Z",
+          "expected": "2026-09-15T17:58:39.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "1"
+        },
+        {
+          "station": "dourdan:1",
+          "scheduled": "2026-09-15T17:02:20.000Z",
+          "expected": "2026-09-15T18:01:39.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "1"
+        },
+        {
+          "station": "dourdan:2",
+          "scheduled": "2026-09-15T17:04:40.000Z",
+          "expected": "2026-09-15T18:03:59.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "1"
+        },
+        {
+          "station": "dourdan:3",
+          "scheduled": "2026-09-15T17:07:50.000Z",
+          "expected": "2026-09-15T18:07:09.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "1"
+        },
+        {
+          "station": "dourdan:4",
+          "scheduled": "2026-09-15T17:11:00.000Z",
+          "expected": "2026-09-15T18:10:19.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "1"
+        },
+        {
+          "station": "dourdan:5",
+          "scheduled": "2026-09-15T17:15:10.000Z",
+          "expected": "2026-09-15T18:14:29.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "1"
+        },
+        {
+          "station": "dourdan:6",
+          "scheduled": "2026-09-15T17:19:10.000Z",
+          "expected": "2026-09-15T18:18:29.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "1"
+        },
+        {
+          "station": "dourdan:7",
+          "scheduled": "2026-09-15T17:24:10.000Z",
+          "expected": "2026-09-15T18:23:29.000Z",
+          "status": "onTime",
+          "delay": 59,
+          "platform": "2"
+        }
+      ],
+      "route": "R2"
+    },
+    {
       "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::866f364f-0732-4504-a0f1-f15424da3cb0:LOC",
       "code": "ELAO",
       "trainNumber": "147449",
@@ -1431,14 +1537,14 @@
       "length": "long",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 63,
+      "delay": 64,
       "from": null,
       "to": {
         "station": "spine:25",
         "scheduled": "2026-09-15T16:22:10.000Z",
-        "expected": "2026-09-15T17:25:10.000Z",
+        "expected": "2026-09-15T17:25:41.000Z",
         "status": "onTime",
-        "delay": 63,
+        "delay": 64,
         "platform": "D"
       },
       "progress": 0.0,
@@ -1446,15 +1552,15 @@
         {
           "station": "spine:25",
           "scheduled": "2026-09-15T16:22:10.000Z",
-          "expected": "2026-09-15T17:25:10.000Z",
+          "expected": "2026-09-15T17:25:41.000Z",
           "status": "onTime",
-          "delay": 63,
+          "delay": 64,
           "platform": "D"
         },
         {
           "station": "spine:26",
           "scheduled": "2026-09-15T16:27:10.000Z",
-          "expected": "2026-09-15T17:29:50.000Z",
+          "expected": "2026-09-15T17:30:21.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "E"
@@ -1462,7 +1568,7 @@
         {
           "station": "spine:34",
           "scheduled": "2026-09-15T16:38:30.000Z",
-          "expected": "2026-09-15T17:41:10.000Z",
+          "expected": "2026-09-15T17:41:41.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "44"
@@ -1470,7 +1576,7 @@
         {
           "station": "spine:39",
           "scheduled": "2026-09-15T16:46:50.000Z",
-          "expected": "2026-09-15T17:49:30.000Z",
+          "expected": "2026-09-15T17:50:01.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "3"
@@ -1478,7 +1584,7 @@
         {
           "station": "etampes:0",
           "scheduled": "2026-09-15T16:51:20.000Z",
-          "expected": "2026-09-15T17:54:00.000Z",
+          "expected": "2026-09-15T17:54:31.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "1B"
@@ -1486,7 +1592,7 @@
         {
           "station": "etampes:1",
           "scheduled": "2026-09-15T16:55:30.000Z",
-          "expected": "2026-09-15T17:58:10.000Z",
+          "expected": "2026-09-15T17:58:41.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "1B"
@@ -1494,7 +1600,7 @@
         {
           "station": "etampes:2",
           "scheduled": "2026-09-15T16:59:20.000Z",
-          "expected": "2026-09-15T18:02:00.000Z",
+          "expected": "2026-09-15T18:02:31.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "1B"
@@ -1502,7 +1608,7 @@
         {
           "station": "etampes:3",
           "scheduled": "2026-09-15T17:03:10.000Z",
-          "expected": "2026-09-15T18:05:50.000Z",
+          "expected": "2026-09-15T18:06:21.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "1B"
@@ -1510,7 +1616,7 @@
         {
           "station": "etampes:4",
           "scheduled": "2026-09-15T17:06:40.000Z",
-          "expected": "2026-09-15T18:09:20.000Z",
+          "expected": "2026-09-15T18:09:51.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "1B"
@@ -1518,7 +1624,7 @@
         {
           "station": "etampes:5",
           "scheduled": "2026-09-15T17:13:40.000Z",
-          "expected": "2026-09-15T18:16:20.000Z",
+          "expected": "2026-09-15T18:16:51.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "3"
@@ -1526,7 +1632,7 @@
         {
           "station": "etampes:6",
           "scheduled": "2026-09-15T17:15:50.000Z",
-          "expected": "2026-09-15T18:18:30.000Z",
+          "expected": "2026-09-15T18:19:01.000Z",
           "status": "onTime",
           "delay": 63,
           "platform": "SM"
@@ -1546,27 +1652,19 @@
       "delay": 55,
       "from": null,
       "to": {
-        "station": "spine:21",
-        "scheduled": "2026-09-15T16:23:40.000Z",
-        "expected": "2026-09-15T17:18:41.000Z",
+        "station": "spine:22",
+        "scheduled": "2026-09-15T16:26:20.000Z",
+        "expected": "2026-09-15T17:21:32.000Z",
         "status": "onTime",
         "delay": 55,
-        "platform": "1"
+        "platform": "3"
       },
       "progress": 0.0,
       "stops": [
         {
-          "station": "spine:21",
-          "scheduled": "2026-09-15T16:23:40.000Z",
-          "expected": "2026-09-15T17:18:41.000Z",
-          "status": "onTime",
-          "delay": 55,
-          "platform": "1"
-        },
-        {
           "station": "spine:22",
           "scheduled": "2026-09-15T16:26:20.000Z",
-          "expected": "2026-09-15T17:21:21.000Z",
+          "expected": "2026-09-15T17:21:32.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "3"
@@ -1574,15 +1672,23 @@
         {
           "station": "spine:23",
           "scheduled": "2026-09-15T16:28:50.000Z",
-          "expected": "2026-09-15T17:23:51.000Z",
+          "expected": "2026-09-15T17:24:02.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1"
         },
         {
+          "station": "spine:24",
+          "scheduled": "2026-09-15T16:32:30.000Z",
+          "expected": "2026-09-15T17:26:52.000Z",
+          "status": "onTime",
+          "delay": 54,
+          "platform": "1"
+        },
+        {
           "station": "spine:25",
           "scheduled": "2026-09-15T16:37:10.000Z",
-          "expected": "2026-09-15T17:32:11.000Z",
+          "expected": "2026-09-15T17:32:22.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "D"
@@ -1590,7 +1696,7 @@
         {
           "station": "spine:26",
           "scheduled": "2026-09-15T16:42:10.000Z",
-          "expected": "2026-09-15T17:36:51.000Z",
+          "expected": "2026-09-15T17:37:02.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "E"
@@ -1598,7 +1704,7 @@
         {
           "station": "spine:34",
           "scheduled": "2026-09-15T16:53:00.000Z",
-          "expected": "2026-09-15T17:47:41.000Z",
+          "expected": "2026-09-15T17:47:52.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "44"
@@ -1606,7 +1712,7 @@
         {
           "station": "spine:39",
           "scheduled": "2026-09-15T17:01:20.000Z",
-          "expected": "2026-09-15T17:56:01.000Z",
+          "expected": "2026-09-15T17:56:12.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "3"
@@ -1614,7 +1720,7 @@
         {
           "station": "etampes:0",
           "scheduled": "2026-09-15T17:06:20.000Z",
-          "expected": "2026-09-15T18:01:01.000Z",
+          "expected": "2026-09-15T18:01:12.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1B"
@@ -1622,7 +1728,7 @@
         {
           "station": "etampes:1",
           "scheduled": "2026-09-15T17:10:30.000Z",
-          "expected": "2026-09-15T18:05:11.000Z",
+          "expected": "2026-09-15T18:05:22.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1B"
@@ -1630,7 +1736,7 @@
         {
           "station": "etampes:2",
           "scheduled": "2026-09-15T17:14:20.000Z",
-          "expected": "2026-09-15T18:09:01.000Z",
+          "expected": "2026-09-15T18:09:12.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1B"
@@ -1638,7 +1744,7 @@
         {
           "station": "etampes:3",
           "scheduled": "2026-09-15T17:18:10.000Z",
-          "expected": "2026-09-15T18:12:51.000Z",
+          "expected": "2026-09-15T18:13:02.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1B"
@@ -1646,7 +1752,7 @@
         {
           "station": "etampes:4",
           "scheduled": "2026-09-15T17:21:40.000Z",
-          "expected": "2026-09-15T18:16:21.000Z",
+          "expected": "2026-09-15T18:16:32.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "1B"
@@ -1654,7 +1760,7 @@
         {
           "station": "etampes:5",
           "scheduled": "2026-09-15T17:28:40.000Z",
-          "expected": "2026-09-15T18:23:21.000Z",
+          "expected": "2026-09-15T18:23:32.000Z",
           "status": "onTime",
           "delay": 55,
           "platform": "3"
@@ -1662,128 +1768,9 @@
         {
           "station": "etampes:6",
           "scheduled": "2026-09-15T17:30:50.000Z",
-          "expected": "2026-09-15T18:25:31.000Z",
+          "expected": "2026-09-15T18:25:42.000Z",
           "status": "onTime",
           "delay": 55,
-          "platform": "SM"
-        }
-      ],
-      "route": "R3"
-    },
-    {
-      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::4702328c-4892-419b-a0f0-ec1c77048cca:LOC",
-      "code": "ELAO",
-      "trainNumber": "147453",
-      "dest": "Saint-Martin d'Étampes",
-      "dir": "B",
-      "length": "long",
-      "state": "enRoute",
-      "cancelled": false,
-      "delay": 2,
-      "from": {
-        "station": "spine:34",
-        "scheduled": "2026-09-15T17:08:00.000Z",
-        "expected": "2026-09-15T17:10:01.000Z",
-        "status": "delayed",
-        "delay": 2,
-        "platform": "44"
-      },
-      "to": {
-        "station": "spine:39",
-        "scheduled": "2026-09-15T17:16:20.000Z",
-        "expected": "2026-09-15T17:18:21.000Z",
-        "status": "delayed",
-        "delay": 2,
-        "platform": "3"
-      },
-      "progress": 0.996,
-      "stops": [
-        {
-          "station": "spine:25",
-          "scheduled": "2026-09-15T16:52:10.000Z",
-          "expected": "2026-09-15T16:54:31.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "D"
-        },
-        {
-          "station": "spine:26",
-          "scheduled": "2026-09-15T16:57:10.000Z",
-          "expected": "2026-09-15T16:59:11.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "E"
-        },
-        {
-          "station": "spine:34",
-          "scheduled": "2026-09-15T17:08:00.000Z",
-          "expected": "2026-09-15T17:10:01.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "44"
-        },
-        {
-          "station": "spine:39",
-          "scheduled": "2026-09-15T17:16:20.000Z",
-          "expected": "2026-09-15T17:18:21.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "3"
-        },
-        {
-          "station": "etampes:0",
-          "scheduled": "2026-09-15T17:21:20.000Z",
-          "expected": "2026-09-15T17:23:21.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:1",
-          "scheduled": "2026-09-15T17:25:30.000Z",
-          "expected": "2026-09-15T17:27:31.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:2",
-          "scheduled": "2026-09-15T17:29:20.000Z",
-          "expected": "2026-09-15T17:31:21.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:3",
-          "scheduled": "2026-09-15T17:33:10.000Z",
-          "expected": "2026-09-15T17:35:11.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:4",
-          "scheduled": "2026-09-15T17:36:40.000Z",
-          "expected": "2026-09-15T17:38:41.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:5",
-          "scheduled": "2026-09-15T17:43:40.000Z",
-          "expected": "2026-09-15T17:45:41.000Z",
-          "status": "delayed",
-          "delay": 2,
-          "platform": "3"
-        },
-        {
-          "station": "etampes:6",
-          "scheduled": "2026-09-15T17:45:50.000Z",
-          "expected": "2026-09-15T17:47:51.000Z",
-          "status": "delayed",
-          "delay": 2,
           "platform": "SM"
         }
       ],
@@ -1798,14 +1785,14 @@
       "length": "long",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 4,
+      "delay": 7,
       "from": null,
       "to": {
         "station": "spine:34",
         "scheduled": "2026-09-15T17:22:50.000Z",
-        "expected": "2026-09-15T17:27:10.000Z",
+        "expected": "2026-09-15T17:29:50.000Z",
         "status": "onTime",
-        "delay": 4,
+        "delay": 7,
         "platform": "44"
       },
       "progress": 0.0,
@@ -1813,73 +1800,73 @@
         {
           "station": "spine:34",
           "scheduled": "2026-09-15T17:22:50.000Z",
-          "expected": "2026-09-15T17:27:10.000Z",
+          "expected": "2026-09-15T17:29:50.000Z",
           "status": "onTime",
-          "delay": 4,
+          "delay": 7,
           "platform": "44"
         },
         {
           "station": "spine:39",
           "scheduled": "2026-09-15T17:31:00.000Z",
-          "expected": "2026-09-15T17:37:21.000Z",
+          "expected": "2026-09-15T17:37:57.000Z",
           "status": "onTime",
-          "delay": 6,
+          "delay": 7,
           "platform": "3"
         },
         {
           "station": "etampes:0",
           "scheduled": "2026-09-15T17:36:10.000Z",
-          "expected": "2026-09-15T17:40:30.000Z",
+          "expected": "2026-09-15T17:42:31.000Z",
           "status": "onTime",
-          "delay": 4,
+          "delay": 6,
           "platform": "1B"
         },
         {
           "station": "etampes:1",
           "scheduled": "2026-09-15T17:40:20.000Z",
-          "expected": "2026-09-15T17:44:40.000Z",
+          "expected": "2026-09-15T17:47:20.000Z",
           "status": "onTime",
-          "delay": 4,
+          "delay": 7,
           "platform": "1B"
         },
         {
           "station": "etampes:2",
           "scheduled": "2026-09-15T17:44:10.000Z",
-          "expected": "2026-09-15T17:48:30.000Z",
+          "expected": "2026-09-15T17:50:31.000Z",
           "status": "onTime",
-          "delay": 4,
+          "delay": 6,
           "platform": "1B"
         },
         {
           "station": "etampes:3",
           "scheduled": "2026-09-15T17:48:10.000Z",
-          "expected": "2026-09-15T17:52:30.000Z",
+          "expected": "2026-09-15T17:55:10.000Z",
           "status": "onTime",
-          "delay": 4,
+          "delay": 7,
           "platform": "1B"
         },
         {
           "station": "etampes:4",
           "scheduled": "2026-09-15T17:51:40.000Z",
-          "expected": "2026-09-15T17:56:00.000Z",
+          "expected": "2026-09-15T17:58:40.000Z",
           "status": "onTime",
-          "delay": 4,
+          "delay": 7,
           "platform": "1B"
         },
         {
           "station": "etampes:5",
           "scheduled": "2026-09-15T17:58:40.000Z",
-          "expected": "2026-09-15T18:03:00.000Z",
+          "expected": "2026-09-15T18:05:40.000Z",
           "status": "onTime",
-          "delay": 4,
+          "delay": 7,
           "platform": "3"
         },
         {
           "station": "etampes:6",
           "scheduled": "2026-09-15T18:00:50.000Z",
-          "expected": "2026-09-15T18:05:10.000Z",
+          "expected": "2026-09-15T18:07:50.000Z",
           "status": "onTime",
-          "delay": 4,
+          "delay": 7,
           "platform": "SM"
         }
       ],
@@ -1894,14 +1881,14 @@
       "length": "long",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 10,
+      "delay": 13,
       "from": null,
       "to": {
         "station": "spine:22",
         "scheduled": "2026-09-15T17:08:10.000Z",
-        "expected": "2026-09-15T17:18:30.000Z",
+        "expected": "2026-09-15T17:21:30.000Z",
         "status": "delayed",
-        "delay": 10,
+        "delay": 13,
         "platform": "3"
       },
       "progress": 0.0,
@@ -1909,137 +1896,145 @@
         {
           "station": "spine:22",
           "scheduled": "2026-09-15T17:08:10.000Z",
-          "expected": "2026-09-15T17:18:30.000Z",
+          "expected": "2026-09-15T17:21:30.000Z",
           "status": "delayed",
-          "delay": 10,
+          "delay": 13,
           "platform": "3"
         },
         {
           "station": "spine:23",
           "scheduled": "2026-09-15T17:10:40.000Z",
-          "expected": "2026-09-15T17:21:00.000Z",
+          "expected": "2026-09-15T17:24:00.000Z",
           "status": "delayed",
-          "delay": 10,
+          "delay": 13,
+          "platform": "1"
+        },
+        {
+          "station": "spine:24",
+          "scheduled": "2026-09-15T17:14:10.000Z",
+          "expected": "2026-09-15T17:27:10.000Z",
+          "status": "delayed",
+          "delay": 13,
           "platform": "1"
         },
         {
           "station": "spine:25",
           "scheduled": "2026-09-15T17:18:40.000Z",
-          "expected": "2026-09-15T17:29:00.000Z",
+          "expected": "2026-09-15T17:31:00.000Z",
           "status": "delayed",
-          "delay": 10,
+          "delay": 12,
           "platform": "D"
         },
         {
           "station": "spine:26",
           "scheduled": "2026-09-15T17:21:40.000Z",
-          "expected": "2026-09-15T17:32:00.000Z",
+          "expected": "2026-09-15T17:35:00.000Z",
           "status": "delayed",
-          "delay": 10,
+          "delay": 13,
           "platform": "F"
         },
         {
           "station": "spine:34",
           "scheduled": "2026-09-15T17:33:10.000Z",
-          "expected": "2026-09-15T17:42:30.000Z",
+          "expected": "2026-09-15T17:45:30.000Z",
           "status": "delayed",
-          "delay": 9,
+          "delay": 12,
           "platform": "45"
         },
         {
           "station": "spine:35",
           "scheduled": "2026-09-15T17:36:40.000Z",
-          "expected": "2026-09-15T17:47:00.000Z",
+          "expected": "2026-09-15T17:49:00.000Z",
           "status": "delayed",
-          "delay": 10,
+          "delay": 12,
           "platform": "1B"
         },
         {
           "station": "spine:36",
           "scheduled": "2026-09-15T17:39:30.000Z",
-          "expected": "2026-09-15T17:49:50.000Z",
+          "expected": "2026-09-15T17:51:50.000Z",
           "status": "delayed",
-          "delay": 10,
+          "delay": 12,
           "platform": "1B"
         },
         {
           "station": "spine:37",
           "scheduled": "2026-09-15T17:42:40.000Z",
-          "expected": "2026-09-15T17:53:00.000Z",
+          "expected": "2026-09-15T17:56:00.000Z",
           "status": "delayed",
-          "delay": 10,
+          "delay": 13,
           "platform": "1b"
         },
         {
           "station": "spine:38",
           "scheduled": "2026-09-15T17:45:30.000Z",
-          "expected": "2026-09-15T17:55:50.000Z",
+          "expected": "2026-09-15T17:58:50.000Z",
           "status": "delayed",
-          "delay": 10,
+          "delay": 13,
           "platform": "1B"
         },
         {
           "station": "spine:39",
           "scheduled": "2026-09-15T17:49:20.000Z",
-          "expected": "2026-09-15T17:59:40.000Z",
+          "expected": "2026-09-15T18:02:40.000Z",
           "status": "delayed",
-          "delay": 10,
+          "delay": 13,
           "platform": "3"
         },
         {
           "station": "etampes:0",
           "scheduled": "2026-09-15T17:54:00.000Z",
-          "expected": "2026-09-15T18:03:20.000Z",
+          "expected": "2026-09-15T18:06:20.000Z",
           "status": "delayed",
-          "delay": 9,
+          "delay": 12,
           "platform": "1B"
         },
         {
           "station": "etampes:1",
           "scheduled": "2026-09-15T17:57:40.000Z",
-          "expected": "2026-09-15T18:07:00.000Z",
+          "expected": "2026-09-15T18:10:00.000Z",
           "status": "delayed",
-          "delay": 9,
+          "delay": 12,
           "platform": "1B"
         },
         {
           "station": "etampes:2",
           "scheduled": "2026-09-15T18:01:00.000Z",
-          "expected": "2026-09-15T18:10:20.000Z",
+          "expected": "2026-09-15T18:13:20.000Z",
           "status": "delayed",
-          "delay": 9,
+          "delay": 12,
           "platform": "1B"
         },
         {
           "station": "etampes:3",
           "scheduled": "2026-09-15T18:04:30.000Z",
-          "expected": "2026-09-15T18:13:50.000Z",
+          "expected": "2026-09-15T18:16:50.000Z",
           "status": "delayed",
-          "delay": 9,
+          "delay": 12,
           "platform": "1B"
         },
         {
           "station": "etampes:4",
           "scheduled": "2026-09-15T18:07:40.000Z",
-          "expected": "2026-09-15T18:17:00.000Z",
+          "expected": "2026-09-15T18:20:00.000Z",
           "status": "delayed",
-          "delay": 9,
+          "delay": 12,
           "platform": "1B"
         },
         {
           "station": "etampes:5",
           "scheduled": "2026-09-15T18:13:40.000Z",
-          "expected": "2026-09-15T18:23:00.000Z",
+          "expected": "2026-09-15T18:26:00.000Z",
           "status": "delayed",
-          "delay": 9,
+          "delay": 12,
           "platform": "3"
         },
         {
           "station": "etampes:6",
           "scheduled": "2026-09-15T18:15:50.000Z",
-          "expected": "2026-09-15T18:25:10.000Z",
+          "expected": "2026-09-15T18:28:10.000Z",
           "status": "delayed",
-          "delay": 9,
+          "delay": 12,
           "platform": "SM"
         }
       ],
@@ -2489,249 +2484,17 @@
           "status": "onTime",
           "delay": 0,
           "platform": "1"
+        },
+        {
+          "station": "spine:21",
+          "scheduled": "2026-09-15T20:19:00.000Z",
+          "expected": "2026-09-15T20:19:00.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1"
         }
       ],
       "route": "R5"
-    },
-    {
-      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::001a3f59-99c3-4d38-a796-03849b9e5472:LOC",
-      "code": "GOTA",
-      "trainNumber": "148154",
-      "dest": "Montigny - Beauchamp",
-      "dir": "A",
-      "length": "long",
-      "state": "notStarted",
-      "cancelled": false,
-      "delay": 4,
-      "from": null,
-      "to": {
-        "station": "spine:10",
-        "scheduled": "2026-09-15T17:16:10.000Z",
-        "expected": "2026-09-15T17:19:54.000Z",
-        "status": "onTime",
-        "delay": 4,
-        "platform": "2"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "spine:10",
-          "scheduled": "2026-09-15T17:16:10.000Z",
-          "expected": "2026-09-15T17:19:54.000Z",
-          "status": "onTime",
-          "delay": 4,
-          "platform": "2"
-        },
-        {
-          "station": "spine:9",
-          "scheduled": "2026-09-15T17:19:00.000Z",
-          "expected": "2026-09-15T17:20:11.000Z",
-          "status": "onTime",
-          "delay": 1,
-          "platform": "2"
-        },
-        {
-          "station": "spine:8",
-          "scheduled": "2026-09-15T17:21:40.000Z",
-          "expected": "2026-09-15T17:22:51.000Z",
-          "status": "onTime",
-          "delay": 1,
-          "platform": "2"
-        },
-        {
-          "station": "spine:7",
-          "scheduled": "2026-09-15T17:25:40.000Z",
-          "expected": "2026-09-15T17:26:51.000Z",
-          "status": "onTime",
-          "delay": 1,
-          "platform": "1"
-        },
-        {
-          "station": "spine:6",
-          "scheduled": "2026-09-15T17:28:10.000Z",
-          "expected": "2026-09-15T17:29:21.000Z",
-          "status": "onTime",
-          "delay": 1,
-          "platform": "1"
-        },
-        {
-          "station": "spine:5",
-          "scheduled": "2026-09-15T17:30:50.000Z",
-          "expected": "2026-09-15T17:32:01.000Z",
-          "status": "onTime",
-          "delay": 1,
-          "platform": "1"
-        },
-        {
-          "station": "spine:4",
-          "scheduled": "2026-09-15T17:34:40.000Z",
-          "expected": "2026-09-15T17:35:51.000Z",
-          "status": "onTime",
-          "delay": 1,
-          "platform": "M"
-        }
-      ],
-      "route": "R1"
-    },
-    {
-      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::994e5e36-4d99-4fc2-9d5b-ab1ed87287a0:LOC",
-      "code": "GOTA",
-      "trainNumber": "148158",
-      "dest": "Montigny - Beauchamp",
-      "dir": "A",
-      "length": "long",
-      "state": "notStarted",
-      "cancelled": false,
-      "delay": 0,
-      "from": null,
-      "to": {
-        "station": "spine:20",
-        "scheduled": "2026-09-15T17:19:40.000Z",
-        "expected": "2026-09-15T17:19:40.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "2"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "spine:20",
-          "scheduled": "2026-09-15T17:19:40.000Z",
-          "expected": "2026-09-15T17:19:40.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:19",
-          "scheduled": "2026-09-15T17:22:20.000Z",
-          "expected": "2026-09-15T17:22:20.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:18",
-          "scheduled": "2026-09-15T17:24:10.000Z",
-          "expected": "2026-09-15T17:24:10.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:17",
-          "scheduled": "2026-09-15T17:26:20.000Z",
-          "expected": "2026-09-15T17:26:20.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:16",
-          "scheduled": "2026-09-15T17:28:00.000Z",
-          "expected": "2026-09-15T17:28:00.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:15",
-          "scheduled": "2026-09-15T17:31:20.000Z",
-          "expected": "2026-09-15T17:31:20.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:14",
-          "scheduled": "2026-09-15T17:34:00.000Z",
-          "expected": "2026-09-15T17:34:00.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:13",
-          "scheduled": "2026-09-15T17:37:10.000Z",
-          "expected": "2026-09-15T17:37:10.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:12",
-          "scheduled": "2026-09-15T17:40:20.000Z",
-          "expected": "2026-09-15T17:40:20.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:11",
-          "scheduled": "2026-09-15T17:43:50.000Z",
-          "expected": "2026-09-15T17:43:50.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:10",
-          "scheduled": "2026-09-15T17:46:10.000Z",
-          "expected": "2026-09-15T17:46:10.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:9",
-          "scheduled": "2026-09-15T17:49:00.000Z",
-          "expected": "2026-09-15T17:49:00.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:8",
-          "scheduled": "2026-09-15T17:51:40.000Z",
-          "expected": "2026-09-15T17:51:40.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "spine:7",
-          "scheduled": "2026-09-15T17:55:40.000Z",
-          "expected": "2026-09-15T17:55:40.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1"
-        },
-        {
-          "station": "spine:6",
-          "scheduled": "2026-09-15T17:58:10.000Z",
-          "expected": "2026-09-15T17:58:10.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1"
-        },
-        {
-          "station": "spine:5",
-          "scheduled": "2026-09-15T18:00:50.000Z",
-          "expected": "2026-09-15T18:00:50.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1"
-        },
-        {
-          "station": "spine:4",
-          "scheduled": "2026-09-15T18:04:40.000Z",
-          "expected": "2026-09-15T18:04:40.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1"
-        }
-      ],
-      "route": "R1"
     },
     {
       "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::479839bd-1ea6-4d44-a53b-3709ead4b1bc:LOC",
@@ -2825,6 +2588,14 @@
           "status": "onTime",
           "delay": 0,
           "platform": "2"
+        },
+        {
+          "station": "spine:8",
+          "scheduled": "2026-09-15T20:21:40.000Z",
+          "expected": "2026-09-15T20:21:40.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2"
         }
       ],
       "route": "R1"
@@ -2838,49 +2609,113 @@
       "length": "long",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 16,
+      "delay": 15,
       "from": null,
       "to": {
-        "station": "spine:7",
-        "scheduled": "2026-09-15T17:04:20.000Z",
-        "expected": "2026-09-15T17:20:04.000Z",
+        "station": "spine:6",
+        "scheduled": "2026-09-15T17:07:10.000Z",
+        "expected": "2026-09-15T17:22:09.000Z",
         "status": "onTime",
-        "delay": 16,
+        "delay": 15,
         "platform": "1"
       },
       "progress": 0.0,
       "stops": [
         {
-          "station": "spine:7",
-          "scheduled": "2026-09-15T17:04:20.000Z",
-          "expected": "2026-09-15T17:20:04.000Z",
-          "status": "onTime",
-          "delay": 16,
-          "platform": "1"
-        },
-        {
           "station": "spine:6",
           "scheduled": "2026-09-15T17:07:10.000Z",
-          "expected": "2026-09-15T17:22:54.000Z",
+          "expected": "2026-09-15T17:22:09.000Z",
           "status": "onTime",
-          "delay": 16,
+          "delay": 15,
           "platform": "1"
         },
         {
           "station": "spine:5",
           "scheduled": "2026-09-15T17:10:20.000Z",
-          "expected": "2026-09-15T17:26:04.000Z",
+          "expected": "2026-09-15T17:25:19.000Z",
           "status": "onTime",
-          "delay": 16,
+          "delay": 15,
           "platform": "1"
         },
         {
           "station": "spine:4",
           "scheduled": "2026-09-15T17:14:00.000Z",
-          "expected": "2026-09-15T17:29:44.000Z",
+          "expected": "2026-09-15T17:28:59.000Z",
           "status": "onTime",
-          "delay": 16,
+          "delay": 15,
           "platform": "1"
+        }
+      ],
+      "route": "R1"
+    },
+    {
+      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::001a3f59-99c3-4d38-a796-03849b9e5472:LOC",
+      "code": "GOTA",
+      "trainNumber": "148154",
+      "dest": "Montigny - Beauchamp",
+      "dir": "A",
+      "length": "long",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 3,
+      "from": null,
+      "to": {
+        "station": "spine:9",
+        "scheduled": "2026-09-15T17:19:00.000Z",
+        "expected": "2026-09-15T17:22:02.000Z",
+        "status": "onTime",
+        "delay": 3,
+        "platform": "2"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:9",
+          "scheduled": "2026-09-15T17:19:00.000Z",
+          "expected": "2026-09-15T17:22:02.000Z",
+          "status": "onTime",
+          "delay": 3,
+          "platform": "2"
+        },
+        {
+          "station": "spine:8",
+          "scheduled": "2026-09-15T17:21:40.000Z",
+          "expected": "2026-09-15T17:24:42.000Z",
+          "status": "onTime",
+          "delay": 3,
+          "platform": "2"
+        },
+        {
+          "station": "spine:7",
+          "scheduled": "2026-09-15T17:25:40.000Z",
+          "expected": "2026-09-15T17:28:42.000Z",
+          "status": "onTime",
+          "delay": 3,
+          "platform": "1"
+        },
+        {
+          "station": "spine:6",
+          "scheduled": "2026-09-15T17:28:10.000Z",
+          "expected": "2026-09-15T17:31:12.000Z",
+          "status": "onTime",
+          "delay": 3,
+          "platform": "1"
+        },
+        {
+          "station": "spine:5",
+          "scheduled": "2026-09-15T17:30:50.000Z",
+          "expected": "2026-09-15T17:33:52.000Z",
+          "status": "onTime",
+          "delay": 3,
+          "platform": "1"
+        },
+        {
+          "station": "spine:4",
+          "scheduled": "2026-09-15T17:34:40.000Z",
+          "expected": "2026-09-15T17:37:42.000Z",
+          "status": "onTime",
+          "delay": 3,
+          "platform": "M"
         }
       ],
       "route": "R1"
@@ -3369,6 +3204,22 @@
           "status": "onTime",
           "delay": 0,
           "platform": "1"
+        },
+        {
+          "station": "spine:16",
+          "scheduled": "2026-09-15T20:18:50.000Z",
+          "expected": "2026-09-15T20:18:50.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1"
+        },
+        {
+          "station": "spine:17",
+          "scheduled": "2026-09-15T20:20:00.000Z",
+          "expected": "2026-09-15T20:20:00.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1"
         }
       ],
       "route": "R1"
@@ -3446,6 +3297,14 @@
           "station": "spine:6",
           "scheduled": "2026-09-15T20:17:20.000Z",
           "expected": "2026-09-15T20:17:20.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2"
+        },
+        {
+          "station": "spine:7",
+          "scheduled": "2026-09-15T20:20:10.000Z",
+          "expected": "2026-09-15T20:20:10.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "2"
@@ -3809,9 +3668,137 @@
           "status": "onTime",
           "delay": 0,
           "platform": "1"
+        },
+        {
+          "station": "spine:12",
+          "scheduled": "2026-09-15T20:21:00.000Z",
+          "expected": "2026-09-15T20:21:00.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1"
         }
       ],
       "route": "R1"
+    },
+    {
+      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::1ac3e9b8-0ab8-4231-bdcf-3e997ca70bab:LOC",
+      "code": "JILL",
+      "trainNumber": "147251",
+      "dest": "Juvisy",
+      "dir": "B",
+      "length": "long",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 57,
+      "from": null,
+      "to": {
+        "station": "spine:20",
+        "scheduled": "2026-09-15T16:25:00.000Z",
+        "expected": "2026-09-15T17:21:53.000Z",
+        "status": "onTime",
+        "delay": 57,
+        "platform": "1"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:20",
+          "scheduled": "2026-09-15T16:25:00.000Z",
+          "expected": "2026-09-15T17:21:53.000Z",
+          "status": "onTime",
+          "delay": 57,
+          "platform": "1"
+        },
+        {
+          "station": "spine:21",
+          "scheduled": "2026-09-15T16:27:20.000Z",
+          "expected": "2026-09-15T17:24:13.000Z",
+          "status": "onTime",
+          "delay": 57,
+          "platform": "1"
+        },
+        {
+          "station": "spine:22",
+          "scheduled": "2026-09-15T16:29:40.000Z",
+          "expected": "2026-09-15T17:26:33.000Z",
+          "status": "onTime",
+          "delay": 57,
+          "platform": "3"
+        },
+        {
+          "station": "spine:23",
+          "scheduled": "2026-09-15T16:32:00.000Z",
+          "expected": "2026-09-15T17:28:53.000Z",
+          "status": "onTime",
+          "delay": 57,
+          "platform": "1"
+        },
+        {
+          "station": "spine:24",
+          "scheduled": "2026-09-15T16:35:20.000Z",
+          "expected": "2026-09-15T17:32:13.000Z",
+          "status": "onTime",
+          "delay": 57,
+          "platform": "1"
+        },
+        {
+          "station": "spine:25",
+          "scheduled": "2026-09-15T16:39:50.000Z",
+          "expected": "2026-09-15T17:36:43.000Z",
+          "status": "onTime",
+          "delay": 57,
+          "platform": "E"
+        },
+        {
+          "station": "spine:26",
+          "scheduled": "2026-09-15T16:44:00.000Z",
+          "expected": "2026-09-15T17:40:33.000Z",
+          "status": "onTime",
+          "delay": 57,
+          "platform": "E"
+        },
+        {
+          "station": "spine:30",
+          "scheduled": "2026-09-15T16:52:10.000Z",
+          "expected": "2026-09-15T17:48:13.000Z",
+          "status": "onTime",
+          "delay": 56,
+          "platform": "1B"
+        },
+        {
+          "station": "spine:31",
+          "scheduled": "2026-09-15T16:57:10.000Z",
+          "expected": "2026-09-15T17:53:13.000Z",
+          "status": "onTime",
+          "delay": 56,
+          "platform": "1B"
+        },
+        {
+          "station": "spine:32",
+          "scheduled": "2026-09-15T17:00:30.000Z",
+          "expected": "2026-09-15T17:56:33.000Z",
+          "status": "onTime",
+          "delay": 56,
+          "platform": "1b"
+        },
+        {
+          "station": "spine:33",
+          "scheduled": "2026-09-15T17:03:10.000Z",
+          "expected": "2026-09-15T17:59:13.000Z",
+          "status": "onTime",
+          "delay": 56,
+          "platform": "1B"
+        },
+        {
+          "station": "spine:34",
+          "scheduled": "2026-09-15T17:07:10.000Z",
+          "expected": "2026-09-15T18:03:13.000Z",
+          "status": "onTime",
+          "delay": 56,
+          "platform": "46"
+        }
+      ],
+      "route": "R2"
     },
     {
       "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::4f9ed2f0-a7e1-4b74-b488-4741153134bb:LOC",
@@ -3822,14 +3809,14 @@
       "length": "long",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 1,
+      "delay": 0,
       "from": null,
       "to": {
         "station": "dourdan:4",
         "scheduled": "2026-09-15T17:22:10.000Z",
-        "expected": "2026-09-15T17:22:54.000Z",
+        "expected": "2026-09-15T17:22:21.000Z",
         "status": "onTime",
-        "delay": 1,
+        "delay": 0,
         "platform": "2"
       },
       "progress": 0.0,
@@ -3837,41 +3824,41 @@
         {
           "station": "dourdan:4",
           "scheduled": "2026-09-15T17:22:10.000Z",
-          "expected": "2026-09-15T17:22:54.000Z",
+          "expected": "2026-09-15T17:22:21.000Z",
           "status": "onTime",
-          "delay": 1,
+          "delay": 0,
           "platform": "2"
         },
         {
           "station": "dourdan:3",
           "scheduled": "2026-09-15T17:25:40.000Z",
-          "expected": "2026-09-15T17:26:24.000Z",
+          "expected": "2026-09-15T17:25:51.000Z",
           "status": "onTime",
-          "delay": 1,
+          "delay": 0,
           "platform": "2"
         },
         {
           "station": "dourdan:2",
           "scheduled": "2026-09-15T17:29:20.000Z",
-          "expected": "2026-09-15T17:30:04.000Z",
+          "expected": "2026-09-15T17:29:31.000Z",
           "status": "onTime",
-          "delay": 1,
+          "delay": 0,
           "platform": "2"
         },
         {
           "station": "dourdan:1",
           "scheduled": "2026-09-15T17:32:20.000Z",
-          "expected": "2026-09-15T17:33:04.000Z",
+          "expected": "2026-09-15T17:32:31.000Z",
           "status": "onTime",
-          "delay": 1,
+          "delay": 0,
           "platform": "2"
         },
         {
           "station": "dourdan:0",
           "scheduled": "2026-09-15T17:35:40.000Z",
-          "expected": "2026-09-15T17:36:24.000Z",
+          "expected": "2026-09-15T17:35:51.000Z",
           "status": "onTime",
-          "delay": 1,
+          "delay": 0,
           "platform": "2"
         },
         {
@@ -4494,88 +4481,80 @@
       "length": "long",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 1,
+      "delay": 2,
       "from": null,
       "to": {
-        "station": "spine:37",
-        "scheduled": "2026-09-15T17:18:00.000Z",
-        "expected": "2026-09-15T17:19:17.000Z",
+        "station": "spine:36",
+        "scheduled": "2026-09-15T17:21:20.000Z",
+        "expected": "2026-09-15T17:23:13.000Z",
         "status": "onTime",
-        "delay": 1,
-        "platform": "2b"
+        "delay": 2,
+        "platform": "2B"
       },
       "progress": 0.0,
       "stops": [
         {
-          "station": "spine:37",
-          "scheduled": "2026-09-15T17:18:00.000Z",
-          "expected": "2026-09-15T17:19:17.000Z",
-          "status": "onTime",
-          "delay": 1,
-          "platform": "2b"
-        },
-        {
           "station": "spine:36",
           "scheduled": "2026-09-15T17:21:20.000Z",
-          "expected": "2026-09-15T17:22:37.000Z",
+          "expected": "2026-09-15T17:23:13.000Z",
           "status": "onTime",
-          "delay": 1,
+          "delay": 2,
           "platform": "2B"
         },
         {
           "station": "spine:35",
           "scheduled": "2026-09-15T17:24:00.000Z",
-          "expected": "2026-09-15T17:25:17.000Z",
+          "expected": "2026-09-15T17:25:53.000Z",
           "status": "onTime",
-          "delay": 1,
+          "delay": 2,
           "platform": "2B"
         },
         {
           "station": "spine:34",
           "scheduled": "2026-09-15T17:29:30.000Z",
-          "expected": "2026-09-15T17:29:47.000Z",
+          "expected": "2026-09-15T17:30:23.000Z",
           "status": "onTime",
-          "delay": 0,
+          "delay": 1,
           "platform": "41"
         },
         {
           "station": "spine:26",
           "scheduled": "2026-09-15T17:41:00.000Z",
-          "expected": "2026-09-15T17:41:17.000Z",
+          "expected": "2026-09-15T17:41:53.000Z",
           "status": "onTime",
-          "delay": 0,
+          "delay": 1,
           "platform": "B"
         },
         {
           "station": "spine:25",
           "scheduled": "2026-09-15T17:44:00.000Z",
-          "expected": "2026-09-15T17:44:17.000Z",
+          "expected": "2026-09-15T17:44:53.000Z",
           "status": "onTime",
-          "delay": 0,
+          "delay": 1,
           "platform": "B"
         },
         {
           "station": "spine:24",
           "scheduled": "2026-09-15T17:48:00.000Z",
-          "expected": "2026-09-15T17:47:27.000Z",
+          "expected": "2026-09-15T17:48:33.000Z",
           "status": "onTime",
-          "delay": -1,
+          "delay": 1,
           "platform": "2"
         },
         {
           "station": "spine:23",
           "scheduled": "2026-09-15T17:51:10.000Z",
-          "expected": "2026-09-15T17:51:27.000Z",
+          "expected": "2026-09-15T17:52:03.000Z",
           "status": "onTime",
-          "delay": 0,
+          "delay": 1,
           "platform": "4"
         },
         {
           "station": "spine:22",
           "scheduled": "2026-09-15T17:53:20.000Z",
-          "expected": "2026-09-15T17:53:37.000Z",
+          "expected": "2026-09-15T17:54:13.000Z",
           "status": "onTime",
-          "delay": 0,
+          "delay": 1,
           "platform": "1"
         }
       ],
@@ -4673,6 +4652,14 @@
           "status": "onTime",
           "delay": 0,
           "platform": "1"
+        },
+        {
+          "station": "spine:20",
+          "scheduled": "2026-09-15T20:21:10.000Z",
+          "expected": "2026-09-15T20:21:10.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1"
         }
       ],
       "route": "R6"
@@ -4689,27 +4676,19 @@
       "delay": 13,
       "from": null,
       "to": {
-        "station": "spine:8",
-        "scheduled": "2026-09-15T17:06:40.000Z",
-        "expected": "2026-09-15T17:19:24.000Z",
+        "station": "spine:7",
+        "scheduled": "2026-09-15T17:10:40.000Z",
+        "expected": "2026-09-15T17:23:21.000Z",
         "status": "onTime",
         "delay": 13,
-        "platform": "2"
+        "platform": "1"
       },
       "progress": 0.0,
       "stops": [
         {
-          "station": "spine:8",
-          "scheduled": "2026-09-15T17:06:40.000Z",
-          "expected": "2026-09-15T17:19:24.000Z",
-          "status": "onTime",
-          "delay": 13,
-          "platform": "2"
-        },
-        {
           "station": "spine:7",
           "scheduled": "2026-09-15T17:10:40.000Z",
-          "expected": "2026-09-15T17:23:24.000Z",
+          "expected": "2026-09-15T17:23:21.000Z",
           "status": "onTime",
           "delay": 13,
           "platform": "1"
@@ -4717,7 +4696,7 @@
         {
           "station": "spine:6",
           "scheduled": "2026-09-15T17:13:10.000Z",
-          "expected": "2026-09-15T17:25:54.000Z",
+          "expected": "2026-09-15T17:25:51.000Z",
           "status": "onTime",
           "delay": 13,
           "platform": "1"
@@ -4725,7 +4704,7 @@
         {
           "station": "spine:5",
           "scheduled": "2026-09-15T17:15:50.000Z",
-          "expected": "2026-09-15T17:28:34.000Z",
+          "expected": "2026-09-15T17:28:31.000Z",
           "status": "onTime",
           "delay": 13,
           "platform": "1"
@@ -4733,7 +4712,7 @@
         {
           "station": "spine:4",
           "scheduled": "2026-09-15T17:19:50.000Z",
-          "expected": "2026-09-15T17:32:34.000Z",
+          "expected": "2026-09-15T17:32:31.000Z",
           "status": "onTime",
           "delay": 13,
           "platform": "1"
@@ -4741,7 +4720,7 @@
         {
           "station": "spine:3",
           "scheduled": "2026-09-15T17:23:20.000Z",
-          "expected": "2026-09-15T17:36:04.000Z",
+          "expected": "2026-09-15T17:36:01.000Z",
           "status": "onTime",
           "delay": 13,
           "platform": "1"
@@ -4749,7 +4728,7 @@
         {
           "station": "spine:2",
           "scheduled": "2026-09-15T17:26:30.000Z",
-          "expected": "2026-09-15T17:39:14.000Z",
+          "expected": "2026-09-15T17:39:11.000Z",
           "status": "onTime",
           "delay": 13,
           "platform": "1"
@@ -4757,7 +4736,7 @@
         {
           "station": "spine:1",
           "scheduled": "2026-09-15T17:30:20.000Z",
-          "expected": "2026-09-15T17:43:04.000Z",
+          "expected": "2026-09-15T17:43:01.000Z",
           "status": "onTime",
           "delay": 13,
           "platform": "1"
@@ -4765,7 +4744,7 @@
         {
           "station": "spine:0",
           "scheduled": "2026-09-15T17:32:30.000Z",
-          "expected": "2026-09-15T17:45:14.000Z",
+          "expected": "2026-09-15T17:45:11.000Z",
           "status": "onTime",
           "delay": 13,
           "platform": "14"
@@ -4785,23 +4764,15 @@
       "delay": 2,
       "from": null,
       "to": {
-        "station": "spine:15",
-        "scheduled": "2026-09-15T17:16:20.000Z",
-        "expected": "2026-09-15T17:18:49.000Z",
+        "station": "spine:14",
+        "scheduled": "2026-09-15T17:19:00.000Z",
+        "expected": "2026-09-15T17:21:29.000Z",
         "status": "onTime",
         "delay": 2,
         "platform": "2"
       },
       "progress": 0.0,
       "stops": [
-        {
-          "station": "spine:15",
-          "scheduled": "2026-09-15T17:16:20.000Z",
-          "expected": "2026-09-15T17:18:49.000Z",
-          "status": "onTime",
-          "delay": 2,
-          "platform": "2"
-        },
         {
           "station": "spine:14",
           "scheduled": "2026-09-15T17:19:00.000Z",
@@ -4934,26 +4905,18 @@
       "length": "long",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 0,
+      "delay": -1,
       "from": null,
       "to": {
-        "station": "spine:25",
-        "scheduled": "2026-09-15T17:20:20.000Z",
-        "expected": "2026-09-15T17:20:35.000Z",
+        "station": "spine:24",
+        "scheduled": "2026-09-15T17:24:30.000Z",
+        "expected": "2026-09-15T17:23:55.000Z",
         "status": "onTime",
-        "delay": 0,
-        "platform": "C"
+        "delay": -1,
+        "platform": "2"
       },
       "progress": 0.0,
       "stops": [
-        {
-          "station": "spine:25",
-          "scheduled": "2026-09-15T17:20:20.000Z",
-          "expected": "2026-09-15T17:20:35.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "C"
-        },
         {
           "station": "spine:24",
           "scheduled": "2026-09-15T17:24:30.000Z",
@@ -5281,6 +5244,14 @@
           "status": "onTime",
           "delay": 0,
           "platform": "1"
+        },
+        {
+          "station": "spine:4",
+          "scheduled": "2026-09-15T20:19:50.000Z",
+          "expected": "2026-09-15T20:19:50.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1"
         }
       ],
       "route": "R1"
@@ -5385,6 +5356,14 @@
           "status": "onTime",
           "delay": 0,
           "platform": "2b"
+        },
+        {
+          "station": "spine:36",
+          "scheduled": "2026-09-15T20:21:20.000Z",
+          "expected": "2026-09-15T20:21:20.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2B"
         }
       ],
       "route": "R3"
@@ -5401,9 +5380,9 @@
       "delay": 6,
       "from": null,
       "to": {
-        "station": "west:6",
-        "scheduled": "2026-09-15T17:15:00.000Z",
-        "expected": "2026-09-15T17:21:02.000Z",
+        "station": "west:5",
+        "scheduled": "2026-09-15T17:20:00.000Z",
+        "expected": "2026-09-15T17:25:47.000Z",
         "status": "onTime",
         "delay": 6,
         "platform": "2"
@@ -5411,17 +5390,9 @@
       "progress": 0.0,
       "stops": [
         {
-          "station": "west:6",
-          "scheduled": "2026-09-15T17:15:00.000Z",
-          "expected": "2026-09-15T17:21:02.000Z",
-          "status": "onTime",
-          "delay": 6,
-          "platform": "2"
-        },
-        {
           "station": "west:5",
           "scheduled": "2026-09-15T17:20:00.000Z",
-          "expected": "2026-09-15T17:26:02.000Z",
+          "expected": "2026-09-15T17:25:47.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "2"
@@ -5437,7 +5408,7 @@
         {
           "station": "west:2",
           "scheduled": "2026-09-15T17:27:40.000Z",
-          "expected": "2026-09-15T17:33:42.000Z",
+          "expected": "2026-09-15T17:33:27.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "C"
@@ -5445,7 +5416,7 @@
         {
           "station": "west:1",
           "scheduled": "2026-09-15T17:33:00.000Z",
-          "expected": "2026-09-15T17:38:58.000Z",
+          "expected": "2026-09-15T17:38:47.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "1B"
@@ -5453,7 +5424,7 @@
         {
           "station": "west:0",
           "scheduled": "2026-09-15T17:36:20.000Z",
-          "expected": "2026-09-15T17:42:22.000Z",
+          "expected": "2026-09-15T17:42:07.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "B"
@@ -5601,9 +5572,9 @@
       "delay": 6,
       "from": null,
       "to": {
-        "station": "west:9",
-        "scheduled": "2026-09-15T17:14:10.000Z",
-        "expected": "2026-09-15T17:20:00.000Z",
+        "station": "west:8",
+        "scheduled": "2026-09-15T17:17:00.000Z",
+        "expected": "2026-09-15T17:22:52.000Z",
         "status": "onTime",
         "delay": 6,
         "platform": "2"
@@ -5611,17 +5582,9 @@
       "progress": 0.0,
       "stops": [
         {
-          "station": "west:9",
-          "scheduled": "2026-09-15T17:14:10.000Z",
-          "expected": "2026-09-15T17:20:00.000Z",
-          "status": "onTime",
-          "delay": 6,
-          "platform": "2"
-        },
-        {
           "station": "west:8",
           "scheduled": "2026-09-15T17:17:00.000Z",
-          "expected": "2026-09-15T17:22:50.000Z",
+          "expected": "2026-09-15T17:22:52.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "2"
@@ -5629,7 +5592,7 @@
         {
           "station": "west:7",
           "scheduled": "2026-09-15T17:20:00.000Z",
-          "expected": "2026-09-15T17:25:50.000Z",
+          "expected": "2026-09-15T17:25:52.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "2"
@@ -5637,7 +5600,7 @@
         {
           "station": "west:6",
           "scheduled": "2026-09-15T17:22:50.000Z",
-          "expected": "2026-09-15T17:28:40.000Z",
+          "expected": "2026-09-15T17:28:42.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "2"
@@ -5645,7 +5608,7 @@
         {
           "station": "west:5",
           "scheduled": "2026-09-15T17:27:30.000Z",
-          "expected": "2026-09-15T17:33:20.000Z",
+          "expected": "2026-09-15T17:33:22.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "2"
@@ -5653,7 +5616,7 @@
         {
           "station": "west:4",
           "scheduled": "2026-09-15T17:29:40.000Z",
-          "expected": "2026-09-15T17:35:30.000Z",
+          "expected": "2026-09-15T17:35:32.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "2I"
@@ -5661,7 +5624,7 @@
         {
           "station": "west:3",
           "scheduled": "2026-09-15T17:32:20.000Z",
-          "expected": "2026-09-15T17:38:10.000Z",
+          "expected": "2026-09-15T17:38:12.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "2"
@@ -5669,7 +5632,7 @@
         {
           "station": "spur:0",
           "scheduled": "2026-09-15T17:35:30.000Z",
-          "expected": "2026-09-15T17:41:20.000Z",
+          "expected": "2026-09-15T17:41:22.000Z",
           "status": "onTime",
           "delay": 6,
           "platform": "3"
@@ -5828,94 +5791,6 @@
         }
       ],
       "route": "R2"
-    },
-    {
-      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::c92b9f52-9509-465e-ad2e-d67c3fb325dc:LOC",
-      "code": "ZARA",
-      "trainNumber": "148454",
-      "dest": "Paris Austerlitz",
-      "dir": "A",
-      "length": "long",
-      "state": "arrived",
-      "cancelled": true,
-      "delay": 0,
-      "from": {
-        "station": "west:1",
-        "scheduled": "2026-09-15T17:17:40.000Z",
-        "expected": "2026-09-15T17:17:40.000Z",
-        "status": "cancelled",
-        "delay": 0,
-        "platform": "1B"
-      },
-      "to": null,
-      "progress": 1.0,
-      "stops": [
-        {
-          "station": "west:9",
-          "scheduled": "2026-09-15T16:50:20.000Z",
-          "expected": "2026-09-15T16:50:20.000Z",
-          "status": "cancelled",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "west:8",
-          "scheduled": "2026-09-15T16:53:20.000Z",
-          "expected": "2026-09-15T16:53:20.000Z",
-          "status": "cancelled",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "west:7",
-          "scheduled": "2026-09-15T16:56:20.000Z",
-          "expected": "2026-09-15T16:56:20.000Z",
-          "status": "cancelled",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "west:6",
-          "scheduled": "2026-09-15T16:59:30.000Z",
-          "expected": "2026-09-15T16:59:30.000Z",
-          "status": "cancelled",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "west:5",
-          "scheduled": "2026-09-15T17:04:50.000Z",
-          "expected": "2026-09-15T17:04:50.000Z",
-          "status": "cancelled",
-          "delay": 0,
-          "platform": "2"
-        },
-        {
-          "station": "west:4",
-          "scheduled": "2026-09-15T17:07:00.000Z",
-          "expected": "2026-09-15T17:07:00.000Z",
-          "status": "cancelled",
-          "delay": 0,
-          "platform": "2I"
-        },
-        {
-          "station": "west:2",
-          "scheduled": "2026-09-15T17:12:40.000Z",
-          "expected": "2026-09-15T17:12:40.000Z",
-          "status": "cancelled",
-          "delay": 0,
-          "platform": "D"
-        },
-        {
-          "station": "west:1",
-          "scheduled": "2026-09-15T17:17:40.000Z",
-          "expected": "2026-09-15T17:17:40.000Z",
-          "status": "cancelled",
-          "delay": 0,
-          "platform": "1B"
-        }
-      ],
-      "route": "R4"
     }
   ]
 }
