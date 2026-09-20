@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-20T20:21:14Z",
+  "generatedAt": "2026-09-20T20:30:40Z",
   "trains": [
     {
       "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::e00b0d68-3879-4dea-bf15-7f1c88b0d10b:LOC",
@@ -8,17 +8,10 @@
       "dest": "Dourdan",
       "dir": "B",
       "length": "court",
-      "state": "enRoute",
+      "state": "notStarted",
       "cancelled": false,
       "delay": 0,
-      "from": {
-        "station": "spine:26",
-        "scheduled": "2026-09-20T20:20:50.000Z",
-        "expected": "2026-09-20T20:20:50.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "F"
-      },
+      "from": null,
       "to": {
         "station": "spine:34",
         "scheduled": "2026-09-20T20:32:40.000Z",
@@ -27,16 +20,8 @@
         "delay": 0,
         "platform": "44"
       },
-      "progress": 0.03380281690140845,
+      "progress": 0.0,
       "stops": [
-        {
-          "station": "spine:26",
-          "scheduled": "2026-09-20T20:20:50.000Z",
-          "expected": "2026-09-20T20:20:50.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "F"
-        },
         {
           "station": "spine:34",
           "scheduled": "2026-09-20T20:32:40.000Z",
@@ -151,86 +136,6 @@
         }
       ],
       "route": "R2"
-    },
-    {
-      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::d5f6dc9b-34fd-4768-b539-1d9f36bbeffa:LOC",
-      "code": "ELBA",
-      "trainNumber": "147477",
-      "dest": "Saint-Martin d'Étampes",
-      "dir": "B",
-      "length": "court",
-      "state": "notStarted",
-      "cancelled": false,
-      "delay": 0,
-      "from": null,
-      "to": {
-        "station": "etampes:0",
-        "scheduled": "2026-09-20T20:23:40.000Z",
-        "expected": "2026-09-20T20:23:55.000Z",
-        "status": "onTime",
-        "delay": 0,
-        "platform": "1B"
-      },
-      "progress": 0.0,
-      "stops": [
-        {
-          "station": "etampes:0",
-          "scheduled": "2026-09-20T20:23:40.000Z",
-          "expected": "2026-09-20T20:23:55.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:1",
-          "scheduled": "2026-09-20T20:27:30.000Z",
-          "expected": "2026-09-20T20:27:45.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:2",
-          "scheduled": "2026-09-20T20:31:10.000Z",
-          "expected": "2026-09-20T20:31:25.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:3",
-          "scheduled": "2026-09-20T20:34:40.000Z",
-          "expected": "2026-09-20T20:34:55.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:4",
-          "scheduled": "2026-09-20T20:38:00.000Z",
-          "expected": "2026-09-20T20:38:15.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "1B"
-        },
-        {
-          "station": "etampes:5",
-          "scheduled": "2026-09-20T20:43:40.000Z",
-          "expected": "2026-09-20T20:43:55.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "3"
-        },
-        {
-          "station": "etampes:6",
-          "scheduled": "2026-09-20T20:45:50.000Z",
-          "expected": "2026-09-20T20:46:05.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "SM"
-        }
-      ],
-      "route": "R3"
     },
     {
       "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::b01c62b3-fbb4-4e71-8186-8de9044f33bb:LOC",
@@ -385,6 +290,70 @@
           "station": "etampes:6",
           "scheduled": "2026-09-20T21:45:50.000Z",
           "expected": "2026-09-20T21:45:50.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "SM"
+        }
+      ],
+      "route": "R3"
+    },
+    {
+      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::d5f6dc9b-34fd-4768-b539-1d9f36bbeffa:LOC",
+      "code": "ELBA",
+      "trainNumber": "147477",
+      "dest": "Saint-Martin d'Étampes",
+      "dir": "B",
+      "length": "court",
+      "state": "notStarted",
+      "cancelled": false,
+      "delay": 0,
+      "from": null,
+      "to": {
+        "station": "etampes:2",
+        "scheduled": "2026-09-20T20:31:10.000Z",
+        "expected": "2026-09-20T20:31:25.000Z",
+        "status": "onTime",
+        "delay": 0,
+        "platform": "1B"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "etampes:2",
+          "scheduled": "2026-09-20T20:31:10.000Z",
+          "expected": "2026-09-20T20:31:25.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1B"
+        },
+        {
+          "station": "etampes:3",
+          "scheduled": "2026-09-20T20:34:40.000Z",
+          "expected": "2026-09-20T20:34:55.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1B"
+        },
+        {
+          "station": "etampes:4",
+          "scheduled": "2026-09-20T20:38:00.000Z",
+          "expected": "2026-09-20T20:38:15.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "1B"
+        },
+        {
+          "station": "etampes:5",
+          "scheduled": "2026-09-20T20:43:40.000Z",
+          "expected": "2026-09-20T20:43:55.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "3"
+        },
+        {
+          "station": "etampes:6",
+          "scheduled": "2026-09-20T20:45:50.000Z",
+          "expected": "2026-09-20T20:46:05.000Z",
           "status": "onTime",
           "delay": 0,
           "platform": "SM"
@@ -588,31 +557,15 @@
       "delay": 0,
       "from": null,
       "to": {
-        "station": "spine:35",
-        "scheduled": "2026-09-20T20:24:00.000Z",
-        "expected": "2026-09-20T20:24:00.000Z",
+        "station": "spine:26",
+        "scheduled": "2026-09-20T20:41:00.000Z",
+        "expected": "2026-09-20T20:41:00.000Z",
         "status": "onTime",
         "delay": 0,
-        "platform": "2B"
+        "platform": "B"
       },
       "progress": 0.0,
       "stops": [
-        {
-          "station": "spine:35",
-          "scheduled": "2026-09-20T20:24:00.000Z",
-          "expected": "2026-09-20T20:24:00.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2B"
-        },
-        {
-          "station": "spine:34",
-          "scheduled": "2026-09-20T20:29:10.000Z",
-          "expected": "2026-09-20T20:29:10.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "41"
-        },
         {
           "station": "spine:26",
           "scheduled": "2026-09-20T20:41:00.000Z",
@@ -646,7 +599,7 @@
           "platform": "4"
         }
       ],
-      "route": "R2"
+      "route": "R1"
     },
     {
       "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::60bdc40c-953e-4cf5-b588-f7948ba0c55c:LOC",
@@ -769,41 +722,49 @@
       "route": "R5"
     },
     {
-      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::fe1445e4-e99b-45fb-b9c1-5177e5e975d7:LOC",
+      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::105b6967-c75a-4c2a-badc-2b0b051e5f89:LOC",
       "code": "ROMI",
-      "trainNumber": "148177",
+      "trainNumber": "145179",
       "dest": "Pont de Rungis Aéroport d'Orly",
       "dir": "B",
       "length": "court",
       "state": "notStarted",
       "cancelled": false,
-      "delay": 5,
+      "delay": 0,
       "from": null,
       "to": {
-        "station": "orly:1",
-        "scheduled": "2026-09-20T20:18:10.000Z",
-        "expected": "2026-09-20T20:23:01.000Z",
+        "station": "orly:4",
+        "scheduled": "2026-09-20T20:30:40.000Z",
+        "expected": "2026-09-20T20:30:50.000Z",
         "status": "onTime",
-        "delay": 5,
+        "delay": 0,
         "platform": "1"
       },
       "progress": 0.0,
       "stops": [
         {
-          "station": "orly:1",
-          "scheduled": "2026-09-20T20:18:10.000Z",
-          "expected": "2026-09-20T20:23:01.000Z",
+          "station": "orly:4",
+          "scheduled": "2026-09-20T20:30:40.000Z",
+          "expected": "2026-09-20T20:30:50.000Z",
           "status": "onTime",
-          "delay": 5,
+          "delay": 0,
+          "platform": "1"
+        },
+        {
+          "station": "orly:1",
+          "scheduled": "2026-09-20T20:33:10.000Z",
+          "expected": "2026-09-20T20:33:10.000Z",
+          "status": "onTime",
+          "delay": 0,
           "platform": "1"
         },
         {
           "station": "orly:0",
-          "scheduled": "2026-09-20T20:22:10.000Z",
-          "expected": "2026-09-20T20:27:01.000Z",
+          "scheduled": "2026-09-20T20:37:10.000Z",
+          "expected": "2026-09-20T20:37:10.000Z",
           "status": "onTime",
-          "delay": 5,
-          "platform": "1"
+          "delay": 0,
+          "platform": "Z"
         }
       ],
       "route": "R1"
@@ -937,6 +898,134 @@
       "route": "R5"
     },
     {
+      "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::cfca8c0d-56ce-4df1-8a92-d2f3704f7668:LOC",
+      "code": "VACK",
+      "trainNumber": "148286",
+      "dest": "Javel",
+      "dir": "A",
+      "length": "long",
+      "state": "notStarted",
+      "cancelled": true,
+      "delay": 2,
+      "from": null,
+      "to": {
+        "station": "spine:24",
+        "scheduled": "2026-09-20T20:28:40.000Z",
+        "expected": "2026-09-20T20:31:09.000Z",
+        "status": "onTime",
+        "delay": 2,
+        "platform": "2"
+      },
+      "progress": 0.0,
+      "stops": [
+        {
+          "station": "spine:24",
+          "scheduled": "2026-09-20T20:28:40.000Z",
+          "expected": "2026-09-20T20:31:09.000Z",
+          "status": "onTime",
+          "delay": 2,
+          "platform": "2"
+        },
+        {
+          "station": "spine:23",
+          "scheduled": "2026-09-20T20:32:00.000Z",
+          "expected": "2026-09-20T20:34:29.000Z",
+          "status": "onTime",
+          "delay": 2,
+          "platform": "2"
+        },
+        {
+          "station": "spine:22",
+          "scheduled": "2026-09-20T20:34:20.000Z",
+          "expected": "2026-09-20T20:36:49.000Z",
+          "status": "onTime",
+          "delay": 2,
+          "platform": "4"
+        },
+        {
+          "station": "spine:21",
+          "scheduled": "2026-09-20T20:36:30.000Z",
+          "expected": "2026-09-20T20:38:59.000Z",
+          "status": "onTime",
+          "delay": 2,
+          "platform": "2"
+        },
+        {
+          "station": "spine:20",
+          "scheduled": "2026-09-20T20:38:50.000Z",
+          "expected": "2026-09-20T20:41:19.000Z",
+          "status": "onTime",
+          "delay": 2,
+          "platform": "2"
+        },
+        {
+          "station": "west:10",
+          "scheduled": "2026-09-20T20:41:50.000Z",
+          "expected": "2026-09-20T20:41:50.000Z",
+          "status": "onTime",
+          "delay": 0,
+          "platform": "2"
+        },
+        {
+          "station": "west:9",
+          "scheduled": "2026-09-20T20:44:10.000Z",
+          "expected": "2026-09-20T20:44:10.000Z",
+          "status": "cancelled",
+          "delay": 0,
+          "platform": "2"
+        },
+        {
+          "station": "west:8",
+          "scheduled": "2026-09-20T20:47:00.000Z",
+          "expected": "2026-09-20T20:47:00.000Z",
+          "status": "cancelled",
+          "delay": 0,
+          "platform": "2"
+        },
+        {
+          "station": "west:7",
+          "scheduled": "2026-09-20T20:49:40.000Z",
+          "expected": "2026-09-20T20:49:40.000Z",
+          "status": "cancelled",
+          "delay": 0,
+          "platform": "2"
+        },
+        {
+          "station": "west:6",
+          "scheduled": "2026-09-20T20:52:40.000Z",
+          "expected": "2026-09-20T20:52:40.000Z",
+          "status": "cancelled",
+          "delay": 0,
+          "platform": "2"
+        },
+        {
+          "station": "west:5",
+          "scheduled": "2026-09-20T20:57:30.000Z",
+          "expected": "2026-09-20T20:57:30.000Z",
+          "status": "cancelled",
+          "delay": 0,
+          "platform": "2"
+        },
+        {
+          "station": "west:4",
+          "scheduled": "2026-09-20T20:59:40.000Z",
+          "expected": "2026-09-20T20:59:40.000Z",
+          "status": "cancelled",
+          "delay": 0,
+          "platform": "2I"
+        },
+        {
+          "station": "west:3",
+          "scheduled": "2026-09-20T21:02:20.000Z",
+          "expected": "2026-09-20T21:02:20.000Z",
+          "status": "cancelled",
+          "delay": 0,
+          "platform": "2"
+        }
+      ],
+      "route": "R5"
+    },
+    {
       "journeyRef": "SNCF_MAGENTA_PRD:VehicleJourney::4b303037-a8fe-46d2-9e39-ea9060beddcf:LOC",
       "code": "VACK",
       "trainNumber": "516700",
@@ -1060,39 +1149,15 @@
       "delay": 0,
       "from": null,
       "to": {
-        "station": "spine:29",
-        "scheduled": "2026-09-20T20:22:30.000Z",
-        "expected": "2026-09-20T20:22:31.000Z",
+        "station": "spine:26",
+        "scheduled": "2026-09-20T20:31:30.000Z",
+        "expected": "2026-09-20T20:31:30.000Z",
         "status": "onTime",
         "delay": 0,
-        "platform": "2B"
+        "platform": "A"
       },
       "progress": 0.0,
       "stops": [
-        {
-          "station": "spine:29",
-          "scheduled": "2026-09-20T20:22:30.000Z",
-          "expected": "2026-09-20T20:22:31.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2B"
-        },
-        {
-          "station": "spine:28",
-          "scheduled": "2026-09-20T20:25:10.000Z",
-          "expected": "2026-09-20T20:25:11.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2B"
-        },
-        {
-          "station": "spine:27",
-          "scheduled": "2026-09-20T20:28:00.000Z",
-          "expected": "2026-09-20T20:28:01.000Z",
-          "status": "onTime",
-          "delay": 0,
-          "platform": "2B"
-        },
         {
           "station": "spine:26",
           "scheduled": "2026-09-20T20:31:30.000Z",
